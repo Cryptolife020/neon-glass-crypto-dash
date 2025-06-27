@@ -1,3 +1,4 @@
+
 import { TrendingUp, TrendingDown, Activity, DollarSign } from "lucide-react";
 import { useCoinGeckoData } from "@/hooks/useCoinGeckoData";
 
@@ -22,33 +23,33 @@ const StatCard = ({
 }: StatCardProps) => {
   return (
     <div
-      className="glass-card p-4 lg:p-6 hover:bg-white/10 transition-all duration-300 group"
+      className="glass-card p-3 lg:p-6 hover:bg-white/10 transition-all duration-300 group"
       data-oid="fh5u0qy"
     >
       <div
-        className="flex items-start justify-between mb-3 lg:mb-4"
+        className="flex items-start justify-between mb-2 lg:mb-4"
         data-oid="9q_cp:a"
       >
-        <div className="flex items-center gap-2 lg:gap-3" data-oid="ofg4vmo">
+        <div className="flex items-center gap-2 lg:gap-3 min-w-0 flex-1" data-oid="ofg4vmo">
           <div
-            className="w-10 h-10 lg:w-12 lg:h-12 bg-gradient-to-r from-neon-blue-400/20 to-neon-blue-600/20 rounded-xl flex items-center justify-center border border-neon-blue-400/30"
+            className="w-8 h-8 lg:w-12 lg:h-12 bg-gradient-to-r from-neon-blue-400/20 to-neon-blue-600/20 rounded-xl flex items-center justify-center border border-neon-blue-400/30 flex-shrink-0"
             data-oid="g:j21_6"
           >
             <Icon
-              className="w-5 h-5 lg:w-6 lg:h-6 text-neon-blue-400"
+              className="w-4 h-4 lg:w-6 lg:h-6 text-neon-blue-400"
               data-oid="-m5edhq"
             />
           </div>
-          <div data-oid=".bt4owi">
+          <div className="min-w-0 flex-1" data-oid=".bt4owi">
             <h3
-              className="text-gray-400 text-xs lg:text-sm font-medium"
+              className="text-gray-400 text-xs lg:text-sm font-medium truncate"
               data-oid="a9bty38"
             >
               {title}
             </h3>
             {description && (
               <p
-                className="text-gray-500 text-xs mt-1 hidden sm:block"
+                className="text-gray-500 text-xs mt-1 hidden sm:block truncate"
                 data-oid="lq1ayiu"
               >
                 {description}
@@ -57,7 +58,7 @@ const StatCard = ({
           </div>
         </div>
         <div
-          className={`flex items-center gap-1 px-2 py-1 rounded-lg ${
+          className={`flex items-center gap-1 px-2 py-1 rounded-lg flex-shrink-0 ${
             changeType === "up"
               ? "bg-green-500/20 text-green-400"
               : "bg-red-500/20 text-red-400"
@@ -77,12 +78,12 @@ const StatCard = ({
 
       <div className="space-y-2" data-oid="i0h_oaf">
         <p
-          className="text-xl lg:text-2xl font-bold text-white group-hover:text-neon-blue-400 transition-colors"
+          className="text-lg lg:text-2xl font-bold text-white group-hover:text-neon-blue-400 transition-colors truncate"
           data-oid="678i1_u"
         >
           {isLoading ? (
             <span
-              className="animate-pulse bg-gray-600 rounded h-6 w-20 block"
+              className="animate-pulse bg-gray-600 rounded h-5 lg:h-6 w-16 lg:w-20 block"
               data-oid=".qeh3kl"
             ></span>
           ) : (
@@ -90,7 +91,7 @@ const StatCard = ({
           )}
         </p>
         {description && (
-          <p className="text-gray-500 text-xs sm:hidden" data-oid="ycvszq4">
+          <p className="text-gray-500 text-xs sm:hidden truncate" data-oid="ycvszq4">
             {description}
           </p>
         )}
@@ -128,7 +129,7 @@ export const DashboardCards = () => {
 
   return (
     <div
-      className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4 lg:gap-6"
+      className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-3 lg:gap-6 px-2 sm:px-0"
       data-oid="oug46_m"
     >
       <StatCard

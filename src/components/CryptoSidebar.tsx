@@ -1,3 +1,4 @@
+
 import {
   LayoutDashboard,
   TrendingUp,
@@ -8,8 +9,10 @@ import {
   Bitcoin,
   Menu,
   X,
+  LogOut,
 } from "lucide-react";
 import { useState } from "react";
+import { useAuth } from "@/contexts/AuthContext";
 
 interface SidebarProps {
   activeItem: string;
@@ -27,9 +30,14 @@ const menuItems = [
 
 export const CryptoSidebar = ({ activeItem, onItemClick }: SidebarProps) => {
   const [isMobileOpen, setIsMobileOpen] = useState(false);
+  const { logout } = useAuth();
 
   const toggleMobileSidebar = () => {
     setIsMobileOpen(!isMobileOpen);
+  };
+
+  const handleLogout = () => {
+    logout();
   };
 
   return (
@@ -110,6 +118,17 @@ export const CryptoSidebar = ({ activeItem, onItemClick }: SidebarProps) => {
                 </div>
               );
             })}
+
+            {/* Logout Button */}
+            <div
+              onClick={handleLogout}
+              className="sidebar-item group cursor-pointer mt-4 border-t border-white/10 pt-4"
+            >
+              <LogOut className="w-5 h-5 text-gray-400 group-hover:text-red-400 transition-colors" />
+              <span className="font-medium text-sm lg:text-base text-gray-300 group-hover:text-red-400 transition-colors">
+                Sair
+              </span>
+            </div>
           </nav>
 
           <div className="mt-auto pt-4 lg:pt-6 border-t border-white/10">
