@@ -39,8 +39,8 @@ const Index = () => {
 
       <main className="flex-1 p-3 sm:p-4 lg:p-8 lg:ml-0 ml-0 max-w-full overflow-x-hidden">
         {/* Header */}
-        <div className="flex flex-col sm:flex-row sm:items-start justify-between mb-6 lg:mb-8 mt-16 lg:mt-0">
-          <div className="mb-4 sm:mb-0">
+        <div className="flex flex-col lg:flex-row lg:items-start justify-between mb-6 lg:mb-8 mt-16 lg:mt-0">
+          <div className="mb-4 lg:mb-0">
             <h1 className="text-xl sm:text-2xl lg:text-3xl font-bold text-white mb-2">
               Olá {user?.name}, bem-vindo novamente!
             </h1>
@@ -49,8 +49,8 @@ const Index = () => {
             </p>
           </div>
 
-          <div className="flex flex-col sm:flex-row items-start gap-2 sm:gap-3 mr-0 sm:mr-16 lg:mr-24 w-full sm:w-auto overflow-x-auto">
-            <div className="px-3 lg:px-4 py-2 glass-card rounded-xl h-16 sm:h-20 flex flex-col justify-center min-w-0 flex-shrink-0">
+          <div className="flex flex-col sm:flex-row lg:grid lg:grid-cols-3 items-start gap-2 sm:gap-3 lg:gap-4 mr-0 sm:mr-16 lg:mr-24 w-full sm:w-auto lg:w-auto overflow-x-auto lg:overflow-x-visible">
+            <div className="px-3 lg:px-4 py-2 glass-card rounded-xl h-16 sm:h-20 flex flex-col justify-center min-w-0 flex-shrink-0 lg:flex-shrink">
               <div className="flex items-center gap-2 mb-1">
                 <Target className="w-4 h-4 text-yellow-400" />
                 <span className="text-xs lg:text-sm text-gray-400 whitespace-nowrap">
@@ -62,7 +62,7 @@ const Index = () => {
               </p>
             </div>
 
-            <div className="px-3 lg:px-4 py-2 glass-card rounded-xl h-16 sm:h-20 flex flex-col justify-center min-w-0 flex-shrink-0">
+            <div className="px-3 lg:px-4 py-2 glass-card rounded-xl h-16 sm:h-20 flex flex-col justify-center min-w-0 flex-shrink-0 lg:flex-shrink">
               <div className="flex items-center gap-2 mb-1">
                 <SpinningCoin />
                 <span className="text-xs lg:text-sm text-gray-400 whitespace-nowrap">
@@ -74,7 +74,7 @@ const Index = () => {
               </p>
             </div>
 
-            <div className="px-3 lg:px-4 py-2 glass-card rounded-xl h-16 sm:h-20 flex flex-col justify-center min-w-0 flex-shrink-0">
+            <div className="px-3 lg:px-4 py-2 glass-card rounded-xl h-16 sm:h-20 flex flex-col justify-center min-w-0 flex-shrink-0 lg:flex-shrink">
               <div className="flex items-center gap-2 mb-1">
                 <TrendingUp className="w-4 h-4 text-neon-blue-400" />
                 <span className="text-xs lg:text-sm text-gray-400 whitespace-nowrap">

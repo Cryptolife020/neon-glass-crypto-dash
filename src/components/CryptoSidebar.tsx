@@ -47,7 +47,7 @@ export const CryptoSidebar = ({ activeItem, onItemClick }: SidebarProps) => {
       {/* Mobile Overlay */}
       {isMobileOpen && (
         <div
-          className="lg:hidden fixed inset-0 bg-black/50 backdrop-blur-sm z-40"
+          className="lg:hidden fixed inset-0 bg-black/50 backdrop-blur-sm z-[60]"
           onClick={toggleMobileSidebar}
         />
       )}
@@ -58,7 +58,7 @@ export const CryptoSidebar = ({ activeItem, onItemClick }: SidebarProps) => {
         w-72
         ${isMobileOpen ? "translate-x-0" : "-translate-x-full lg:translate-x-0"}
         transition-all duration-300 ease-in-out
-        fixed lg:relative top-0 left-0 h-screen z-40
+        fixed lg:relative top-0 left-0 h-screen z-[70]
       `}
       >
         <div className="h-screen glass-card m-4 p-4 lg:p-6 flex flex-col sidebar-no-scroll">
