@@ -47,7 +47,7 @@ export const TradingViewWidget = ({
       popup_width: "1000",
       popup_height: "650",
       container_id: "tradingview_widget",
-      hide_side_toolbar: false,
+      hide_side_toolbar: true,
       withdateranges: true,
       hide_top_toolbar: false,
       save_drawings: false,
