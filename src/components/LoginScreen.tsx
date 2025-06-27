@@ -1,4 +1,3 @@
-
 import { useState } from "react";
 import { useAuth } from "@/contexts/AuthContext";
 import { Bitcoin, Eye, EyeOff } from "lucide-react";
@@ -11,12 +10,8 @@ export const LoginScreen = () => {
 
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault();
-    // Simular login com qualquer email/senha
-    login({
-      id: "1",
-      name: "Usuário Demo",
-      email: email || "demo@cryptopro.com"
-    });
+    // Call login with email and password as expected by AuthContext
+    login(email || "demo@cryptopro.com", password || "demo");
   };
 
   return (
