@@ -1,4 +1,3 @@
-
 import { useState } from "react";
 import { CryptoSidebar } from "@/components/CryptoSidebar";
 import { DashboardCards } from "@/components/DashboardCards";
@@ -24,7 +23,7 @@ const Index = () => {
       />
 
       {/* Notifications - Absolute position top right */}
-      <div className="absolute top-4 right-4 z-50 flex items-center gap-3">
+      <div className="absolute top-2 right-4 z-50 flex items-center gap-3">
         <NotificationsPanel />
         <button
           onClick={handleLogout}
@@ -49,7 +48,7 @@ const Index = () => {
             </p>
           </div>
 
-          <div className="flex flex-col sm:flex-row lg:grid lg:grid-cols-3 items-start gap-2 sm:gap-3 lg:gap-4 mr-0 sm:mr-16 lg:mr-24 w-full sm:w-auto lg:w-auto overflow-x-auto lg:overflow-x-visible">
+          <div className="flex flex-col sm:flex-row lg:grid lg:grid-cols-3 items-start gap-2 sm:gap-3 lg:gap-4 mr-0 sm:mr-16 lg:mr-24 w-full sm:w-auto lg:w-auto overflow-x-auto lg:overflow-x-visible mt-4 lg:mt-6">
             <div className="px-3 lg:px-4 py-2 glass-card rounded-xl h-16 sm:h-20 flex flex-col justify-center min-w-0 flex-shrink-0 lg:flex-shrink">
               <div className="flex items-center gap-2 mb-1">
                 <Target className="w-4 h-4 text-yellow-400" />
@@ -74,7 +73,7 @@ const Index = () => {
               </p>
             </div>
 
-            <div className="px-3 lg:px-4 py-2 glass-card rounded-xl h-16 sm:h-20 flex flex-col justify-center min-w-0 flex-shrink-0 lg:flex-shrink">
+            <div className="px-3 lg:px-4 py-2 glass-card rounded-xl h-16 sm:h-20 flex flex-col justify-center min-w-0 lg:min-w-[220px] flex-shrink-0 lg:flex-shrink">
               <div className="flex items-center gap-2 mb-1">
                 <TrendingUp className="w-4 h-4 text-neon-blue-400" />
                 <span className="text-xs lg:text-sm text-gray-400 whitespace-nowrap">
