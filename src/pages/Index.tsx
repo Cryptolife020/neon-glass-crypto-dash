@@ -6,6 +6,7 @@ import { NotificationsPanel } from "@/components/NotificationsPanel";
 import { SpinningCoin } from "@/components/SpinningCoin";
 import { useAuth } from "@/contexts/AuthContext";
 import { TrendingUp, Target, LogOut } from "lucide-react";
+import DayTradeSystem from "@/components/DayTradeSystem";
 
 const Index = () => {
   const [activeItem, setActiveItem] = useState("dashboard");
@@ -14,6 +15,36 @@ const Index = () => {
   const handleLogout = () => {
     logout();
   };
+
+  // Render the DayTradeSystem component when the activeItem is "daytrade"
+  if (activeItem === "daytrade") {
+    return (
+      <div className="min-h-screen flex w-full bg-gradient-to-br from-crypto-dark-50 via-crypto-dark-100 to-crypto-dark-200 relative overflow-x-hidden">
+        <CryptoSidebar
+          activeItem={activeItem}
+          onItemClick={setActiveItem}
+        />
+        
+        {/* Notifications - Absolute position top right */}
+        <div className="absolute top-2 right-4 z-50 flex items-center gap-3">
+          <NotificationsPanel />
+          <button
+            onClick={handleLogout}
+            className="px-3 lg:px-4 py-2 glass-card rounded-xl cursor-pointer hover:bg-white/10 transition-all duration-300 group flex items-center gap-2"
+          >
+            <LogOut className="w-4 h-4 text-gray-400 group-hover:text-red-400 transition-colors" />
+            <span className="text-sm text-gray-400 group-hover:text-red-400 transition-colors hidden sm:inline">
+              Sair
+            </span>
+          </button>
+        </div>
+        
+        <main className="flex-1 p-3 sm:p-4 lg:p-8 lg:ml-0 ml-0 max-w-full overflow-x-hidden">
+          <DayTradeSystem />
+        </main>
+      </div>
+    );
+  }
 
   return (
     <div className="min-h-screen flex w-full bg-gradient-to-br from-crypto-dark-50 via-crypto-dark-100 to-crypto-dark-200 relative overflow-x-hidden">
