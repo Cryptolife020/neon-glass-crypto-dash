@@ -132,15 +132,8 @@
   }
 
   .glass-background {
-    background: linear-gradient(135deg, 
-      #0a0a0a 0%, 
-      #161616 25%, 
-      #1f1f1f 45%, 
-      rgba(88, 28, 135, 0.6) 75%, 
-      rgba(126, 34, 206, 0.4) 100%
-    );
+    @apply bg-gradient-to-br dark:from-gray-900 dark:via-gray-800 dark:to-purple-900;
     background-attachment: fixed;
-    min-height: 100vh;
   }
   
   .neon-glow {
