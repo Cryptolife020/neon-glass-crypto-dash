@@ -1,3 +1,4 @@
+
 import {
   Bell,
   Quote,
@@ -96,172 +97,119 @@ export const NotificationsPanel = () => {
   const getTypeIcon = (type: string) => {
     switch (type) {
       case "quote":
-        return <Quote className="w-4 h-4 text-neon-blue-400" data-oid="qvz5v_s" />;
+        return <Quote className="w-4 h-4 text-blue-400" />;
       case "success":
-        return (
-          <TrendingUp className="w-4 h-4 text-neon-blue-500" data-oid="cd00np-" />
-        );
-
+        return <TrendingUp className="w-4 h-4 text-emerald-400" />;
       case "warning":
-        return (
-          <AlertTriangle
-            className="w-4 h-4 text-neon-blue-300"
-            data-oid=":uognxl"
-          />
-        );
-
+        return <AlertTriangle className="w-4 h-4 text-amber-400" />;
       default:
-        return (
-          <Info className="w-4 h-4 text-neon-blue-400" data-oid="iwq2ik4" />
-        );
+        return <Info className="w-4 h-4 text-blue-400" />;
     }
   };
 
-  const getTypeColor = (type: string) => {
+  const getTypeStyle = (type: string, read: boolean) => {
+    const baseStyle = "relative overflow-hidden rounded-xl backdrop-blur-xl border transition-all duration-300 hover:shadow-lg";
+    
+    if (read) {
+      return `${baseStyle} bg-black/20 border-white/10 opacity-70`;
+    }
+
     switch (type) {
       case "quote":
-        return "glass-card border-neon-blue-400/30 hover:border-neon-blue-400/50";
+        return `${baseStyle} bg-gradient-to-br from-blue-500/10 via-purple-500/10 to-pink-500/10 border-blue-400/30 shadow-blue-500/20`;
       case "success":
-        return "glass-card border-neon-blue-500/30 hover:border-neon-blue-500/50";
+        return `${baseStyle} bg-gradient-to-br from-emerald-500/10 to-green-500/10 border-emerald-400/30 shadow-emerald-500/20`;
       case "warning":
-        return "glass-card border-neon-blue-300/30 hover:border-neon-blue-300/50";
+        return `${baseStyle} bg-gradient-to-br from-amber-500/10 to-orange-500/10 border-amber-400/30 shadow-amber-500/20`;
       default:
-        return "glass-card border-neon-blue-400/30 hover:border-neon-blue-400/50";
+        return `${baseStyle} bg-gradient-to-br from-blue-500/10 to-cyan-500/10 border-blue-400/30 shadow-blue-500/20`;
     }
   };
 
   return (
-    <Dialog open={open} onOpenChange={setOpen} data-oid=":0e0h:c">
-      <DialogTrigger asChild data-oid="b-a8msr">
-        <div
-          className="px-3 lg:px-4 py-2 glass-card rounded-xl relative cursor-pointer hover:bg-neon-blue-400/10 transition-all duration-300 group"
-          data-oid="yvokeua"
-        >
-          <button className="flex items-center gap-2" data-oid="oko6tqi">
-            <Bell
-              className="w-5 h-5 text-gray-300 group-hover:text-neon-blue-400 transition-colors"
-              data-oid="yd:ha9e"
-            />
-
+    <Dialog open={open} onOpenChange={setOpen}>
+      <DialogTrigger asChild>
+        <div className="relative cursor-pointer group">
+          <div className="px-4 py-2 bg-black/20 backdrop-blur-xl border border-white/10 rounded-xl transition-all duration-300 hover:bg-black/30 hover:border-white/20 hover:shadow-lg">
+            <Bell className="w-5 h-5 text-gray-300 group-hover:text-blue-400 transition-colors duration-300" />
+            
             {unreadCount > 0 && (
-              <span
-                className="absolute -top-1 -right-1 w-5 h-5 bg-neon-blue-500 text-white text-xs rounded-full flex items-center justify-center font-bold animate-pulse shadow-lg"
-                data-oid=".kf-8ki"
-              >
+              <span className="absolute -top-1 -right-1 w-5 h-5 bg-gradient-to-r from-blue-500 to-purple-500 text-white text-xs rounded-full flex items-center justify-center font-bold animate-pulse shadow-lg">
                 {unreadCount}
               </span>
             )}
-          </button>
+          </div>
         </div>
       </DialogTrigger>
 
-      <DialogContent
-        className="max-w-md bg-black/40 backdrop-blur-3xl border border-neon-blue-400/20 text-white shadow-2xl rounded-2xl glass-card"
-        data-oid="ju5kc:q"
-      >
-        <div className="relative z-10" data-oid="1y9wpxd">
-          <DialogHeader
-            className="pb-4 border-b border-neon-blue-400/20"
-            data-oid="p:pd_wu"
-          >
-            <DialogTitle
-              className="text-xl font-bold bg-gradient-to-r from-neon-blue-400 via-neon-blue-500 to-neon-blue-600 bg-clip-text text-transparent flex items-center gap-2"
-              data-oid="lj9h69j"
-            >
-              <Sparkles
-                className="w-5 h-5 text-neon-blue-400"
-                data-oid="-g_2az1"
-              />
-              Notificações
-            </DialogTitle>
-          </DialogHeader>
+      <DialogContent className="max-w-md bg-black/40 backdrop-blur-3xl border border-white/10 text-white shadow-2xl rounded-2xl">
+        <DialogHeader className="pb-6 border-b border-white/10">
+          <DialogTitle className="text-xl font-bold bg-gradient-to-r from-blue-400 via-purple-400 to-pink-400 bg-clip-text text-transparent flex items-center gap-2">
+            <Sparkles className="w-5 h-5 text-blue-400" />
+            Notificações
+          </DialogTitle>
+        </DialogHeader>
 
-          <div
-            className="space-y-3 max-h-96 overflow-y-auto scrollbar-hide py-4"
-            data-oid="nkzz_:z"
-          >
-            {notifications.map((notification) => (
-              <div
-                key={notification.id}
-                className={`p-4 rounded-xl border transition-all duration-300 hover:bg-neon-blue-400/5 backdrop-blur-md ${
-                  notification.read
-                    ? "border-white/10 opacity-60"
-                    : `${getTypeColor(notification.type)} border shadow-xl`
-                }`}
-                data-oid="gjve:8v"
-              >
-                <div className="flex items-start gap-3" data-oid="igm1frm">
-                  <div
-                    className={`p-2 rounded-lg ${
-                      notification.type === "quote"
-                        ? "bg-gradient-to-r from-neon-blue-500/30 to-neon-blue-600/30"
-                        : "bg-neon-blue-400/10 glass-card"
-                    }`}
-                    data-oid="mxaur_x"
-                  >
+        <div className="space-y-4 max-h-96 overflow-y-auto py-2 scrollbar-hide">
+          {notifications.map((notification) => (
+            <div
+              key={notification.id}
+              className={getTypeStyle(notification.type, notification.read)}
+            >
+              <div className="p-4">
+                <div className="flex items-start gap-3">
+                  <div className="p-2 rounded-lg bg-black/20 backdrop-blur-sm">
                     {getTypeIcon(notification.type)}
                   </div>
-                  <div className="flex-1 min-w-0" data-oid="ewl_9gr">
-                    <div
-                      className="flex items-center gap-2 mb-1"
-                      data-oid="f4-319s"
-                    >
-                      <h4
-                        className={`font-medium text-sm ${
-                          notification.type === "quote"
-                            ? "bg-gradient-to-r from-neon-blue-300 to-neon-blue-500 bg-clip-text text-transparent"
-                            : "text-gray-50"
-                        }`}
-                        data-oid="tt42ci1"
-                      >
+                  
+                  <div className="flex-1 min-w-0">
+                    <div className="flex items-center gap-2 mb-2">
+                      <h4 className="font-semibold text-sm text-white/90">
                         {notification.title}
                       </h4>
+                      
                       {notification.type === "quote" && notification.date && (
-                        <span
-                          className="text-xs text-neon-blue-200 bg-neon-blue-500/20 px-2 py-1 rounded-full glass-card"
-                          data-oid="9o770kz"
-                        >
+                        <span className="text-xs text-blue-300 bg-blue-500/20 px-2 py-1 rounded-full backdrop-blur-sm">
                           {notification.date}
                         </span>
                       )}
+                      
                       {!notification.read && (
-                        <span
-                          className="w-2 h-2 bg-neon-blue-400 rounded-full animate-pulse shadow-lg"
-                          data-oid="9i.zve4"
-                        />
+                        <span className="w-2 h-2 bg-blue-400 rounded-full animate-pulse shadow-lg shadow-blue-400/50" />
                       )}
                     </div>
-                    <p
-                      className={`text-sm mb-2 leading-relaxed ${
-                        notification.type === "quote"
-                          ? "text-neon-blue-100 font-medium italic"
-                          : "text-gray-100"
-                      }`}
-                      data-oid="u:q2gh7"
-                    >
+                    
+                    <p className={`text-sm mb-2 leading-relaxed ${
+                      notification.type === "quote" 
+                        ? "text-blue-100 font-medium italic" 
+                        : "text-white/80"
+                    }`}>
                       {notification.type === "quote" && !loading && '"'}
                       {notification.message}
                       {notification.type === "quote" && !loading && '"'}
                     </p>
-                    <span className="text-neon-blue-300 text-xs" data-oid="43y0ked">{notification.time}</span>
+                    
+                    <span className="text-xs text-white/60">
+                      {notification.time}
+                    </span>
                   </div>
                 </div>
               </div>
-            ))}
-          </div>
-
-          {notifications.length > 0 && (
-            <div className="border-t border-neon-blue-400/20 pt-4 px-4">
-              <button
-                onClick={markAllAsRead}
-                className="w-full text-sm text-neon-blue-400 hover:bg-neon-blue-400/10 py-2 rounded-lg transition-all glass-card"
-              >
-                <CheckCheck className="inline-block w-4 h-4 mr-2" />
-                Marcar todas como lidas
-              </button>
             </div>
-          )}
+          ))}
         </div>
+
+        {notifications.length > 0 && (
+          <div className="border-t border-white/10 pt-4">
+            <button
+              onClick={markAllAsRead}
+              className="w-full text-sm text-blue-400 hover:text-blue-300 hover:bg-blue-500/10 py-3 rounded-lg transition-all duration-300 backdrop-blur-sm border border-transparent hover:border-blue-500/20 flex items-center justify-center gap-2"
+            >
+              <CheckCheck className="w-4 h-4" />
+              Marcar todas como lidas
+            </button>
+          </div>
+        )}
       </DialogContent>
     </Dialog>
   );
