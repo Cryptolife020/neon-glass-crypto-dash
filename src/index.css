@@ -133,10 +133,11 @@
 
   .glass-background {
     background: linear-gradient(135deg, 
-      rgba(17, 24, 39, 0.95) 0%, 
-      rgba(55, 65, 81, 0.9) 35%, 
-      rgba(88, 28, 135, 0.8) 70%, 
-      rgba(126, 34, 206, 0.75) 100%
+      #0a0a0a 0%, 
+      #161616 25%, 
+      #1f1f1f 45%, 
+      rgba(88, 28, 135, 0.6) 75%, 
+      rgba(126, 34, 206, 0.4) 100%
     );
     background-attachment: fixed;
     min-height: 100vh;
