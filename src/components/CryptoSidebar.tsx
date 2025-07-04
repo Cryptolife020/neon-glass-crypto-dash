@@ -5,6 +5,7 @@ import {
   BarChart3,
   Zap,
   ArrowLeftRight,
+  Bitcoin,
   Menu,
   X,
 } from "lucide-react";
@@ -57,22 +58,18 @@ export const CryptoSidebar = ({ activeItem, onItemClick }: SidebarProps) => {
         w-72
         ${isMobileOpen ? "translate-x-0" : "-translate-x-full lg:translate-x-0"}
         transition-all duration-300 ease-in-out
-        fixed lg:relative top-0 left-0 h-[calc(100vh-2rem)] lg:h-screen z-[70]
+        fixed lg:relative top-0 left-0 h-screen z-[70]
       `}
       >
-        <div className="h-full glass-card m-4 p-4 lg:p-6 flex flex-col">
-          <div className="flex items-center justify-between mb-4 lg:mb-6">
+        <div className="h-screen glass-card m-4 p-4 lg:p-6 flex flex-col">
+          <div className="flex items-center justify-between mb-6 lg:mb-8">
             <div className="flex items-center gap-3">
-              <div className="w-8 h-8 lg:w-10 lg:h-10 flex items-center justify-center">
-                <img 
-                  src="/Bitcoin.svg" 
-                  alt="Bitcoin Logo" 
-                  className="w-full h-full object-contain"
-                />
+              <div className="w-8 h-8 lg:w-10 lg:h-10 bg-gradient-to-r from-neon-blue-400 to-neon-blue-600 rounded-xl flex items-center justify-center neon-glow">
+                <Bitcoin className="w-4 h-4 lg:w-6 lg:h-6 text-white" />
               </div>
               <div>
                 <h1 className="text-lg lg:text-xl font-bold bg-gradient-to-r from-neon-blue-400 to-white bg-clip-text text-transparent">
-                  CryptoGlass
+                  CryptoPro
                 </h1>
                 <p className="text-xs text-gray-400">Professional Trading</p>
               </div>
@@ -87,7 +84,7 @@ export const CryptoSidebar = ({ activeItem, onItemClick }: SidebarProps) => {
             </button>
           </div>
 
-          <nav className="flex-1 flex flex-col gap-2 overflow-y-auto lg:overflow-visible">
+          <nav className="flex flex-col gap-2 overflow-y-auto lg:overflow-visible">
             {menuItems.map((item) => {
               const Icon = item.icon;
               const isActive = activeItem === item.id;
@@ -115,21 +112,21 @@ export const CryptoSidebar = ({ activeItem, onItemClick }: SidebarProps) => {
             })}
           </nav>
 
-          <div className="mt-4 pt-4 lg:pt-4 border-t border-white/10">
+          <div className="mt-auto pt-4 lg:pt-6 border-t border-white/10">
             <div className="glass rounded-xl p-3 lg:p-4">
-              <div className="flex items-center gap-3 mb-2">
-                <div className="w-6 h-6 lg:w-7 lg:h-7 bg-gradient-to-r from-green-400 to-emerald-500 rounded-full"></div>
+              <div className="flex items-center gap-3 mb-3">
+                <div className="w-6 h-6 lg:w-8 lg:h-8 bg-gradient-to-r from-green-400 to-emerald-500 rounded-full"></div>
                 <div className="flex-1">
                   <p className="text-xs lg:text-sm font-medium text-white">
                     Pro Account
                   </p>
-                  <p className="text-[10px] lg:text-xs text-gray-400">Premium Features</p>
+                  <p className="text-xs text-gray-400">Premium Features</p>
                 </div>
               </div>
-              <div className="w-full bg-gray-700 rounded-full h-1">
-                <div className="bg-gradient-to-r from-neon-blue-400 to-neon-blue-600 h-1 rounded-full w-4/5"></div>
+              <div className="w-full bg-gray-700 rounded-full h-1.5">
+                <div className="bg-gradient-to-r from-neon-blue-400 to-neon-blue-600 h-1.5 rounded-full w-4/5"></div>
               </div>
-              <p className="text-[10px] lg:text-xs text-gray-400 mt-1.5">
+              <p className="text-xs text-gray-400 mt-2">
                 API Calls: 8,420/10,000
               </p>
             </div>

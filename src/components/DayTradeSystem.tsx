@@ -1,10 +1,9 @@
-
 import { useEffect, useState } from 'react';
 import { useAuth } from '@/contexts/AuthContext';
 import LottieAnimation from './LottieAnimation';
 
-// Add CSS for tooltips and original styles
-const originalStyles = `
+// Add CSS for tooltips
+const tooltipStyles = `
   .tooltip {
     position: absolute;
     top: 10px;
@@ -51,85 +50,6 @@ const originalStyles = `
     visibility: visible;
     opacity: 1;
   }
-
-  .quadradinho {
-    width: 35px;
-    height: 35px;
-    margin: 2px;
-    display: inline-block;
-    cursor: pointer;
-    border-radius: 4px;
-    border: 2px solid transparent;
-    transition: all 0.3s ease;
-    text-align: center;
-    line-height: 31px;
-    font-weight: bold;
-    font-size: 12px;
-    color: white;
-  }
-
-  .quadradinho:hover {
-    transform: scale(1.1);
-    border: 2px solid #fff;
-  }
-
-  .verde {
-    background-color: #4caf50;
-  }
-
-  .vermelho {
-    background-color: #f44336;
-  }
-
-  .cinza {
-    background-color: #9e9e9e;
-  }
-
-  .azul {
-    background-color: #2196f3;
-  }
-
-  .modal {
-    display: none;
-    position: fixed;
-    z-index: 1000;
-    left: 0;
-    top: 0;
-    width: 100%;
-    height: 100%;
-    overflow: auto;
-    background-color: rgba(0, 0, 0, 0.5);
-  }
-
-  .modal-content {
-    background-color: #fefefe;
-    margin: 15% auto;
-    padding: 20px;
-    border: 1px solid #888;
-    width: 80%;
-    max-width: 500px;
-    border-radius: 10px;
-    box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
-  }
-
-  .close {
-    color: #aaa;
-    float: right;
-    font-size: 28px;
-    font-weight: bold;
-    cursor: pointer;
-  }
-
-  .close:hover,
-  .close:focus {
-    color: black;
-    text-decoration: none;
-  }
-
-  .modal-celebracao .modal-content {
-    text-align: center;
-    position: relative;
-  }
 `;
 
 // Types
@@ -159,7 +79,7 @@ interface CaixaStatus {
 }
 
 const DayTradeSystem = () => {
-  // State declarations - mantendo os mesmos nomes das variáveis originais
+  // State declarations
   const [valorCaixa1, setValorCaixa1] = useState<number>(0);
   const [valorCaixa2, setValorCaixa2] = useState<number>(0);
   const [cicloAtual, setCicloAtual] = useState(1);
@@ -185,13 +105,11 @@ const DayTradeSystem = () => {
   const [errorMessage, setErrorMessage] = useState('');
   const [proximoCicloMessage, setProximoCicloMessage] = useState('');
   const [totalOperacoes, setTotalOperacoes] = useState(0);
-  const [operacoes, setOperacoes] = useState<string[]>([]);
-  const [totalComprometidoInicial, setTotalComprometidoInicial] = useState(0);
 
   // Auth context
   const { user } = useAuth();
 
-  // Funções utilitárias - mantendo as mesmas do arquivo original
+  // Helper functions
   const formatarValor = (valor: number): string => {
     return `$${valor.toFixed(2).replace('.', ',')}`;
   };
@@ -201,89 +119,14 @@ const DayTradeSystem = () => {
     return parseFloat(valorLimpo) || 0;
   };
 
-  const formatarData = (data: string): string => {
-    const partes = data.split('-');
-    if (partes.length === 3) {
-      return `${partes[2].padStart(2, '0')}/${partes[1].padStart(2, '0')}/${partes[0]}`;
-    }
-    return data;
-  };
-
-  // Função para calcular juros compostos - do arquivo original
-  const calcularJurosCompostos = () => {
-    const investimento = parseValor(valorInvestido);
-    const retorno = parseFloat(retornoPercentual);
-
-    if (isNaN(investimento) || isNaN(retorno) || investimento <= 0 || retorno <= 0) {
-      setErrorMessage('Por favor, insira valores válidos.');
-      setShowModalError(true);
-      return;
-    }
-
-    const metas: MetaDiaria[] = [];
-    let valorAtual = investimento;
-
-    for (let dia = 1; dia <= 20; dia++) {
-      const lucro = valorAtual * (retorno / 100);
-      metas.push({
-        investimento: valorAtual,
-        lucro: lucro
-      });
-      valorAtual += lucro;
-    }
-
-    setMetasPorCiclo(prev => ({
-      ...prev,
-      [cicloAtual]: metas
-    }));
-    setShowTabelaJuros(true);
-    setMetasCalculadas(true);
-  };
-
-  // Função para adicionar operação - integrada do arquivo original
-  const adicionarOperacao = (tipo: 'verde' | 'vermelho') => {
-    if (operacoes.length >= 20) {
-      alert('Máximo de 20 operações por ciclo atingido!');
-      return;
-    }
-
-    const novaOperacao = tipo;
-    const novasOperacoes = [...operacoes, novaOperacao];
-    setOperacoes(novasOperacoes);
-    setTotalOperacoes(novasOperacoes.length);
-
-    // Verificar se completou o ciclo
-    if (novasOperacoes.length === 20) {
-      if (cicloAtual === 5) {
-        // Último ciclo completado
-        setShowModalCelebracao(true);
-      } else {
-        // Ciclo completado, pode avançar
-        const proximoCiclo = cicloAtual + 1;
-        setProximoCicloMessage(`Você finalizou o Ciclo ${cicloAtual}. Bem-vindo ao Ciclo ${proximoCiclo}!`);
-        setShowModalProximoCiclo(true);
-      }
-    }
-  };
-
-  // Função para resetar operações do ciclo
-  const resetarOperacoesCiclo = () => {
-    setOperacoes([]);
-    setTotalOperacoes(0);
-  };
-
-  // Funções de integração com backend
   const handleRegistrarValores = async () => {
     const valorCaixa1Num = parseValor(caixa1Input);
     const valorCaixa2Num = parseValor(caixa2Input);
 
     if (isNaN(valorCaixa1Num) || isNaN(valorCaixa2Num) || valorCaixa1Num <= 0 || valorCaixa2Num <= 0) {
-      setErrorMessage('Por favor, insira valores válidos para ambos os caixas.');
-      setShowModalError(true);
+      // Show error alert
       return;
     }
-
-    const totalComprometido = valorCaixa1Num + valorCaixa2Num;
 
     try {
       const response = await fetch('backend-setup.php?action=inserirValores', {
@@ -294,9 +137,8 @@ const DayTradeSystem = () => {
         body: JSON.stringify({
           caixa1: valorCaixa1Num,
           caixa2: valorCaixa2Num,
-          totalComprometido: totalComprometido,
-          totalAtual: totalComprometido,
-          modoMercado: modoMercado
+          totalComprometido: valorCaixa1Num + valorCaixa2Num,
+          totalAtual: valorCaixa1Num + valorCaixa2Num
         })
       });
 
@@ -304,25 +146,130 @@ const DayTradeSystem = () => {
       if (data.success) {
         setValorCaixa1(valorCaixa1Num);
         setValorCaixa2(valorCaixa2Num);
-        setTotalComprometidoInicial(totalComprometido);
         setCaixa1Input('');
         setCaixa2Input('');
-        
-        // Adicionar ao histórico
-        await adicionarHistorico('Caixa 1', valorCaixa1Num);
-        await adicionarHistorico('Caixa 2', valorCaixa2Num);
-        
-        setSuccessMessage('Valores registrados com sucesso!');
-        setShowModalSuccess(true);
-      } else {
-        setErrorMessage('Erro ao registrar valores. Tente novamente.');
-        setShowModalError(true);
+        // Show success alert
       }
     } catch (error) {
       console.error('Erro ao registrar valores:', error);
-      setErrorMessage('Erro de conexão. Tente novamente.');
-      setShowModalError(true);
+      // Show error alert
     }
+  };
+
+  const carregarDadosIniciais = async () => {
+    try {
+      const response = await fetch('backend-setup.php?action=obterValoresIniciais');
+      const data = await response.json();
+      if (data.success && data.data) {
+        const { investimento, retorno, ciclo } = data.data;
+        // Implementation will be added
+      }
+    } catch (error) {
+      console.error('Erro ao carregar dados iniciais:', error);
+    }
+  };
+
+  const obterValores = async () => {
+    try {
+      const response = await fetch('backend-setup.php?action=obterValores');
+      const data = await response.json();
+      if (data.success) {
+        const valores = data.data;
+        setValorCaixa1(parseFloat(valores.caixa1) || 0);
+        setValorCaixa2(parseFloat(valores.caixa2) || 0);
+      }
+    } catch (error) {
+      console.error('Erro ao obter valores:', error);
+    }
+  };
+
+  const obterHistorico = async () => {
+    try {
+      const response = await fetch('backend-setup.php?action=obterHistorico');
+      const data = await response.json();
+      if (data.success) {
+        setHistorico(data.data);
+      }
+    } catch (error) {
+      console.error('Erro ao obter histórico:', error);
+    }
+  };
+
+  const carregarCicloAtual = async () => {
+    try {
+      const response = await fetch('backend-setup.php?action=RecuperarCiclo');
+      const data = await response.json();
+      if (data.success) {
+        setCicloAtual(data.ciclo);
+      }
+    } catch (error) {
+      console.error('Erro ao carregar ciclo atual:', error);
+    }
+  };
+
+  const carregarCoresDoBanco = async () => {
+    try {
+      const response = await fetch('backend-setup.php?action=obterCores');
+      const data = await response.json();
+      if (data.success) {
+        // Implementation will be added
+      }
+    } catch (error) {
+      console.error('Erro ao carregar cores:', error);
+    }
+  };
+
+  const recuperarStatusCaixa = async () => {
+    try {
+      const response = await fetch('backend-setup.php?action=recuperarStatusCaixa');
+      const data = await response.json();
+      if (data.success && data.data.success) {
+        // Implementation will be added
+      }
+    } catch (error) {
+      console.error('Erro ao recuperar status:', error);
+    }
+  };
+
+  const configurarModoMercado = () => {
+    const modoMercadoSalvo = localStorage.getItem('modoMercado');
+    if (modoMercadoSalvo) {
+      // Implementation will be added
+    }
+  };
+
+  const atualizarStatusCaixa1 = (valorAtual: number, valorInicial: number) => {
+    if (valorAtual === valorInicial) {
+      setStatusCaixa1(null);
+      return;
+    }
+
+    const status = valorInicial >= valorAtual ? 'Caixa 1 positivo' : 'Caixa 1 negativo';
+    const cor = valorInicial >= valorAtual ? 'green' : 'red';
+    setStatusCaixa1({ status, color: cor });
+  };
+
+  const atualizarStatusCaixa2 = (valorAtual: number, valorInicial: number) => {
+    if (valorAtual === valorInicial) {
+      setStatusCaixa2(null);
+      return;
+    }
+
+    const status = valorInicial >= valorAtual ? 'Reserva Saudável' : 'Reserva Afetada';
+    const cor = valorInicial >= valorAtual ? 'green' : 'orange';
+    setStatusCaixa2({ status, color: cor });
+  };
+
+  const atualizarAbastecimento = (valorTransferido: number) => {
+    setTotalAbastecido(prev => prev + valorTransferido);
+  };
+
+  const formatarData = (data: string): string => {
+    const partes = data.split('-');
+    if (partes.length === 3) {
+      return `${partes[2].padStart(2, '0')}/${partes[1].padStart(2, '0')}/${partes[0]}`;
+    }
+    return data;
   };
 
   const adicionarHistorico = async (caixa: string, valor: number) => {
@@ -359,6 +306,19 @@ const DayTradeSystem = () => {
     }
   };
 
+  const calcularJurosCompostos = () => {
+    const investimento = parseValor(valorInvestido);
+    const retorno = parseFloat(retornoPercentual);
+
+    if (isNaN(investimento) || isNaN(retorno) || investimento <= 0 || retorno <= 0) {
+      setErrorMessage('Por favor, insira valores válidos.');
+      setShowModalError(true);
+      return;
+    }
+
+    setShowTabelaJuros(true);
+  };
+
   const handleResetOperacional = async () => {
     try {
       const response = await fetch('backend-setup.php?action=resetarOperacional', {
@@ -374,12 +334,6 @@ const DayTradeSystem = () => {
         setStatusCaixa1(null);
         setStatusCaixa2(null);
         setCicloAtual(1);
-        setOperacoes([]);
-        setTotalOperacoes(0);
-        setTotalComprometidoInicial(0);
-        setMetasPorCiclo({});
-        setMetasCalculadas(false);
-        setShowTabelaJuros(false);
         setSuccessMessage('Operacional reiniciado com sucesso!');
         setShowModalSuccess(true);
       }
@@ -391,27 +345,16 @@ const DayTradeSystem = () => {
   };
 
   const handleProximoCiclo = async () => {
-    if (totalOperacoes < 20) {
-      setErrorMessage('Complete todas as 20 operações antes de avançar para o próximo ciclo.');
-      setShowModalError(true);
-      return;
-    }
-
     try {
       const response = await fetch('backend-setup.php?action=proximoCiclo', {
-        method: 'POST',
-        body: JSON.stringify({
-          cicloAtual: cicloAtual,
-          operacoes: operacoes
-        })
+        method: 'POST'
       });
 
       const data = await response.json();
       if (data.success) {
-        const novoCiclo = cicloAtual + 1;
-        setCicloAtual(novoCiclo);
-        resetarOperacoesCiclo();
-        setShowModalProximoCiclo(false);
+        setCicloAtual(prev => prev + 1);
+        setProximoCicloMessage(`Você finalizou o Ciclo ${cicloAtual}. Bem-vindo ao Ciclo ${cicloAtual + 1}!`);
+        setShowModalProximoCiclo(true);
       }
     } catch (error) {
       console.error('Erro ao avançar ciclo:', error);
@@ -420,77 +363,6 @@ const DayTradeSystem = () => {
     }
   };
 
-  // Funções de carregamento de dados
-  const carregarDadosIniciais = async () => {
-    try {
-      const response = await fetch('backend-setup.php?action=obterValoresIniciais');
-      const data = await response.json();
-      if (data.success && data.data) {
-        const { investimento, retorno, ciclo, modoMercado: modo } = data.data;
-        if (investimento) setValorInvestido(investimento.toString());
-        if (retorno) setRetornoPercentual(retorno.toString());
-        if (ciclo) setCicloAtual(ciclo);
-        if (modo) setModoMercado(modo);
-      }
-    } catch (error) {
-      console.error('Erro ao carregar dados iniciais:', error);
-    }
-  };
-
-  const obterValores = async () => {
-    try {
-      const response = await fetch('backend-setup.php?action=obterValores');
-      const data = await response.json();
-      if (data.success && data.data) {
-        const valores = data.data;
-        setValorCaixa1(parseFloat(valores.caixa1) || 0);
-        setValorCaixa2(parseFloat(valores.caixa2) || 0);
-        setTotalComprometidoInicial(parseFloat(valores.totalComprometido) || 0);
-        if (valores.modoMercado) setModoMercado(valores.modoMercado);
-      }
-    } catch (error) {
-      console.error('Erro ao obter valores:', error);
-    }
-  };
-
-  const obterHistorico = async () => {
-    try {
-      const response = await fetch('backend-setup.php?action=obterHistorico');
-      const data = await response.json();
-      if (data.success) {
-        setHistorico(data.historico || data.data || []);
-      }
-    } catch (error) {
-      console.error('Erro ao obter histórico:', error);
-    }
-  };
-
-  const carregarOperacoes = async () => {
-    try {
-      const response = await fetch(`backend-setup.php?action=obterOperacoes&ciclo=${cicloAtual}`);
-      const data = await response.json();
-      if (data.success && data.operacoes) {
-        setOperacoes(data.operacoes);
-        setTotalOperacoes(data.operacoes.length);
-      }
-    } catch (error) {
-      console.error('Erro ao carregar operações:', error);
-    }
-  };
-
-  // Calcular ganho/perda líquida
-  const calcularGanhoPerda = () => {
-    const totalAtual = valorCaixa1 + valorCaixa2;
-    const diferencaValor = totalAtual - totalComprometidoInicial;
-    const diferencaPercentual = totalComprometidoInicial > 0 
-      ? ((diferencaValor / totalComprometidoInicial) * 100) 
-      : 0;
-    return { valor: diferencaValor, percentual: diferencaPercentual };
-  };
-
-  const { valor: ganhoPerda, percentual: ganhoPercentual } = calcularGanhoPerda();
-
-  // Effects
   useEffect(() => {
     const initializeData = async () => {
       setIsLoading(true);
@@ -499,8 +371,11 @@ const DayTradeSystem = () => {
           carregarDadosIniciais(),
           obterValores(),
           obterHistorico(),
-          carregarOperacoes()
+          carregarCicloAtual(),
+          carregarCoresDoBanco(),
+          recuperarStatusCaixa()
         ]);
+        configurarModoMercado();
       } catch (error) {
         console.error('Erro ao inicializar dados:', error);
       } finally {
@@ -510,41 +385,28 @@ const DayTradeSystem = () => {
 
     initializeData();
 
-    // Salvar modo de mercado no localStorage quando alterado
-    localStorage.setItem('modoMercado', modoMercado);
-
     const intervalo = setInterval(() => {
       obterValores();
-    }, 5000);
+    }, 3000);
 
     return () => clearInterval(intervalo);
-  }, [cicloAtual, modoMercado]);
+  }, []);
 
-  // Atualizar status das caixas baseado nos valores
   useEffect(() => {
-    if (totalComprometidoInicial > 0) {
-      const caixa1Inicial = totalComprometidoInicial * 0.6; // Assumindo proporção
-      const caixa2Inicial = totalComprometidoInicial * 0.4;
-      
-      // Status Caixa 1
-      if (valorCaixa1 !== caixa1Inicial) {
-        const status = valorCaixa1 > caixa1Inicial ? 'Caixa 1 positivo' : 'Caixa 1 negativo';
-        const cor = valorCaixa1 > caixa1Inicial ? 'green' : 'red';
-        setStatusCaixa1({ status, color: cor });
-      } else {
-        setStatusCaixa1(null);
+    const carregarHistorico = async () => {
+      try {
+        const response = await fetch('backend-setup.php?action=obterHistorico');
+        const data = await response.json();
+        if (data.success) {
+          setHistorico(data.historico);
+        }
+      } catch (error) {
+        console.error('Erro ao carregar histórico:', error);
       }
-      
-      // Status Caixa 2
-      if (valorCaixa2 !== caixa2Inicial) {
-        const status = valorCaixa2 >= caixa2Inicial ? 'Reserva Saudável' : 'Reserva Afetada';
-        const cor = valorCaixa2 >= caixa2Inicial ? 'green' : 'orange';
-        setStatusCaixa2({ status, color: cor });
-      } else {
-        setStatusCaixa2(null);
-      }
-    }
-  }, [valorCaixa1, valorCaixa2, totalComprometidoInicial]);
+    };
+
+    carregarHistorico();
+  }, []);
 
   // Main render
   if (isLoading) {
@@ -557,7 +419,7 @@ const DayTradeSystem = () => {
 
   return (
     <div className="min-h-screen bg-gradient-to-br from-crypto-dark-50 via-crypto-dark-100 to-crypto-dark-200">
-      <style>{originalStyles}</style>
+      <style>{tooltipStyles}</style>
       <header className="bg-gradient-to-r from-indigo-600 to-purple-500 text-white p-6 text-center shadow-lg">
         <h1 className="text-3xl font-bold">Setup Operacional</h1>
       </header>
@@ -621,8 +483,8 @@ const DayTradeSystem = () => {
           </button>
           
           <button
-            onClick={handleResetOperacional}
-            className="mt-6 w-full bg-gradient-to-r from-red-600 to-red-500 text-white py-3 rounded-lg shadow hover:bg-red-500 transition duration-200"
+            onClick={() => {/* Implement reset functionality */}}
+            className="mt-6 w-full bg-gradient-to-r from-indigo-600 to-purple-500 text-white py-3 rounded-lg shadow hover:bg-indigo-500 transition duration-200"
           >
             Reiniciar Operacional
           </button>
@@ -685,6 +547,7 @@ const DayTradeSystem = () => {
                   <th className="py-3 px-6 text-left">Valor</th>
                   <th className="py-3 px-6 text-left">Status</th>
                   <th className="py-3 px-6 text-left">Observações</th>
+                  <th className="py-3 px-6 text-center"></th>
                 </tr>
               </thead>
               <tbody>
@@ -700,11 +563,12 @@ const DayTradeSystem = () => {
                         </span>
                       </td>
                       <td className="py-3 px-6 text-left">{registro.observacao}</td>
+                      <td className="py-3 px-6 text-center"></td>
                     </tr>
                   ))
                 ) : (
                   <tr>
-                    <td colSpan={5} className="text-center py-4 text-gray-500">
+                    <td colSpan={6} className="text-center py-4 text-gray-500">
                       Nenhum registro encontrado
                     </td>
                   </tr>
@@ -723,7 +587,7 @@ const DayTradeSystem = () => {
             </p>
           </div>
 
-          <div id="valores-atuais" className="bg-gradient-to-r from-gray-800 to-black border border-gray-700 p-6 rounded-lg shadow-lg space-y-4">
+          <div id="Valores-atuais" className="bg-gradient-to-r from-gray-800 to-black border border-gray-700 p-6 rounded-lg shadow-lg space-y-4">
             <h3 className="text-xl font-semibold text-white">Resultado Atual</h3>
             <div className="grid grid-cols-2 gap-4">
               <p className="text-lg font-medium text-white whitespace-nowrap">Total dos caixas:</p>
@@ -737,17 +601,11 @@ const DayTradeSystem = () => {
               </div>
               <div className="flex justify-end">
                 <p className="text-xs text-right text-gray-300">
-                  <span 
-                    id="ganho-perda-liquida-valor" 
-                    className={`inline font-bold text-x3 ${ganhoPerda >= 0 ? 'text-green-400' : 'text-red-400'}`}
-                  >
-                    {ganhoPerda >= 0 ? '+' : ''}{formatarValor(ganhoPerda)}
+                  <span id="ganho-perda-liquida-valor" className="text-green-400 inline font-bold text-x3">
+                    +{formatarValor(0)}
                   </span>
-                  <span 
-                    id="ganho-perda-liquida-percentual" 
-                    className={`inline font-bold text-x3 ml-2 ${ganhoPerda >= 0 ? 'text-green-400' : 'text-red-400'}`}
-                  >
-                    ({ganhoPerda >= 0 ? '+' : ''}{ganhoPercentual.toFixed(2)}%)
+                  <span id="ganho-perda-liquida-percentual" className="text-green-400 inline font-bold text-x3">
+                    (+0.00%)
                   </span>
                 </p>
               </div>
@@ -789,7 +647,7 @@ const DayTradeSystem = () => {
             Calcular Metas
           </button>
 
-          {showTabelaJuros && metasPorCiclo[cicloAtual] && (
+          {showTabelaJuros && (
             <div id="tabelas-juros" className="mt-4 overflow-x-auto">
               <table className="min-w-full bg-white border border-gray-300 rounded-lg shadow-lg">
                 <thead className="bg-indigo-600 text-white">
@@ -802,25 +660,7 @@ const DayTradeSystem = () => {
                   </tr>
                 </thead>
                 <tbody>
-                  {metasPorCiclo[cicloAtual].map((meta, index) => {
-                    const acumulado = metasPorCiclo[cicloAtual]
-                      .slice(0, index + 1)
-                      .reduce((acc, m) => acc + m.lucro, parseValor(valorInvestido));
-                    
-                    return (
-                      <tr key={index} className="hover:bg-gray-50">
-                        <td className="py-3 px-6 text-center font-bold">{index + 1}</td>
-                        <td className="py-3 px-6 text-center">{formatarValor(meta.investimento)}</td>
-                        <td className="py-3 px-6 text-center">{retornoPercentual}%</td>
-                        <td className="py-3 px-6 text-center font-bold text-green-600">
-                          {formatarValor(meta.lucro)}
-                        </td>
-                        <td className="py-3 px-6 text-center font-bold text-blue-600">
-                          {formatarValor(acumulado)}
-                        </td>
-                      </tr>
-                    );
-                  })}
+                  {/* Table rows will be generated dynamically */}
                 </tbody>
               </table>
             </div>
@@ -832,7 +672,7 @@ const DayTradeSystem = () => {
             <h2 className="text-3xl font-semibold mb-4 text-black">Ciclo Atual</h2>
             <p id="ciclo-indicativo" className="text-xl text-black">
               Ciclo:{' '}
-              <span id="ciclo-numero" className="bg-indigo-600 text-white font-bold px-2 py-1 rounded">
+              <span id="ciclo-numero" className="bg-indigo-600 text-white font-bold px-1 rounded">
                 {cicloAtual}
               </span>
             </p>
@@ -846,64 +686,16 @@ const DayTradeSystem = () => {
 
         <section id="interacoes" className="bg-white p-6 rounded-lg shadow-md mb-8">
           <h2 className="text-3xl font-semibold mb-4 text-black">Total de Operações</h2>
-          
-          {/* Botões para adicionar operações */}
-          <div className="mb-4 flex gap-4 justify-center">
-            <button
-              onClick={() => adicionarOperacao('verde')}
-              className="bg-green-500 text-white px-6 py-2 rounded-lg hover:bg-green-600 transition duration-200"
-              disabled={operacoes.length >= 20}
-            >
-              Win (+)
-            </button>
-            <button
-              onClick={() => adicionarOperacao('vermelho')}
-              className="bg-red-500 text-white px-6 py-2 rounded-lg hover:bg-red-600 transition duration-200"
-              disabled={operacoes.length >= 20}
-            >
-              Loss (-)
-            </button>
-          </div>
-
-          {/* Grid de operações */}
-          <div id="operacoes" className="grid grid-cols-10 gap-2 mb-4">
-            {Array.from({ length: 20 }, (_, index) => {
-              const operacao = operacoes[index];
-              let className = 'quadradinho cinza';
-              let texto = (index + 1).toString();
-              
-              if (operacao === 'verde') {
-                className = 'quadradinho verde';
-                texto = 'W';
-              } else if (operacao === 'vermelho') {
-                className = 'quadradinho vermelho';
-                texto = 'L';
-              }
-              
-              return (
-                <div
-                  key={index}
-                  className={className}
-                  title={`Operação ${index + 1}`}
-                >
-                  {texto}
-                </div>
-              );
-            })}
-          </div>
-
-          <div className="text-center mb-4">
-            <p className="text-lg font-bold text-black">
-              Operações realizadas: {totalOperacoes}/20
-            </p>
+          <div id="operacoes" className="grid grid-cols-6 gap-2">
+            {/* Operation squares will be generated dynamically */}
           </div>
           
-          {totalOperacoes === 20 && (
+          {totalOperacoes > 0 && (
             <button
               onClick={handleProximoCiclo}
-              className="mt-4 w-full bg-green-600 text-white py-3 rounded-lg shadow hover:bg-green-700 transition duration-200"
+              className="mt-4 w-full bg-gray-300 text-gray-700 py-3 rounded-lg shadow hover:bg-gray-400"
             >
-              {cicloAtual === 5 ? 'Finalizar Todos os Ciclos' : 'Próximo Ciclo'}
+              Próximo Ciclo
             </button>
           )}
         </section>
@@ -928,13 +720,15 @@ const DayTradeSystem = () => {
 
       {/* Modals */}
       {showModalSuccess && (
-        <div className="modal" style={{ display: 'block' }}>
-          <div className="modal-content">
-            <span className="close" onClick={() => setShowModalSuccess(false)}>
+        <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50">
+          <div className="bg-white p-6 rounded-lg shadow-lg w-80">
+            <button
+              onClick={() => setShowModalSuccess(false)}
+              className="float-right text-lg cursor-pointer"
+            >
               &times;
-            </span>
-            <h2 className="text-xl font-bold text-green-600 mb-4">Sucesso!</h2>
-            <p className="text-black">{successMessage}</p>
+            </button>
+            <p>{successMessage}</p>
             <button
               onClick={() => setShowModalSuccess(false)}
               className="mt-4 w-full bg-indigo-600 text-white py-2 rounded-lg hover:bg-indigo-500 transition duration-200"
@@ -946,13 +740,15 @@ const DayTradeSystem = () => {
       )}
 
       {showModalError && (
-        <div className="modal" style={{ display: 'block' }}>
-          <div className="modal-content">
-            <span className="close" onClick={() => setShowModalError(false)}>
+        <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50">
+          <div className="bg-white p-6 rounded-lg shadow-lg w-80">
+            <button
+              onClick={() => setShowModalError(false)}
+              className="float-right text-lg cursor-pointer"
+            >
               &times;
-            </span>
-            <h2 className="text-xl font-bold text-red-600 mb-4">Erro!</h2>
-            <p className="text-black">{errorMessage}</p>
+            </button>
+            <p>{errorMessage}</p>
             <button
               onClick={() => setShowModalError(false)}
               className="mt-4 w-full bg-red-600 text-white py-2 rounded-lg hover:bg-red-500 transition duration-200"
@@ -964,8 +760,8 @@ const DayTradeSystem = () => {
       )}
 
       {showModalCelebracao && (
-        <div className="modal modal-celebracao" style={{ display: 'block' }}>
-          <div className="modal-content">
+        <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50">
+          <div className="bg-white p-6 rounded-lg shadow-lg w-80 text-center relative">
             <LottieAnimation
               src="https://lottie.host/ed60e6fe-0ca2-4d7d-881b-c6dd669585d0/26rt0SBXCs.lottie"
               width="450px"
@@ -975,10 +771,10 @@ const DayTradeSystem = () => {
             <img
               src="https://ferramentas.x10.mx/ferramentas/setup/champagne.gif"
               alt="Celebração"
-              className="mx-auto mb-4 w-[90px] h-auto"
+              className="mx-auto mb-4 w-[90px] h-auto z-10"
             />
             <h2 className="text-2xl font-bold text-green-600">Incrível!</h2>
-            <p className="text-black">Você chegou ao final de todos os ciclos. Recomece com um novo gerenciamento!</p>
+            <p>Você chegou ao final de todos os ciclos. Recomece com um novo gerenciamento!</p>
             <button
               onClick={() => {
                 setShowModalCelebracao(false);
@@ -993,8 +789,8 @@ const DayTradeSystem = () => {
       )}
 
       {showModalProximoCiclo && (
-        <div className="modal modal-celebracao" style={{ display: 'block' }}>
-          <div className="modal-content">
+        <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50">
+          <div className="bg-white p-6 rounded-lg shadow-lg w-80 text-center relative">
             <LottieAnimation
               src="https://lottie.host/ed60e6fe-0ca2-4d7d-881b-c6dd669585d0/26rt0SBXCs.lottie"
               width="450px"
@@ -1007,13 +803,13 @@ const DayTradeSystem = () => {
               height="120px"
               className="mx-auto block"
             />
-            <h2 className="text-2xl font-bold text-green-600">Parabéns!</h2>
-            <p className="text-black">{proximoCicloMessage}</p>
+            <h2 className="text-2xl font-bold text-green-600 z-10">Parabéns!</h2>
+            <p className="z-10">{proximoCicloMessage}</p>
             <button
-              onClick={handleProximoCiclo}
-              className="mt-4 w-full bg-green-600 text-white py-2 rounded-lg hover:bg-green-500 transition duration-200"
+              onClick={() => setShowModalProximoCiclo(false)}
+              className="mt-4 w-full bg-green-600 text-white py-2 rounded-lg hover:bg-green-500 transition duration-200 z-10"
             >
-              Começar o novo ciclo 🥳
+              Começar o novo 🥳
             </button>
           </div>
         </div>
