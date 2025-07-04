@@ -1,7 +1,6 @@
-
 import React, { useState } from "react";
 import { useAuth } from "@/contexts/AuthContext";
-import { Eye, EyeOff, LogIn, User, Lock, Bitcoin } from "lucide-react";
+import { Eye, EyeOff, LogIn, User, Lock } from "lucide-react";
 
 export const LoginScreen: React.FC = () => {
   const { login } = useAuth();
@@ -31,7 +30,7 @@ export const LoginScreen: React.FC = () => {
       <div 
         className="absolute inset-0 bg-cover bg-center bg-no-repeat"
         style={{
-          backgroundImage: `url('/lovable-uploads/531b3e36-90d1-408f-92e3-da4af9fceac2.png')`,
+          backgroundImage: `url('/lovable-uploads/531b3e36-90d1-408f-92e3-da4af9fceac2.jpg')`,
         }}
       >
         {/* Dark overlay for better contrast */}
@@ -43,12 +42,16 @@ export const LoginScreen: React.FC = () => {
         <div className="flex flex-col items-center mb-6 sm:mb-8">
           {/* Logo */}
           <div className="flex items-center gap-2 sm:gap-3 mb-2">
-            <div className="w-8 h-8 sm:w-10 sm:h-10 md:w-12 md:h-12 bg-gradient-to-r from-neon-blue-400 to-neon-blue-600 rounded-lg sm:rounded-xl flex items-center justify-center neon-glow shadow-lg shadow-neon-blue-400/50">
-              <Bitcoin className="w-4 h-4 sm:w-5 sm:h-5 md:w-6 md:h-6 text-white" />
+            <div className="w-8 h-8 sm:w-10 sm:h-10 md:w-12 md:h-12 flex items-center justify-center">
+              <img 
+                src="/Bitcoin.svg" 
+                alt="Bitcoin Logo" 
+                className="w-full h-full object-contain"
+              />
             </div>
             <div>
               <h1 className="text-lg sm:text-xl font-bold bg-gradient-to-r from-neon-blue-400 to-white bg-clip-text text-transparent">
-                CryptoPro
+                CryptoGlass
               </h1>
               <p className="text-xs text-gray-400">Professional Trading</p>
             </div>
