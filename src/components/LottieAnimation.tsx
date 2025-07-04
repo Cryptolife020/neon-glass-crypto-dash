@@ -1,4 +1,3 @@
-
 import { useEffect, useRef } from 'react';
 
 interface LottieAnimationProps {
@@ -28,14 +27,14 @@ const LottieAnimation = ({
     const loadLottie = async () => {
       try {
         // Dynamically import the Lottie player
-        const { DotLottiePlayer } = await import('@dotlottie/player-component');
+        const { create } = await import('@dotlottie/player-component');
         
         if (containerRef.current) {
-          const player = new DotLottiePlayer({
+          const player = create({
             container: containerRef.current,
             src,
             background,
-            speed,
+            speed: speed.toString(),
             loop,
             autoplay,
           });

@@ -19,7 +19,7 @@ const Index = () => {
   // Render the DayTradeSystem component when the activeItem is "daytrade"
   if (activeItem === "daytrade") {
     return (
-      <div className="min-h-screen flex w-full glass-background relative overflow-x-hidden">
+      <div className="min-h-screen flex w-full bg-gradient-to-br from-crypto-dark-50 via-crypto-dark-100 to-crypto-dark-200 relative overflow-x-hidden">
         <CryptoSidebar
           activeItem={activeItem}
           onItemClick={setActiveItem}
@@ -47,7 +47,7 @@ const Index = () => {
   }
 
   return (
-    <div className="min-h-screen flex w-full glass-background relative overflow-x-hidden">
+    <div className="min-h-screen flex w-full bg-gradient-to-br from-crypto-dark-50 via-crypto-dark-100 to-crypto-dark-200 relative overflow-x-hidden">
       <CryptoSidebar
         activeItem={activeItem}
         onItemClick={setActiveItem}
