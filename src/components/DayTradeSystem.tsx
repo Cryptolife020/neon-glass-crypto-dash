@@ -1,16 +1,47 @@
-
 import React, { useEffect } from 'react';
 
 const DayTradeSystem = () => {
   useEffect(() => {
-    // Load the external script for the logic
-    const script = document.createElement('script');
-    script.src = '/src/components/logica.js';
-    script.async = true;
-    document.body.appendChild(script);
+    // Load SweetAlert2 first
+    const sweetAlert2Script = document.createElement('script');
+    sweetAlert2Script.src = 'https://cdn.jsdelivr.net/npm/sweetalert2@11';
+    sweetAlert2Script.async = true;
+    document.head.appendChild(sweetAlert2Script);
+
+    // Load the Lottie web component
+    const lottieScript = document.createElement('script');
+    lottieScript.src = 'https://unpkg.com/@lottiefiles/dotlottie-wc@latest/dist/dotlottie-wc.js';
+    lottieScript.async = true;
+    document.head.appendChild(lottieScript);
+
+    // Wait for dependencies to load, then load the logic script
+    const loadLogicScript = () => {
+      const script = document.createElement('script');
+      script.src = '/src/components/logica.js';
+      script.async = true;
+      script.onload = () => {
+        console.log('Logic script loaded successfully');
+      };
+      script.onerror = () => {
+        console.error('Failed to load logic script');
+      };
+      document.body.appendChild(script);
+    };
+
+    // Load logic script after a short delay to ensure dependencies are ready
+    const timer = setTimeout(() => {
+      loadLogicScript();
+    }, 1000);
 
     return () => {
-      document.body.removeChild(script);
+      clearTimeout(timer);
+      // Clean up scripts on unmount
+      const scripts = document.querySelectorAll('script[src*="logica.js"], script[src*="sweetalert2"], script[src*="dotlottie-wc"]');
+      scripts.forEach(script => {
+        if (script.parentNode) {
+          script.parentNode.removeChild(script);
+        }
+      });
     };
   }, []);
 
