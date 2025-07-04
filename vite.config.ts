@@ -41,12 +41,7 @@ export default defineConfig(({ mode }) => ({
         '@rollup/rollup-linux-arm64-gnu',
         '@rollup/rollup-win32-ia32-msvc',
         '@rollup/rollup-linux-arm-gnueabihf'
-      ],
-      output: {
-        manualChunks: undefined
-      }
-    },
-    target: 'esnext',
-    minify: 'esbuild'
+      ]
+    }
   }
 }));
