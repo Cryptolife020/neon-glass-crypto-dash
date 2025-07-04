@@ -96,16 +96,16 @@ export const NotificationsPanel = () => {
   const getTypeIcon = (type: string) => {
     switch (type) {
       case "quote":
-        return <Quote className="w-4 h-4 text-neon-blue-400" data-oid="qvz5v_s" />;
+        return <Quote className="w-4 h-4 text-purple-400" data-oid="qvz5v_s" />;
       case "success":
         return (
-          <TrendingUp className="w-4 h-4 text-neon-blue-500" data-oid="cd00np-" />
+          <TrendingUp className="w-4 h-4 text-green-400" data-oid="cd00np-" />
         );
 
       case "warning":
         return (
           <AlertTriangle
-            className="w-4 h-4 text-neon-blue-300"
+            className="w-4 h-4 text-orange-400"
             data-oid=":uognxl"
           />
         );
@@ -120,13 +120,13 @@ export const NotificationsPanel = () => {
   const getTypeColor = (type: string) => {
     switch (type) {
       case "quote":
-        return "glass-card border-neon-blue-400/30 hover:border-neon-blue-400/50";
+        return "bg-gradient-to-br from-purple-500/10 to-pink-500/5 border-purple-400/10";
       case "success":
-        return "glass-card border-neon-blue-500/30 hover:border-neon-blue-500/50";
+        return "bg-gradient-to-br from-green-500/10 to-emerald-500/5 border-green-400/10";
       case "warning":
-        return "glass-card border-neon-blue-300/30 hover:border-neon-blue-300/50";
+        return "bg-gradient-to-br from-orange-500/10 to-yellow-500/5 border-orange-400/10";
       default:
-        return "glass-card border-neon-blue-400/30 hover:border-neon-blue-400/50";
+        return "bg-gradient-to-br from-neon-blue-400/10 to-cyan-500/5 border-neon-blue-400/10";
     }
   };
 
@@ -134,18 +134,18 @@ export const NotificationsPanel = () => {
     <Dialog open={open} onOpenChange={setOpen} data-oid=":0e0h:c">
       <DialogTrigger asChild data-oid="b-a8msr">
         <div
-          className="px-3 lg:px-4 py-2 glass-card rounded-xl relative cursor-pointer hover:bg-neon-blue-400/10 transition-all duration-300 group"
+          className="px-3 lg:px-4 py-2 glass-card rounded-xl relative cursor-pointer hover:bg-white/10 transition-all duration-300 group"
           data-oid="yvokeua"
         >
           <button className="flex items-center gap-2" data-oid="oko6tqi">
             <Bell
-              className="w-5 h-5 text-gray-300 group-hover:text-neon-blue-400 transition-colors"
+              className="w-5 h-5 text-gray-400 group-hover:text-neon-blue-400 transition-colors"
               data-oid="yd:ha9e"
             />
 
             {unreadCount > 0 && (
               <span
-                className="absolute -top-1 -right-1 w-5 h-5 bg-neon-blue-500 text-white text-xs rounded-full flex items-center justify-center font-bold animate-pulse shadow-lg"
+                className="absolute -top-1 -right-1 w-5 h-5 bg-red-500 text-white text-xs rounded-full flex items-center justify-center font-bold animate-pulse shadow-lg"
                 data-oid=".kf-8ki"
               >
                 {unreadCount}
@@ -156,16 +156,20 @@ export const NotificationsPanel = () => {
       </DialogTrigger>
 
       <DialogContent
-        className="max-w-md bg-black/40 backdrop-blur-3xl border border-neon-blue-400/20 text-white shadow-2xl rounded-2xl glass-card"
+        className="max-w-md bg-black/40 backdrop-blur-2xl border border-white/10 text-white shadow-2xl rounded-2xl"
         data-oid="ju5kc:q"
       >
+        <div
+          className="absolute inset-0 bg-gradient-to-br from-black/60 via-black/40 to-black/60 rounded-2xl"
+          data-oid="cmq0-oe"
+        ></div>
         <div className="relative z-10" data-oid="1y9wpxd">
           <DialogHeader
-            className="pb-4 border-b border-neon-blue-400/20"
+            className="pb-4 border-b border-white/10"
             data-oid="p:pd_wu"
           >
             <DialogTitle
-              className="text-xl font-bold bg-gradient-to-r from-neon-blue-400 via-neon-blue-500 to-neon-blue-600 bg-clip-text text-transparent flex items-center gap-2"
+              className="text-xl font-bold bg-gradient-to-r from-neon-blue-400 via-purple-400 to-pink-400 bg-clip-text text-transparent flex items-center gap-2"
               data-oid="lj9h69j"
             >
               <Sparkles
@@ -183,10 +187,10 @@ export const NotificationsPanel = () => {
             {notifications.map((notification) => (
               <div
                 key={notification.id}
-                className={`p-4 rounded-xl border transition-all duration-300 hover:bg-neon-blue-400/5 backdrop-blur-md ${
+                className={`p-4 rounded-xl border transition-all duration-300 hover:bg-white/5 backdrop-blur-sm ${
                   notification.read
-                    ? "border-white/10 opacity-60"
-                    : `${getTypeColor(notification.type)} border shadow-xl`
+                    ? "border-white/5 opacity-40"
+                    : `${getTypeColor(notification.type)} border shadow-lg`
                 }`}
                 data-oid="gjve:8v"
               >
@@ -194,8 +198,8 @@ export const NotificationsPanel = () => {
                   <div
                     className={`p-2 rounded-lg ${
                       notification.type === "quote"
-                        ? "bg-gradient-to-r from-neon-blue-500/30 to-neon-blue-600/30"
-                        : "bg-neon-blue-400/10 glass-card"
+                        ? "bg-gradient-to-r from-purple-500/20 to-pink-500/20"
+                        : "bg-white/5"
                     }`}
                     data-oid="mxaur_x"
                   >
@@ -209,8 +213,8 @@ export const NotificationsPanel = () => {
                       <h4
                         className={`font-medium text-sm ${
                           notification.type === "quote"
-                            ? "bg-gradient-to-r from-neon-blue-300 to-neon-blue-500 bg-clip-text text-transparent"
-                            : "text-gray-50"
+                            ? "bg-gradient-to-r from-purple-400 to-pink-400 bg-clip-text text-transparent"
+                            : "text-white"
                         }`}
                         data-oid="tt42ci1"
                       >
@@ -218,7 +222,7 @@ export const NotificationsPanel = () => {
                       </h4>
                       {notification.type === "quote" && notification.date && (
                         <span
-                          className="text-xs text-neon-blue-200 bg-neon-blue-500/20 px-2 py-1 rounded-full glass-card"
+                          className="text-xs text-purple-300/70 bg-purple-500/10 px-2 py-1 rounded-full"
                           data-oid="9o770kz"
                         >
                           {notification.date}
@@ -226,7 +230,7 @@ export const NotificationsPanel = () => {
                       )}
                       {!notification.read && (
                         <span
-                          className="w-2 h-2 bg-neon-blue-400 rounded-full animate-pulse shadow-lg"
+                          className="w-2 h-2 bg-red-500 rounded-full animate-pulse shadow-lg"
                           data-oid="9i.zve4"
                         />
                       )}
@@ -234,8 +238,8 @@ export const NotificationsPanel = () => {
                     <p
                       className={`text-sm mb-2 leading-relaxed ${
                         notification.type === "quote"
-                          ? "text-neon-blue-100 font-medium italic"
-                          : "text-gray-100"
+                          ? "text-gray-200 font-medium italic"
+                          : "text-gray-300"
                       }`}
                       data-oid="u:q2gh7"
                     >
@@ -243,24 +247,35 @@ export const NotificationsPanel = () => {
                       {notification.message}
                       {notification.type === "quote" && !loading && '"'}
                     </p>
-                    <span className="text-neon-blue-300 text-xs" data-oid="43y0ked">{notification.time}</span>
+                    <span className="text-gray-500 text-xs" data-oid="43y0ked">
+                      {notification.time}
+                    </span>
                   </div>
                 </div>
               </div>
             ))}
           </div>
 
-          {notifications.length > 0 && (
-            <div className="border-t border-neon-blue-400/20 pt-4 px-4">
-              <button
-                onClick={markAllAsRead}
-                className="w-full text-sm text-neon-blue-400 hover:bg-neon-blue-400/10 py-2 rounded-lg transition-all glass-card"
-              >
-                <CheckCheck className="inline-block w-4 h-4 mr-2" />
-                Marcar todas como lidas
-              </button>
-            </div>
-          )}
+          <div
+            className="flex gap-2 pt-4 border-t border-white/10"
+            data-oid="ih4f0t7"
+          >
+            <button
+              onClick={markAllAsRead}
+              className="flex-1 px-4 py-2 bg-gradient-to-r from-neon-blue-400/20 to-purple-400/20 hover:from-neon-blue-400/30 hover:to-purple-400/30 rounded-lg text-neon-blue-400 text-sm font-medium transition-all duration-300 backdrop-blur-sm border border-neon-blue-400/30 flex items-center justify-center gap-2"
+              data-oid=".6ad.gy"
+            >
+              <CheckCheck className="w-4 h-4" data-oid="j0i_dak" />
+              Marcar como lidas
+            </button>
+            <button
+              className="flex-1 px-4 py-2 bg-white/5 hover:bg-white/10 rounded-lg text-gray-300 text-sm font-medium transition-all duration-300 backdrop-blur-sm border border-white/20 flex items-center justify-center gap-2"
+              data-oid="db0qml6"
+            >
+              <Eye className="w-4 h-4" data-oid="jn0.8kw" />
+              Ver todas
+            </button>
+          </div>
         </div>
       </DialogContent>
     </Dialog>

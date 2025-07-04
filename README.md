@@ -1,78 +1,73 @@
-# CryptoPro - Professional Trading Dashboard
+# Welcome to your Lovable project
 
-Um dashboard moderno para trading de criptomoedas com interface de vidro neon.
+## Project info
 
-## Características
+**URL**: https://lovable.dev/projects/b4361976-2de5-4ceb-9f07-8ecebab8f5cc
 
-- Design moderno com efeito de vidro e elementos neon
-- Dashboard principal com visão geral do portfólio
-- Rastreador de moedas em tempo real
-- Sistema DayTrade integrado
-- Conversor de moedas
-- Módulo de futuros
+## How can I edit this code?
 
-## Sistema DayTrade
+There are several ways of editing your application.
 
-O Sistema DayTrade é uma ferramenta de gerenciamento operacional para traders, oferecendo:
+**Use Lovable**
 
-- Registro de valores em caixas separadas (operacional e reserva)
-- Acompanhamento de operações de ganho e perda
-- Cálculo de juros compostos para metas
-- Sistema de ciclos operacionais
-- Histórico de registros
-- Indicadores de desempenho
+Simply visit the [Lovable Project](https://lovable.dev/projects/b4361976-2de5-4ceb-9f07-8ecebab8f5cc) and start prompting.
 
-Para acessar o Sistema DayTrade, clique na opção "Sistema DayTrade" no menu lateral.
+Changes made via Lovable will be committed automatically to this repo.
 
-## Tecnologias Utilizadas
+**Use your preferred IDE**
 
-- React
-- TypeScript
-- Tailwind CSS
-- Vite
+If you want to work locally using your own IDE, you can clone this repo and push changes. Pushed changes will also be reflected in Lovable.
 
-## Instalação
+The only requirement is having Node.js & npm installed - [install with nvm](https://github.com/nvm-sh/nvm#installing-and-updating)
 
-```bash
-# Clone o repositório
-git clone https://github.com/seu-usuario/neon-glass-crypto-dash.git
+Follow these steps:
 
-# Entre no diretório
-cd neon-glass-crypto-dash
+```sh
+# Step 1: Clone the repository using the project's Git URL.
+git clone <YOUR_GIT_URL>
 
-# Instale as dependências
-npm install
+# Step 2: Navigate to the project directory.
+cd <YOUR_PROJECT_NAME>
 
-# Inicie o servidor de desenvolvimento
+# Step 3: Install the necessary dependencies.
+npm i
+
+# Step 4: Start the development server with auto-reloading and an instant preview.
 npm run dev
 ```
 
-## Estrutura do Projeto
+**Edit a file directly in GitHub**
 
-```
-neon-glass-crypto-dash/
-├── public/
-│   ├── fluxograma.png
-│   ├── logica.js
-│   └── favicon.ico
-├── src/
-│   ├── components/
-│   │   ├── CryptoSidebar.tsx
-│   │   ├── DashboardCards.tsx
-│   │   ├── DayTradeSystem.tsx
-│   │   ├── NotificationsPanel.tsx
-│   │   ├── SpinningCoin.tsx
-│   │   └── TradingChart.tsx
-│   ├── contexts/
-│   │   └── AuthContext.tsx
-│   ├── pages/
-│   │   ├── Index.tsx
-│   │   └── NotFound.tsx
-│   ├── App.tsx
-│   └── main.tsx
-└── package.json
-```
+- Navigate to the desired file(s).
+- Click the "Edit" button (pencil icon) at the top right of the file view.
+- Make your changes and commit the changes.
 
-## Licença
+**Use GitHub Codespaces**
 
-Este projeto está licenciado sob a licença MIT.
+- Navigate to the main page of your repository.
+- Click on the "Code" button (green button) near the top right.
+- Select the "Codespaces" tab.
+- Click on "New codespace" to launch a new Codespace environment.
+- Edit files directly within the Codespace and commit and push your changes once you're done.
+
+## What technologies are used for this project?
+
+This project is built with:
+
+- Vite
+- TypeScript
+- React
+- shadcn-ui
+- Tailwind CSS
+
+## How can I deploy this project?
+
+Simply open [Lovable](https://lovable.dev/projects/b4361976-2de5-4ceb-9f07-8ecebab8f5cc) and click on Share -> Publish.
+
+## Can I connect a custom domain to my Lovable project?
+
+Yes, you can!
+
+To connect a domain, navigate to Project > Settings > Domains and click Connect Domain.
+
+Read more here: [Setting up a custom domain](https://docs.lovable.dev/tips-tricks/custom-domain#step-by-step-guide)
