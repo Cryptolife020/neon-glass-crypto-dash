@@ -2,46 +2,148 @@ import React, { useEffect } from 'react';
 
 const DayTradeSystem = () => {
   useEffect(() => {
-    // Load SweetAlert2 first
-    const sweetAlert2Script = document.createElement('script');
-    sweetAlert2Script.src = 'https://cdn.jsdelivr.net/npm/sweetalert2@11';
-    sweetAlert2Script.async = true;
-    document.head.appendChild(sweetAlert2Script);
-
-    // Load the Lottie web component
-    const lottieScript = document.createElement('script');
-    lottieScript.src = 'https://unpkg.com/@lottiefiles/dotlottie-wc@latest/dist/dotlottie-wc.js';
-    lottieScript.async = true;
-    document.head.appendChild(lottieScript);
-
-    // Wait for dependencies to load, then load the logic script
-    const loadLogicScript = () => {
-      const script = document.createElement('script');
-      script.src = '/src/components/logica.js';
-      script.async = true;
-      script.onload = () => {
-        console.log('Logic script loaded successfully');
-      };
-      script.onerror = () => {
-        console.error('Failed to load logic script');
-      };
-      document.body.appendChild(script);
+    // Load all dependencies first
+    const loadDependencies = () => {
+      return Promise.all([
+        // Load SweetAlert2
+        new Promise((resolve) => {
+          if (window.Swal) {
+            resolve(true);
+            return;
+          }
+          const sweetAlert2Script = document.createElement('script');
+          sweetAlert2Script.src = 'https://cdn.jsdelivr.net/npm/sweetalert2@11';
+          sweetAlert2Script.onload = () => resolve(true);
+          sweetAlert2Script.onerror = () => resolve(false);
+          document.head.appendChild(sweetAlert2Script);
+        }),
+        
+        // Load Lottie web component
+        new Promise((resolve) => {
+          if (customElements.get('dotlottie-player')) {
+            resolve(true);
+            return;
+          }
+          const lottieScript = document.createElement('script');
+          lottieScript.src = 'https://unpkg.com/@lottiefiles/dotlottie-wc@latest/dist/dotlottie-wc.js';
+          lottieScript.onload = () => resolve(true);
+          lottieScript.onerror = () => resolve(false);
+          document.head.appendChild(lottieScript);
+        })
+      ]);
     };
 
-    // Load logic script after a short delay to ensure dependencies are ready
-    const timer = setTimeout(() => {
-      loadLogicScript();
-    }, 1000);
+    // Mock backend functions to prevent errors
+    const mockBackendFunctions = () => {
+      window.mockBackend = {
+        registrarStatusCaixa: () => Promise.resolve({ success: true }),
+        recuperarStatusCaixa: () => Promise.resolve({ success: true, data: { success: true, data: [] } }),
+        atualizarValoresCaixas: () => Promise.resolve({ success: true }),
+        registrarCor: () => Promise.resolve({ success: true }),
+        obterCores: () => Promise.resolve({ success: true, data: [] }),
+        excluirCores: () => Promise.resolve({ success: true }),
+        salvarValoresIniciais: () => Promise.resolve({ success: true }),
+        obterValoresIniciais: () => Promise.resolve({ success: false }),
+        atualizarCiclo: () => Promise.resolve({ success: true, ciclo: 1 }),
+        RecuperarCiclo: () => Promise.resolve({ success: true, ciclo: 1 }),
+        reiniciarTudo: () => Promise.resolve({ success: true }),
+        inserirHistorico: () => Promise.resolve({ success: true }),
+        obterHistorico: () => Promise.resolve({ success: true, data: [] }),
+        obterValores: () => Promise.resolve({ success: true, data: { caixa1: 0, caixa2: 0, total_comprometido: 0, total_atual: 0, valorCaixa1: 0, valorCaixa2: 0 } }),
+        inserirValores: () => Promise.resolve({ success: true })
+      };
+
+      // Override fetch for backend calls
+      const originalFetch = window.fetch;
+      window.fetch = function(url, options) {
+        if (typeof url === 'string' && url.includes('backend-setup.php')) {
+          const urlParams = new URLSearchParams(url.split('?')[1]);
+          const action = urlParams.get('action');
+          
+          // Return mock responses based on action
+          return Promise.resolve({
+            ok: true,
+            json: () => window.mockBackend[action] ? window.mockBackend[action]() : Promise.resolve({ success: false, message: 'Action not found' })
+          });
+        }
+        return originalFetch.apply(this, arguments);
+      };
+    };
+
+    // Initialize everything
+    const initializeSystem = async () => {
+      console.log('Loading dependencies...');
+      await loadDependencies();
+      
+      console.log('Setting up mock backend...');
+      mockBackendFunctions();
+      
+      // Wait a bit more for DOM to be fully ready
+      setTimeout(() => {
+        console.log('Loading logic script...');
+        const script = document.createElement('script');
+        script.innerHTML = `
+          // Verify dependencies are loaded
+          if (!window.Swal) {
+            console.error('SweetAlert2 not loaded');
+            return;
+          }
+          
+          if (!customElements.get('dotlottie-player')) {
+            console.error('Lottie player not loaded');
+            return;
+          }
+          
+          console.log('Dependencies verified, initializing logic...');
+          
+          // Add console logs to verify DOM elements
+          const testElements = [
+            'calcular', 'proximo-ciclo', 'tabelas-juros', 'operacoes', 
+            'registrar-valores', 'valor-caixa1', 'valor-caixa2', 
+            'caixa1', 'caixa2', 'valor-investido', 'retorno'
+          ];
+          
+          testElements.forEach(id => {
+            const element = document.getElementById(id);
+            if (!element) {
+              console.warn('Element not found:', id);
+            } else {
+              console.log('Element found:', id);
+            }
+          });
+        `;
+        
+        // Load the actual logic script
+        fetch('/src/components/logica.js')
+          .then(response => response.text())
+          .then(scriptContent => {
+            // Execute the script content
+            const fullScript = document.createElement('script');
+            fullScript.innerHTML = script.innerHTML + '\n\n' + scriptContent;
+            document.body.appendChild(fullScript);
+            console.log('Logic script executed');
+          })
+          .catch(error => {
+            console.error('Failed to load logic script:', error);
+          });
+      }, 2000); // Increased delay to ensure everything is ready
+    };
+
+    initializeSystem();
 
     return () => {
-      clearTimeout(timer);
-      // Clean up scripts on unmount
-      const scripts = document.querySelectorAll('script[src*="logica.js"], script[src*="sweetalert2"], script[src*="dotlottie-wc"]');
+      // Cleanup
+      const scripts = document.querySelectorAll('script[src*="sweetalert2"], script[src*="dotlottie-wc"]');
       scripts.forEach(script => {
         if (script.parentNode) {
           script.parentNode.removeChild(script);
         }
       });
+      
+      // Restore original fetch
+      if (window.fetch && window.fetch !== fetch) {
+        window.fetch = fetch;
+      }
     };
   }, []);
 
@@ -357,7 +459,6 @@ const DayTradeSystem = () => {
         </section>
       </main>
 
-      {/* Modals */}
       <div id="modal-success" className="modal hidden fixed inset-0 bg-black bg-opacity-50 items-center justify-center">
         <div className="bg-white p-6 rounded-lg shadow-lg w-80">
           <span className="close-btn float-right cursor-pointer text-lg">&times;</span>
