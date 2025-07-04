@@ -47,7 +47,7 @@ export const CryptoSidebar = ({ activeItem, onItemClick }: SidebarProps) => {
       {/* Mobile Overlay */}
       {isMobileOpen && (
         <div
-          className="lg:hidden fixed inset-0 bg-black/50 backdrop-blur-sm z-40"
+          className="lg:hidden fixed inset-0 bg-black/50 backdrop-blur-sm z-[60]"
           onClick={toggleMobileSidebar}
         />
       )}
@@ -58,10 +58,10 @@ export const CryptoSidebar = ({ activeItem, onItemClick }: SidebarProps) => {
         w-72
         ${isMobileOpen ? "translate-x-0" : "-translate-x-full lg:translate-x-0"}
         transition-all duration-300 ease-in-out
-        fixed lg:relative top-0 left-0 h-screen z-40
+        fixed lg:relative top-0 left-0 h-screen z-[70]
       `}
       >
-        <div className="h-screen glass-card m-4 p-4 lg:p-6 flex flex-col sidebar-no-scroll">
+        <div className="h-screen glass-card m-4 p-4 lg:p-6 flex flex-col">
           <div className="flex items-center justify-between mb-6 lg:mb-8">
             <div className="flex items-center gap-3">
               <div className="w-8 h-8 lg:w-10 lg:h-10 bg-gradient-to-r from-neon-blue-400 to-neon-blue-600 rounded-xl flex items-center justify-center neon-glow">
@@ -84,7 +84,7 @@ export const CryptoSidebar = ({ activeItem, onItemClick }: SidebarProps) => {
             </button>
           </div>
 
-          <nav className="flex-1 space-y-1 lg:space-y-2 overflow-y-auto sidebar-no-scroll">
+          <nav className="flex flex-col gap-2 overflow-y-auto lg:overflow-visible">
             {menuItems.map((item) => {
               const Icon = item.icon;
               const isActive = activeItem === item.id;
