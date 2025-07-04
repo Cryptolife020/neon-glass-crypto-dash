@@ -1,4 +1,3 @@
-
 import { useEffect, useRef } from "react";
 
 interface TradingViewWidgetProps {
@@ -66,7 +65,7 @@ export const TradingViewWidget = ({
   }, [symbol, theme, chartType, allowFullscreen, logarithmicScale]);
 
   return (
-    <div className="tradingview-widget-container h-80 sm:h-96 lg:h-80 w-full">
+    <div className="tradingview-widget-container h-[500px] sm:h-[600px] lg:h-[500px] w-full">
       <div
         ref={containerRef}
         className="tradingview-widget h-full w-full"

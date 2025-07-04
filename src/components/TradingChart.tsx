@@ -1,4 +1,3 @@
-
 import { useState } from "react";
 import { TradingViewWidget } from "./TradingViewWidget";
 import { TradingChartHeader } from "./trading/TradingChartHeader";
@@ -46,33 +45,39 @@ export const TradingChart = () => {
   }
 
   return (
-    <div className="glass-card p-4 sm:p-6">
-      <TradingChartHeader
-        selectedPair={selectedPair}
-        setSelectedPair={setSelectedPair}
-        chartMode={chartMode}
-        setChartMode={setChartMode}
-        logarithmicScale={logarithmicScale}
-        setLogarithmicScale={setLogarithmicScale}
-        coinData={coinData}
-        tradingPairs={tradingPairs}
-      />
+    <div className="glass-card">
+      <div className="p-4 sm:p-6">
+        <TradingChartHeader
+          selectedPair={selectedPair}
+          setSelectedPair={setSelectedPair}
+          chartMode={chartMode}
+          setChartMode={setChartMode}
+          logarithmicScale={logarithmicScale}
+          setLogarithmicScale={setLogarithmicScale}
+          coinData={coinData}
+          tradingPairs={tradingPairs}
+        />
 
-      <div className="mb-4 sm:mb-6">
-        <h2 className="text-lg lg:text-xl font-bold text-white mb-4">
-          Análise de Mercado
-        </h2>
+        <div className="mb-4 sm:mb-6">
+          <h2 className="text-lg lg:text-xl font-bold text-white mb-4">
+            Análise de Mercado
+          </h2>
+        </div>
       </div>
 
-      <TradingViewWidget
-        symbol={getTradingViewSymbol(selectedPair)}
-        theme="dark"
-        chartType={chartMode}
-        allowFullscreen={true}
-        logarithmicScale={logarithmicScale}
-      />
+      <div className="-mx-px">
+        <TradingViewWidget
+          symbol={getTradingViewSymbol(selectedPair)}
+          theme="dark"
+          chartType={chartMode}
+          allowFullscreen={true}
+          logarithmicScale={logarithmicScale}
+        />
+      </div>
 
-      <TradingChartStats coinData={coinData} />
+      <div className="p-4 sm:p-6">
+        <TradingChartStats coinData={coinData} />
+      </div>
     </div>
   );
 };
