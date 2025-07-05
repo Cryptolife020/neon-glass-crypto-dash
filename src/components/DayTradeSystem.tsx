@@ -216,29 +216,29 @@ const DayTradeSystem = () => {
     : '0.00';
 
   return (
-    <div className="min-h-screen p-4 space-y-6">
+    <div className="min-h-screen p-4 space-y-6 glass-background">
       {/* Header */}
       <div className="text-center mb-8">
-        <h1 className="text-4xl font-bold bg-gradient-to-r from-blue-400 to-purple-600 bg-clip-text text-transparent mb-2">
+        <h1 className="text-4xl font-bold bg-gradient-to-r from-neon-blue-400 to-purple-400 bg-clip-text text-transparent mb-2">
           Sistema Day Trade
         </h1>
-        <p className="text-gray-400">Controle profissional de operações financeiras</p>
+        <p className="text-muted-foreground">Controle profissional de operações financeiras</p>
       </div>
 
       {/* Fluxograma */}
-      <Card className="glass-card border-blue-500/20">
+      <Card className="glass-card border-neon-blue-400/20 shadow-xl">
         <CardHeader>
-          <CardTitle className="flex items-center gap-2 text-blue-400">
+          <CardTitle className="flex items-center gap-2 text-neon-blue-400">
             <BarChart3 className="w-5 h-5" />
             Fluxograma Operacional
           </CardTitle>
         </CardHeader>
         <CardContent>
-          <div className="w-full h-64 bg-gradient-to-br from-blue-500/10 to-purple-500/10 rounded-lg flex items-center justify-center border border-blue-500/20">
+          <div className="w-full h-64 glass rounded-lg flex items-center justify-center border border-neon-blue-400/30">
             <div className="text-center">
-              <BarChart3 className="w-16 h-16 text-blue-400 mx-auto mb-4" />
-              <p className="text-gray-300">Fluxograma do Sistema</p>
-              <p className="text-sm text-gray-500">Ilustração do processo operacional</p>
+              <BarChart3 className="w-16 h-16 text-neon-blue-400 mx-auto mb-4" />
+              <p className="text-foreground">Fluxograma do Sistema</p>
+              <p className="text-sm text-muted-foreground">Ilustração do processo operacional</p>
             </div>
           </div>
         </CardContent>
@@ -246,7 +246,7 @@ const DayTradeSystem = () => {
 
       {/* Registro de Valores */}
       <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
-        <Card className="glass-card border-purple-500/20">
+        <Card className="glass-card border-purple-400/20 shadow-xl">
           <CardHeader>
             <CardTitle className="flex items-center gap-2 text-purple-400">
               <DollarSign className="w-5 h-5" />
@@ -255,19 +255,19 @@ const DayTradeSystem = () => {
           </CardHeader>
           <CardContent className="space-y-4">
             <div>
-              <Label>Modo de Mercado</Label>
+              <Label className="text-foreground">Modo de Mercado</Label>
               <div className="flex gap-2 mt-2">
                 <Button
                   variant={marketMode === 'spot' ? 'default' : 'outline'}
                   onClick={() => setMarketMode('spot')}
-                  className="flex-1"
+                  className="flex-1 glass hover:bg-white/20 transition-all"
                 >
                   Spot
                 </Button>
                 <Button
                   variant={marketMode === 'futures' ? 'default' : 'outline'}
                   onClick={() => setMarketMode('futures')}
-                  className="flex-1"
+                  className="flex-1 glass hover:bg-white/20 transition-all"
                 >
                   Futuros
                 </Button>
@@ -275,34 +275,41 @@ const DayTradeSystem = () => {
             </div>
             
             <div>
-              <Label htmlFor="box1">Caixa 1 - Operação</Label>
+              <Label htmlFor="box1" className="text-foreground">Caixa 1 - Operação</Label>
               <Input
                 id="box1"
                 type="number"
                 value={box1Value}
                 onChange={(e) => setBox1Value(e.target.value)}
                 placeholder="Valor para operação"
-                className="bg-white/5 border-green-500/30"
+                className="glass border-green-400/30 focus:border-green-400 transition-colors"
               />
             </div>
             
             <div>
-              <Label htmlFor="box2">Caixa 2 - Stop Loss</Label>
+              <Label htmlFor="box2" className="text-foreground">Caixa 2 - Stop Loss</Label>
               <Input
                 id="box2"
                 type="number"
                 value={box2Value}
                 onChange={(e) => setBox2Value(e.target.value)}
                 placeholder="Valor para cobrir perdas"
-                className="bg-white/5 border-orange-500/30"
+                className="glass border-orange-400/30 focus:border-orange-400 transition-colors"
               />
             </div>
             
             <div className="flex gap-2">
-              <Button onClick={handleRegisterValues} className="flex-1">
+              <Button 
+                onClick={handleRegisterValues} 
+                className="flex-1 bg-gradient-to-r from-neon-blue-400 to-purple-500 hover:from-neon-blue-500 hover:to-purple-600 text-white shadow-lg"
+              >
                 Registrar Valores
               </Button>
-              <Button onClick={handleResetOperational} variant="outline" className="flex-1">
+              <Button 
+                onClick={handleResetOperational} 
+                variant="outline" 
+                className="flex-1 glass border-red-400/30 hover:bg-red-400/10 hover:border-red-400"
+              >
                 <RefreshCw className="w-4 h-4 mr-2" />
                 Reiniciar
               </Button>
@@ -311,7 +318,7 @@ const DayTradeSystem = () => {
         </Card>
 
         {/* Display dos Caixas */}
-        <Card className="glass-card border-green-500/20">
+        <Card className="glass-card border-green-400/20 shadow-xl">
           <CardHeader>
             <CardTitle className="flex items-center gap-2 text-green-400">
               <Target className="w-5 h-5" />
@@ -320,13 +327,13 @@ const DayTradeSystem = () => {
           </CardHeader>
           <CardContent className="space-y-4">
             <div className="grid grid-cols-2 gap-4">
-              <div className="bg-green-500/10 p-4 rounded-lg border border-green-500/20">
+              <div className="glass p-4 rounded-lg border border-green-400/30 backdrop-blur-xl">
                 <p className="text-sm text-green-300">Caixa 1</p>
                 <p className="text-2xl font-bold text-green-400">
                   ${cycleData.box1Balance.toFixed(2)}
                 </p>
               </div>
-              <div className="bg-orange-500/10 p-4 rounded-lg border border-orange-500/20">
+              <div className="glass p-4 rounded-lg border border-orange-400/30 backdrop-blur-xl">
                 <p className="text-sm text-orange-300">Caixa 2</p>
                 <p className="text-2xl font-bold text-orange-400">
                   ${cycleData.box2Balance.toFixed(2)}
@@ -334,9 +341,9 @@ const DayTradeSystem = () => {
               </div>
             </div>
             
-            <div className="bg-blue-500/10 p-4 rounded-lg border border-blue-500/20">
-              <p className="text-sm text-blue-300">Saldo Total</p>
-              <p className="text-3xl font-bold text-blue-400">
+            <div className="glass p-4 rounded-lg border border-neon-blue-400/30 backdrop-blur-xl">
+              <p className="text-sm text-neon-blue-300">Saldo Total</p>
+              <p className="text-3xl font-bold text-neon-blue-400">
                 ${totalBalance.toFixed(2)}
               </p>
               <p className={`text-sm ${parseFloat(profitPercentage) >= 0 ? 'text-green-400' : 'text-red-400'}`}>
@@ -348,49 +355,53 @@ const DayTradeSystem = () => {
       </div>
 
       {/* Histórico de Registros */}
-      <Card className="glass-card border-blue-500/20">
+      <Card className="glass-card border-neon-blue-400/20 shadow-xl">
         <CardHeader>
-          <CardTitle className="flex items-center gap-2 text-blue-400">
+          <CardTitle className="flex items-center gap-2 text-neon-blue-400">
             <Calendar className="w-5 h-5" />
             Histórico de Registros
           </CardTitle>
         </CardHeader>
         <CardContent>
           {records.length > 0 ? (
-            <Table>
-              <TableHeader>
-                <TableRow>
-                  <TableHead>Data</TableHead>
-                  <TableHead>Modo</TableHead>
-                  <TableHead>Caixa 1</TableHead>
-                  <TableHead>Caixa 2</TableHead>
-                  <TableHead>Observação</TableHead>
-                </TableRow>
-              </TableHeader>
-              <TableBody>
-                {records.map((record) => (
-                  <TableRow key={record.id}>
-                    <TableCell>{new Date(record.date).toLocaleDateString()}</TableCell>
-                    <TableCell>
-                      <Badge variant={record.marketMode === 'spot' ? 'default' : 'secondary'}>
-                        {record.marketMode.toUpperCase()}
-                      </Badge>
-                    </TableCell>
-                    <TableCell className="text-green-400">${record.box1.toFixed(2)}</TableCell>
-                    <TableCell className="text-orange-400">${record.box2.toFixed(2)}</TableCell>
-                    <TableCell>{record.observation}</TableCell>
+            <div className="glass rounded-lg overflow-hidden">
+              <Table>
+                <TableHeader>
+                  <TableRow className="border-white/10">
+                    <TableHead className="text-foreground">Data</TableHead>
+                    <TableHead className="text-foreground">Modo</TableHead>
+                    <TableHead className="text-foreground">Caixa 1</TableHead>
+                    <TableHead className="text-foreground">Caixa 2</TableHead>
+                    <TableHead className="text-foreground">Observação</TableHead>
                   </TableRow>
-                ))}
-              </TableBody>
-            </Table>
+                </TableHeader>
+                <TableBody>
+                  {records.map((record) => (
+                    <TableRow key={record.id} className="border-white/10 hover:bg-white/5">
+                      <TableCell className="text-muted-foreground">{new Date(record.date).toLocaleDateString()}</TableCell>
+                      <TableCell>
+                        <Badge variant={record.marketMode === 'spot' ? 'default' : 'secondary'} className="glass">
+                          {record.marketMode.toUpperCase()}
+                        </Badge>
+                      </TableCell>
+                      <TableCell className="text-green-400">${record.box1.toFixed(2)}</TableCell>
+                      <TableCell className="text-orange-400">${record.box2.toFixed(2)}</TableCell>
+                      <TableCell className="text-muted-foreground">{record.observation}</TableCell>
+                    </TableRow>
+                  ))}
+                </TableBody>
+              </Table>
+            </div>
           ) : (
-            <p className="text-center text-gray-500 py-8">Nenhum registro encontrado</p>
+            <div className="glass rounded-lg p-8">
+              <p className="text-center text-muted-foreground">Nenhum registro encontrado</p>
+            </div>
           )}
         </CardContent>
       </Card>
 
       {/* Metas com Juros Compostos */}
-      <Card className="glass-card border-purple-500/20">
+      <Card className="glass-card border-purple-400/20 shadow-xl">
         <CardHeader>
           <CardTitle className="flex items-center gap-2 text-purple-400">
             <Calculator className="w-5 h-5" />
@@ -400,53 +411,56 @@ const DayTradeSystem = () => {
         <CardContent className="space-y-4">
           <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
             <div>
-              <Label htmlFor="goalInvestment">Valor Investido</Label>
+              <Label htmlFor="goalInvestment" className="text-foreground">Valor Investido</Label>
               <Input
                 id="goalInvestment"
                 type="number"
                 value={goalInvestment}
                 onChange={(e) => setGoalInvestment(e.target.value)}
                 placeholder="Ex: 1000"
-                className="bg-white/5"
+                className="glass border-purple-400/30 focus:border-purple-400"
               />
             </div>
             <div>
-              <Label htmlFor="goalPercentage">Retorno Desejado (%)</Label>
+              <Label htmlFor="goalPercentage" className="text-foreground">Retorno Desejado (%)</Label>
               <Input
                 id="goalPercentage"
                 type="number"
                 value={goalPercentage}
                 onChange={(e) => setGoalPercentage(e.target.value)}
                 placeholder="Ex: 2.5"
-                className="bg-white/5"
+                className="glass border-purple-400/30 focus:border-purple-400"
               />
             </div>
             <div className="flex items-end">
-              <Button onClick={calculateCompoundGoals} className="w-full">
+              <Button 
+                onClick={calculateCompoundGoals} 
+                className="w-full bg-gradient-to-r from-purple-400 to-pink-500 hover:from-purple-500 hover:to-pink-600 text-white shadow-lg"
+              >
                 Calcular Metas
               </Button>
             </div>
           </div>
 
           {goals.length > 0 && (
-            <div className="max-h-64 overflow-y-auto">
+            <div className="glass rounded-lg overflow-hidden max-h-64 overflow-y-auto">
               <Table>
                 <TableHeader>
-                  <TableRow>
-                    <TableHead>Dia</TableHead>
-                    <TableHead>Investimento</TableHead>
-                    <TableHead>Retorno %</TableHead>
-                    <TableHead>Meta</TableHead>
-                    <TableHead>Acumulado</TableHead>
+                  <TableRow className="border-white/10">
+                    <TableHead className="text-foreground">Dia</TableHead>
+                    <TableHead className="text-foreground">Investimento</TableHead>
+                    <TableHead className="text-foreground">Retorno %</TableHead>
+                    <TableHead className="text-foreground">Meta</TableHead>
+                    <TableHead className="text-foreground">Acumulado</TableHead>
                   </TableRow>
                 </TableHeader>
                 <TableBody>
                   {goals.map((goal) => (
-                    <TableRow key={goal.day}>
-                      <TableCell>{goal.day}</TableCell>
-                      <TableCell>${goal.investment.toFixed(2)}</TableCell>
-                      <TableCell>{goal.returnPercentage}%</TableCell>
-                      <TableCell className="text-blue-400">${goal.goal.toFixed(2)}</TableCell>
+                    <TableRow key={goal.day} className="border-white/10 hover:bg-white/5">
+                      <TableCell className="text-muted-foreground">{goal.day}</TableCell>
+                      <TableCell className="text-muted-foreground">${goal.investment.toFixed(2)}</TableCell>
+                      <TableCell className="text-muted-foreground">{goal.returnPercentage}%</TableCell>
+                      <TableCell className="text-neon-blue-400">${goal.goal.toFixed(2)}</TableCell>
                       <TableCell className="text-green-400">${goal.accumulated.toFixed(2)}</TableCell>
                     </TableRow>
                   ))}
@@ -458,7 +472,7 @@ const DayTradeSystem = () => {
       </Card>
 
       {/* Controle de Ciclos e Operações Diárias */}
-      <Card className="glass-card border-yellow-500/20">
+      <Card className="glass-card border-yellow-400/20 shadow-xl">
         <CardHeader>
           <CardTitle className="flex items-center gap-2 text-yellow-400">
             <Trophy className="w-5 h-5" />
@@ -467,12 +481,12 @@ const DayTradeSystem = () => {
         </CardHeader>
         <CardContent>
           <div className="mb-4">
-            <p className="text-gray-300">
+            <p className="text-foreground">
               Dias Completados: {cycleData.completedDays}/30
             </p>
-            <div className="w-full bg-gray-700 rounded-full h-2 mt-2">
+            <div className="w-full glass rounded-full h-3 mt-2 border border-white/20">
               <div 
-                className="bg-gradient-to-r from-blue-500 to-purple-500 h-2 rounded-full transition-all"
+                className="bg-gradient-to-r from-neon-blue-400 to-purple-500 h-full rounded-full transition-all duration-500 shadow-lg"
                 style={{ width: `${(cycleData.completedDays / 30) * 100}%` }}
               />
             </div>
@@ -515,13 +529,13 @@ const DayOperationButton: React.FC<{
   const getButtonColor = () => {
     switch (operation.status) {
       case 'goal':
-        return 'bg-yellow-500/20 border-yellow-500/50 text-yellow-400';
+        return 'glass border-yellow-400/50 text-yellow-400 hover:bg-yellow-400/10';
       case 'profit':
-        return 'bg-green-500/20 border-green-500/50 text-green-400';
+        return 'glass border-green-400/50 text-green-400 hover:bg-green-400/10';
       case 'loss':
-        return 'bg-red-500/20 border-red-500/50 text-red-400';
+        return 'glass border-red-400/50 text-red-400 hover:bg-red-400/10';
       default:
-        return 'bg-gray-500/20 border-gray-500/50 text-gray-400 hover:bg-blue-500/20 hover:border-blue-500/50';
+        return 'glass border-white/30 text-foreground hover:bg-neon-blue-400/20 hover:border-neon-blue-400/50 hover:text-neon-blue-400';
     }
   };
 
@@ -530,7 +544,7 @@ const DayOperationButton: React.FC<{
       <AlertDialogTrigger asChild>
         <Button
           variant="outline"
-          className={`h-12 w-full ${getButtonColor()}`}
+          className={`h-12 w-full ${getButtonColor()} backdrop-blur-xl transition-all duration-300`}
           disabled={operation.status !== 'pending'}
         >
           <div className="text-center">
@@ -543,14 +557,14 @@ const DayOperationButton: React.FC<{
         </Button>
       </AlertDialogTrigger>
       
-      <AlertDialogContent className="glass-card border-blue-500/20">
+      <AlertDialogContent className="glass-card border-neon-blue-400/30 shadow-2xl">
         <AlertDialogHeader>
-          <AlertDialogTitle className="text-blue-400">
+          <AlertDialogTitle className="text-neon-blue-400">
             Operação do Dia {operation.day}
           </AlertDialogTitle>
-          <AlertDialogDescription>
+          <AlertDialogDescription className="text-muted-foreground">
             {dayGoal && (
-              <p className="text-yellow-400 mb-2">
+              <p className="text-yellow-400 mb-2 font-semibold">
                 Meta do dia: ${dayGoal.goal.toFixed(2)}
               </p>
             )}
@@ -563,7 +577,7 @@ const DayOperationButton: React.FC<{
             <Button
               variant={operationType === 'profit' ? 'default' : 'outline'}
               onClick={() => setOperationType('profit')}
-              className="flex-1"
+              className="flex-1 glass hover:bg-green-400/20 hover:border-green-400 transition-all"
             >
               <TrendingUp className="w-4 h-4 mr-2" />
               Lucro
@@ -571,7 +585,7 @@ const DayOperationButton: React.FC<{
             <Button
               variant={operationType === 'loss' ? 'default' : 'outline'}
               onClick={() => setOperationType('loss')}
-              className="flex-1"
+              className="flex-1 glass hover:bg-red-400/20 hover:border-red-400 transition-all"
             >
               <TrendingDown className="w-4 h-4 mr-2" />
               Prejuízo
@@ -579,21 +593,27 @@ const DayOperationButton: React.FC<{
           </div>
           
           <div>
-            <Label htmlFor="operationValue">Valor</Label>
+            <Label htmlFor="operationValue" className="text-foreground">Valor</Label>
             <Input
               id="operationValue"
               type="number"
               value={value}
               onChange={(e) => setValue(e.target.value)}
               placeholder="Digite o valor"
-              className="bg-white/5"
+              className="glass border-white/30 focus:border-neon-blue-400 transition-colors"
             />
           </div>
         </div>
         
         <AlertDialogFooter>
-          <AlertDialogCancel>Cancelar</AlertDialogCancel>
-          <AlertDialogAction onClick={handleConfirm} disabled={!value}>
+          <AlertDialogCancel className="glass hover:bg-white/10 border-white/30">
+            Cancelar
+          </AlertDialogCancel>
+          <AlertDialogAction 
+            onClick={handleConfirm} 
+            disabled={!value}
+            className="bg-gradient-to-r from-neon-blue-400 to-purple-500 hover:from-neon-blue-500 hover:to-purple-600 text-white shadow-lg"
+          >
             Confirmar
           </AlertDialogAction>
         </AlertDialogFooter>
