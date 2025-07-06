@@ -72,6 +72,7 @@ export const DayTradeSystem = () => {
       if (tabelaRegistros && totalDosCaixas && totalDosCaixasAtual) {
         let totalCaixa1 = 0;
         let totalCaixa2 = 0;
+        let valorInicialFixoTotal = 0;
 
         // Percorre todas as linhas da tabela para somar os valores
         const linhas = tabelaRegistros.querySelectorAll('tr');
@@ -80,26 +81,39 @@ export const DayTradeSystem = () => {
           if (colunas.length >= 3) {
             const tipoCaixa = colunas[1].textContent?.trim();
             const valorTexto = colunas[2].textContent?.trim() || '$0,00';
+            const observacao = colunas[4].textContent?.trim();
             const valor = parseFloat(
               valorTexto.replace(/[^\d,\.]/g, '').replace(',', '.')
             );
 
             if (tipoCaixa === 'Caixa 1') {
               totalCaixa1 += valor;
+              // Acumula apenas os valores iniciais fixos
+              if (observacao === 'Valor inicial') {
+                valorInicialFixoTotal += valor;
+              }
             } else if (tipoCaixa === 'Caixa 2') {
               totalCaixa2 += valor;
+              // Acumula apenas os valores iniciais fixos
+              if (observacao === 'Reserva Stop Loss') {
+                valorInicialFixoTotal += valor;
+              }
             }
           }
         });
 
         const totalCaixas = totalCaixa1 + totalCaixa2;
 
-        // Atualiza os elementos com os valores formatados
+        // Total Comprometido = Valor inicial fixo + Total atual dos caixas
+        const totalComprometido = valorInicialFixoTotal + totalCaixas;
+
+        // Atualiza o elemento "Total Comprometido" com valor inicial fixo + valores dos caixas
         totalDosCaixas.textContent = `$${new Intl.NumberFormat('pt-BR', { 
           minimumFractionDigits: 2,
           maximumFractionDigits: 2
-        }).format(totalCaixas)}`;
+        }).format(totalComprometido)}`;
 
+        // Atualiza o "Resultado Atual" apenas com os valores atuais dos caixas
         totalDosCaixasAtual.textContent = `$${new Intl.NumberFormat('pt-BR', { 
           minimumFractionDigits: 2,
           maximumFractionDigits: 2
@@ -696,7 +710,7 @@ export const DayTradeSystem = () => {
               if (modalOperacao && resultadoInput) {
                 const resultado = resultadoInput.value.trim().toLowerCase();
                 
-                if (resultado === 'lucro' || resultado === 'prejuízo' || resultado === 'prejuizo') {
+                if (resultado === 'lucro' || resultado === 'prejuízo' || resultado === 'prejuizo' || resultado === 'preju') {
                   if (resultado === 'lucro') {
                     const modalValorLucro = document.getElementById('modal-valor-lucro');
                     const modalValorLucroTitulo = document.getElementById('modal-valor-lucro-titulo');
@@ -717,15 +731,32 @@ export const DayTradeSystem = () => {
                       modalValorLucro.classList.remove('hidden');
                       modalValorLucro.classList.add('show');
                     }
-                  } else {
-                    // Lógica para prejuízo (pode ser adicionada posteriormente)
-                    modalOperacao.classList.add('hidden');
-                    modalOperacao.classList.remove('show');
-                  }
+                    } else {
+                      // Lógica para prejuízo
+                      const modalValorPrejuizo = document.getElementById('modal-valor-prejuizo');
+                      const modalValorPrejuizoTitulo = document.getElementById('modal-valor-prejuizo-titulo');
+                      const modalValorPrejuizoDia = document.getElementById('modal-valor-prejuizo-dia');
+                      const modalValorPrejuizoMeta = document.getElementById('modal-valor-prejuizo-meta');
+                      
+                      if (modalValorPrejuizo && modalValorPrejuizoTitulo && modalValorPrejuizoDia && modalValorPrejuizoMeta) {
+                        const diaNumero = document.getElementById('modal-operacao-dia')?.textContent || '';
+                        const metaValor = document.getElementById('modal-operacao-meta')?.textContent || '';
+                        
+                        modalValorPrejuizoTitulo.textContent = `Quanto você perdeu no Dia ${diaNumero}`;
+                        modalValorPrejuizoDia.textContent = diaNumero;
+                        modalValorPrejuizoMeta.textContent = metaValor;
+                        
+                        modalOperacao.classList.add('hidden');
+                        modalOperacao.classList.remove('show');
+                        
+                        modalValorPrejuizo.classList.remove('hidden');
+                        modalValorPrejuizo.classList.add('show');
+                      }
+                    }
                   
                   resultadoInput.value = ''; // Limpar o input após processar
                 } else {
-                  alert('Por favor, digite "lucro" ou "prejuízo".');
+                  alert('Por favor, digite "lucro", "prejuízo" ou "preju".');
                 }
               }
             }}
@@ -849,9 +880,13 @@ export const DayTradeSystem = () => {
 
                       registrarValoresBtn.click();
 
-                      // Mostrar mensagem de parabéns quando bater a meta exata
+                      // Mostrar modal de parabéns quando bater a meta exata
                       if (valorLucro === metaValor) {
-                        alert('🎉 Parabéns você bateu a meta do dia continue assim você vai longe! 🎉');  
+                        const modalParabens = document.getElementById('modal-parabens');
+                        if (modalParabens) {
+                          modalParabens.classList.remove('hidden');
+                          modalParabens.classList.add('show');
+                        }
                       }
 
                       modalValorLucro.classList.add('hidden');
@@ -984,6 +1019,240 @@ export const DayTradeSystem = () => {
               }}
             >
               Não, manter tudo no Caixa 1
+            </button>
+          </div>
+        </div>
+      </div>
+
+      {/* Modal de Parabéns */}
+      <div id="modal-parabens" className="modal hidden fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center">
+        <div className="bg-white bg-opacity-10 backdrop-blur-lg border border-white border-opacity-20 rounded-2xl shadow-2xl p-6 text-center relative overflow-hidden w-[500px]">
+          
+          {/* Animação de confetti */}
+          <dotlottie-player src="https://lottie.host/ed60e6fe-0ca2-4d7d-881b-c6dd669585d0/26rt0SBXCs.lottie" 
+            background="transparent" 
+            speed={1} 
+            style={{ width: '450px', height: '450px', position: 'absolute', top: '-100px', left: '50%', transform: 'translateX(-50%)', pointerEvents: 'none' }} 
+            loop 
+            autoplay>
+          </dotlottie-player>
+
+          <h2 className="text-3xl font-bold text-green-400 mb-4" style={{ zIndex: 10 }}>🎉 Parabéns! 🎉</h2>
+          <p className="text-white text-lg mb-6" style={{ zIndex: 10 }}>Você bateu a meta do dia continue assim você vai longe!</p>
+          
+          <button 
+            className="mt-4 w-full bg-green-600 text-white py-3 rounded-lg hover:bg-green-700 transition duration-200 font-semibold"
+            style={{ zIndex: 10 }}
+            onClick={() => {
+              const modalParabens = document.getElementById('modal-parabens');
+              if (modalParabens) {
+                modalParabens.classList.add('hidden');
+                modalParabens.classList.remove('show');
+              }
+            }}
+          >
+            Continue Assim! 🚀
+          </button>
+        </div>
+      </div>
+
+      {/* Modal de Valor do Prejuízo */}
+      <div id="modal-valor-prejuizo" className="modal hidden fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center">
+        <div className="bg-white bg-opacity-10 backdrop-blur-lg border border-white border-opacity-20 rounded-2xl shadow-2xl p-6 text-center relative overflow-hidden w-[500px]">
+          <button 
+            className="absolute top-4 right-4 text-white hover:text-gray-300 z-10"
+            onClick={() => {
+              const modalValorPrejuizo = document.getElementById('modal-valor-prejuizo');
+              if (modalValorPrejuizo) {
+                modalValorPrejuizo.classList.add('hidden');
+                modalValorPrejuizo.classList.remove('show');
+              }
+            }}
+          >
+            <svg xmlns="http://www.w3.org/2000/svg" className="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M6 18L18 6M6 6l12 12" />
+            </svg>
+          </button>
+          
+          <h2 id="modal-valor-prejuizo-titulo" className="text-2xl font-bold mb-4 text-red-500">Quanto você perdeu no Dia</h2>
+          
+          <div className="mb-4">
+            <p className="text-gray-200 mt-2 hidden">
+              Dia: <span id="modal-valor-prejuizo-dia" className="font-bold"></span>
+            </p>
+            <p className="text-gray-200 mt-2 flex items-center justify-center gap-2">
+              Meta do Dia: 
+              <span 
+                id="modal-valor-prejuizo-meta" 
+                className="font-bold text-white bg-indigo-600 px-3 py-1 rounded-full text-sm"
+              ></span>
+            </p>
+          </div>
+          
+          <div className="mt-4">
+            <p className="text-lg mb-2 text-gray-200">Valor da Perda</p>
+            <input 
+              type="text" 
+              id="modal-valor-prejuizo-input"
+              placeholder="Digite o valor da perda" 
+              className="w-full px-3 py-2 border border-white/20 rounded-lg focus:outline-none focus:ring-2 focus:ring-red-500 bg-white/10 text-white placeholder-gray-300"
+            />
+          </div>
+          
+          <button 
+            className="mt-6 w-full bg-white/20 text-white py-2 rounded-lg hover:bg-white/30 transition duration-200 backdrop-blur-sm"
+            onClick={() => {
+              const modalValorPrejuizo = document.getElementById('modal-valor-prejuizo');
+              const valorPrejuizoInput = document.getElementById('modal-valor-prejuizo-input') as HTMLInputElement;
+              
+              if (modalValorPrejuizo && valorPrejuizoInput) {
+                const valorPerda = parseFloat(valorPrejuizoInput.value.replace(/[^\d,\.]/g, '').replace(',', '.'));
+
+                if (!isNaN(valorPerda) && valorPerda > 0) {
+                  const modalConfirmacaoCaixa2 = document.getElementById('modal-confirmacao-caixa2');
+                  const modalConfirmacaoValorPerda = document.getElementById('modal-confirmacao-valor-perda');
+                  
+                  if (modalConfirmacaoCaixa2 && modalConfirmacaoValorPerda) {
+                    modalConfirmacaoValorPerda.textContent = `$${valorPerda.toFixed(2)}`;
+                    
+                    modalValorPrejuizo.classList.add('hidden');
+                    modalValorPrejuizo.classList.remove('show');
+                    
+                    modalConfirmacaoCaixa2.classList.remove('hidden');
+                    modalConfirmacaoCaixa2.classList.add('show');
+                  }
+                } else {
+                  alert('Por favor, digite um valor de perda válido.');
+                }
+              }
+            }}
+          >
+            Próximo
+          </button>
+        </div>
+      </div>
+
+      {/* Modal de Confirmação para usar Caixa 2 */}
+      <div id="modal-confirmacao-caixa2" className="modal hidden fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center">
+        <div className="bg-white bg-opacity-10 backdrop-blur-lg border border-white border-opacity-20 rounded-2xl shadow-2xl p-6 text-center relative overflow-hidden w-[500px]">
+          <h2 className="text-2xl font-bold mb-4 text-red-500">Repor Perda</h2>
+          
+          <p className="text-gray-200 mb-4">Você perdeu <span id="modal-confirmacao-valor-perda" className="text-red-400 font-bold"></span></p>
+          
+          <p className="text-gray-200 mb-6">Deseja repor a perda com fundos do Caixa 2?</p>
+          
+          <div className="flex justify-center space-x-4">
+            <button 
+              className="bg-green-600 text-white py-2 px-6 rounded-lg hover:bg-green-700 transition duration-200"
+              onClick={() => {
+                const modalConfirmacaoCaixa2 = document.getElementById('modal-confirmacao-caixa2');
+                const valorPerda = parseFloat(
+                  document.getElementById('modal-confirmacao-valor-perda')?.textContent
+                    ?.replace(/[^\d,\.]/g, '')
+                    .replace(',', '.') || '0'
+                );
+
+                const displayValorCaixa1 = document.getElementById('valor-caixa1');
+                const displayValorCaixa2 = document.getElementById('valor-caixa2');
+                const valorCaixa1Input = document.getElementById('caixa1') as HTMLInputElement;
+                const valorCaixa2Input = document.getElementById('caixa2') as HTMLInputElement;
+                const registrarValoresBtn = document.getElementById('registrar-valores');
+
+                if (displayValorCaixa1 && displayValorCaixa2 && valorCaixa1Input && valorCaixa2Input && registrarValoresBtn && valorPerda > 0) {
+                  // Converter os valores atuais dos caixas para número
+                  const valorAtualCaixa1 = parseFloat(
+                    displayValorCaixa1.textContent?.replace(/[^\d,\.]/g, '').replace(',', '.') || '0'
+                  );
+                  const valorAtualCaixa2 = parseFloat(
+                    displayValorCaixa2.textContent?.replace(/[^\d,\.]/g, '').replace(',', '.') || '0'
+                  );
+
+                  // Verificar se há fundos suficientes no Caixa 2
+                  if (valorAtualCaixa2 >= valorPerda) {
+                    // Debitar do Caixa 2 e repor no Caixa 1
+                    const novoValorCaixa1 = valorAtualCaixa1 - valorPerda + valorPerda; // Remove perda e repõe
+                    const novoValorCaixa2 = valorAtualCaixa2 - valorPerda;
+
+                    // Formatar os valores para exibição
+                    const formatarValor = (valor: number) => {
+                      return `$${new Intl.NumberFormat('pt-BR', { 
+                        minimumFractionDigits: 2,
+                        maximumFractionDigits: 2
+                      }).format(valor)}`;
+                    };
+
+                    // Atualizar os inputs e displays dos caixas
+                    valorCaixa1Input.value = novoValorCaixa1.toString();
+                    valorCaixa2Input.value = novoValorCaixa2.toString();
+                    displayValorCaixa1.textContent = formatarValor(novoValorCaixa1);
+                    displayValorCaixa2.textContent = formatarValor(novoValorCaixa2);
+
+                    registrarValoresBtn.click();
+                  } else {
+                    alert('Fundos insuficientes no Caixa 2 para repor a perda.');
+                  }
+
+                  if (modalConfirmacaoCaixa2) {
+                    modalConfirmacaoCaixa2.classList.add('hidden');
+                    modalConfirmacaoCaixa2.classList.remove('show');
+                  }
+                }
+              }}
+            >
+              Sim, usar Caixa 2
+            </button>
+            <button 
+              className="bg-red-600 text-white py-2 px-6 rounded-lg hover:bg-red-700 transition duration-200"
+              onClick={() => {
+                const modalConfirmacaoCaixa2 = document.getElementById('modal-confirmacao-caixa2');
+                const valorPerda = parseFloat(
+                  document.getElementById('modal-confirmacao-valor-perda')?.textContent
+                    ?.replace(/[^\d,\.]/g, '')
+                    .replace(',', '.') || '0'
+                );
+
+                const displayValorCaixa1 = document.getElementById('valor-caixa1');
+                const displayValorCaixa2 = document.getElementById('valor-caixa2');
+                const valorCaixa1Input = document.getElementById('caixa1') as HTMLInputElement;
+                const valorCaixa2Input = document.getElementById('caixa2') as HTMLInputElement;
+                const registrarValoresBtn = document.getElementById('registrar-valores');
+
+                if (displayValorCaixa1 && displayValorCaixa2 && valorCaixa1Input && valorCaixa2Input && registrarValoresBtn && valorPerda > 0) {
+                  // Converter os valores atuais dos caixas para número
+                  const valorAtualCaixa1 = parseFloat(
+                    displayValorCaixa1.textContent?.replace(/[^\d,\.]/g, '').replace(',', '.') || '0'
+                  );
+                  const valorAtualCaixa2 = parseFloat(
+                    displayValorCaixa2.textContent?.replace(/[^\d,\.]/g, '').replace(',', '.') || '0'
+                  );
+
+                  // Debitar apenas do Caixa 1
+                  const novoValorCaixa1 = valorAtualCaixa1 - valorPerda;
+
+                  // Formatar os valores para exibição
+                  const formatarValor = (valor: number) => {
+                    return `$${new Intl.NumberFormat('pt-BR', { 
+                      minimumFractionDigits: 2,
+                      maximumFractionDigits: 2
+                    }).format(valor)}`;
+                  };
+
+                  // Atualizar os inputs e displays dos caixas
+                  valorCaixa1Input.value = Math.max(0, novoValorCaixa1).toString(); // Evita valores negativos
+                  valorCaixa2Input.value = valorAtualCaixa2.toString(); // Manter Caixa 2 inalterado
+                  displayValorCaixa1.textContent = formatarValor(Math.max(0, novoValorCaixa1));
+                  displayValorCaixa2.textContent = formatarValor(valorAtualCaixa2);
+
+                  registrarValoresBtn.click();
+
+                  if (modalConfirmacaoCaixa2) {
+                    modalConfirmacaoCaixa2.classList.add('hidden');
+                    modalConfirmacaoCaixa2.classList.remove('show');
+                  }
+                }
+              }}
+            >
+              Não, debitar apenas do Caixa 1
             </button>
           </div>
         </div>
