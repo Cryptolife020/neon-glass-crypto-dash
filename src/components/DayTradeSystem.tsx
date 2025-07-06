@@ -102,7 +102,23 @@ export const DayTradeSystem = () => {
           }
         });
 
-        const totalCaixasAtual = totalCaixa1 + totalCaixa2;
+        // Obter os valores atuais dos caixas DIRETAMENTE dos displays
+        const displayValorCaixa1 = document.getElementById('valor-caixa1');
+        const displayValorCaixa2 = document.getElementById('valor-caixa2');
+
+        const valorAtualCaixa1 = displayValorCaixa1 
+          ? parseFloat(
+              displayValorCaixa1.textContent?.replace(/[^\d,\.]/g, '').replace(',', '.') || '0'
+            )
+          : totalCaixa1;
+
+        const valorAtualCaixa2 = displayValorCaixa2
+          ? parseFloat(
+              displayValorCaixa2.textContent?.replace(/[^\d,\.]/g, '').replace(',', '.') || '0'
+            )
+          : totalCaixa2;
+
+        const totalCaixasAtual = valorAtualCaixa1 + valorAtualCaixa2;
 
         // Total Comprometido = APENAS valores iniciais fixos
         totalDosCaixas.textContent = `$${new Intl.NumberFormat('pt-BR', { 
@@ -110,7 +126,7 @@ export const DayTradeSystem = () => {
           maximumFractionDigits: 2
         }).format(valorInicialFixoTotal)}`;
 
-        // Atualiza o "Resultado Atual" com os valores atuais dos caixas
+        // Atualiza o "Resultado Atual" com os valores ATUAIS dos caixas
         totalDosCaixasAtual.textContent = `$${new Intl.NumberFormat('pt-BR', { 
           minimumFractionDigits: 2,
           maximumFractionDigits: 2
@@ -146,8 +162,85 @@ export const DayTradeSystem = () => {
       }
     };
 
+    // Função para verificar mudanças nos displays e atualizar automaticamente
+    const verificarMudancasDisplays = () => {
+      const displayValorCaixa1 = document.getElementById('valor-caixa1');
+      const displayValorCaixa2 = document.getElementById('valor-caixa2');
+      
+      if (displayValorCaixa1 && displayValorCaixa2) {
+        // Verificar se os valores mudaram comparando com os valores anteriores
+        const valorAtualCaixa1 = displayValorCaixa1.textContent || '$0,00';
+        const valorAtualCaixa2 = displayValorCaixa2.textContent || '$0,00';
+        
+        // Armazenar valores anteriores para comparação
+        if (!verificarMudancasDisplays.valoresAnteriores) {
+          verificarMudancasDisplays.valoresAnteriores = {
+            caixa1: valorAtualCaixa1,
+            caixa2: valorAtualCaixa2
+          };
+        }
+        
+        // Se os valores mudaram, recalcular
+        if (verificarMudancasDisplays.valoresAnteriores.caixa1 !== valorAtualCaixa1 || 
+            verificarMudancasDisplays.valoresAnteriores.caixa2 !== valorAtualCaixa2) {
+          
+          // Atualizar valores anteriores
+          verificarMudancasDisplays.valoresAnteriores.caixa1 = valorAtualCaixa1;
+          verificarMudancasDisplays.valoresAnteriores.caixa2 = valorAtualCaixa2;
+          
+          // Recalcular totais
+          calcularTotalCaixas();
+        }
+      }
+    };
+
+    // Inicializar a propriedade para armazenar valores anteriores
+    verificarMudancasDisplays.valoresAnteriores = null;
+
+    // Configurar o setInterval para verificar mudanças a cada 500ms
+    const intervalId = setInterval(verificarMudancasDisplays, 500);
+
+    // Add mostrarAlerta function
+    const mostrarAlerta = (titulo: string, mensagem: string, sucesso: boolean = true) => {
+      const modalSuccess = document.getElementById('modal-success');
+      const modalError = document.getElementById('modal-error');
+      const successMessage = document.getElementById('success-message');
+      const errorMessage = document.getElementById('error-message');
+
+      if (sucesso && modalSuccess && successMessage) {
+        successMessage.textContent = mensagem;
+        modalSuccess.classList.remove('hidden');
+        modalSuccess.classList.add('show');
+      } else if (!sucesso && modalError && errorMessage) {
+        errorMessage.textContent = mensagem;
+        modalError.classList.remove('hidden');
+        modalError.classList.add('show');
+      }
+    };
+
     registrarValoresBtn?.addEventListener('click', () => {
-      if (valorCaixa1Input && valorCaixa2Input && displayValorCaixa1 && displayValorCaixa2 && tabelaRegistros) {
+      // Check if initial registration has already been done
+      const existingRegistros = tabelaRegistros?.querySelectorAll('tr');
+      
+      // Verificar se existem registros reais (excluindo a linha da mensagem "Nenhum registro encontrado")
+      const registrosReais = Array.from(existingRegistros || []).filter(linha => {
+        const colunas = linha.querySelectorAll('td');
+        // Se tem 6 colunas e não é a linha da mensagem "Nenhum registro encontrado"
+        return colunas.length === 6 && !linha.id?.includes('sem-registros');
+      });
+      
+      if (registrosReais.length > 0) {
+        mostrarAlerta('Erro!', 'Já existe um registro inicial. Não é possível adicionar novos registros.', false);
+        return;
+      }
+
+      if (valorCaixa1Input && valorCaixa2Input && displayValorCaixa1 && displayValorCaixa2 && tabelaRegistros && registrarValoresBtn) {
+        // Remover a mensagem "Nenhum registro encontrado" se existir
+        const semRegistros = document.getElementById('sem-registros');
+        if (semRegistros) {
+          semRegistros.remove();
+        }
+
         const valorCaixa1 = formatarValor(valorCaixa1Input.value);
         const valorCaixa2 = formatarValor(valorCaixa2Input.value);
 
@@ -186,7 +279,7 @@ export const DayTradeSystem = () => {
           <td class="py-3 px-6 text-left">Reserva Stop Loss</td>
           <td class="py-3 px-6 text-center">
             <button class="text-red-500 hover:text-red-700">
-              <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5" viewBox="0 0 20 20" fill="currentColor">
+              <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5" viewBox="0 0 20 24" stroke="currentColor">
                 <path fill-rule="evenodd" d="M9 2a1 1 0 00-.894.553L7.382 4H4a1 1 0 000 2v10a2 2 0 002 2h8a2 2 0 002-2V6a1 1 0 100-2h-3.382l-.724-1.447A1 1 0 0011 2H9zM7 8a1 1 0 012 0v6a1 1 0 11-2 0V8zm5-1a1 1 0 00-1 1v6a1 1 0 102 0V8a1 1 0 00-1-1z" clip-rule="evenodd" />
               </svg>
             </button>
@@ -200,11 +293,19 @@ export const DayTradeSystem = () => {
         // Limpar os inputs após registrar
         valorCaixa1Input.value = '';
         valorCaixa2Input.value = '';
+
+        // Disable the registration button after initial registration
+        (registrarValoresBtn as HTMLButtonElement).disabled = true;
       }
     });
 
     // Calcular total dos caixas inicialmente
     calcularTotalCaixas();
+
+    // Cleanup function para limpar o interval quando o componente for desmontado
+    return () => {
+      clearInterval(intervalId);
+    };
   }, []);
 
   useEffect(() => {
@@ -228,6 +329,12 @@ export const DayTradeSystem = () => {
         // Limpar tabela anterior e container de operações
         tabelaCorpo.innerHTML = '';
         operacoesContainer.innerHTML = '';
+
+        // Remover a mensagem "Aguardando registros iniciais do setup" se existir
+        const aguardandoRegistros = document.getElementById('aguardando-registros');
+        if (aguardandoRegistros) {
+          aguardandoRegistros.remove();
+        }
 
         // Converter valores
         const valorInicial = parseFloat(valorInvestidoInput.value.replace(/[^\d,\.]/g, '').replace(',', '.'));
@@ -310,16 +417,17 @@ export const DayTradeSystem = () => {
             const modalOperacao = document.getElementById('modal-operacao');
             const modalTitulo = document.getElementById('modal-operacao-titulo');
             const modalDiaNumero = document.getElementById('modal-operacao-dia');
-            const modalMeta = document.getElementById('modal-operacao-meta');
             const modalTipoOperacao = document.getElementById('modal-operacao-resultado');
 
-            if (modalOperacao && modalTitulo && modalDiaNumero && modalMeta && modalTipoOperacao) {
+            if (modalOperacao && modalTitulo && modalDiaNumero && modalTipoOperacao) {
               const diaNumero = quadradinho.textContent || '';
               const metaValor = quadradinho.getAttribute('data-meta') || '';
 
+              // Armazenar o valor da meta globalmente para uso posterior
+              (window as any).metaValorAtual = metaValor;
+
               modalTitulo.textContent = `Operação Dia ${diaNumero}`;
               modalDiaNumero.textContent = diaNumero;
-              modalMeta.textContent = metaValor;
               
               modalOperacao.classList.remove('hidden');
               modalOperacao.classList.add('show');
@@ -354,16 +462,14 @@ export const DayTradeSystem = () => {
         const modalOperacao = document.getElementById('modal-operacao');
         const modalTitulo = document.getElementById('modal-operacao-titulo');
         const modalDiaNumero = document.getElementById('modal-operacao-dia');
-        const modalMeta = document.getElementById('modal-operacao-meta');
         const modalTipoOperacao = document.getElementById('modal-operacao-resultado');
 
-        if (modalOperacao && modalTitulo && modalDiaNumero && modalMeta && modalTipoOperacao) {
+        if (modalOperacao && modalTitulo && modalDiaNumero && modalTipoOperacao) {
           const diaNumero = quadradinho.textContent || '';
           const metaValor = quadradinho.getAttribute('data-meta') || '';
 
           modalTitulo.textContent = `Operação Dia ${diaNumero}`;
           modalDiaNumero.textContent = diaNumero;
-          modalMeta.textContent = metaValor;
           
           modalOperacao.classList.remove('hidden');
           modalOperacao.classList.add('show');
@@ -496,7 +602,12 @@ export const DayTradeSystem = () => {
                 </tr>
               </thead>
               <tbody id="historico-registros-body">
-                {/* Registros serão adicionados aqui via JavaScript */}
+                {/* Mensagem quando não há registros */}
+                <tr id="sem-registros" className="text-center">
+                  <td colSpan={6} className="py-8 px-6 text-gray-500 italic">
+                    Nenhum registro encontrado
+                  </td>
+                </tr>
               </tbody>
             </table>
             
@@ -583,7 +694,12 @@ export const DayTradeSystem = () => {
 
         <section id="interacoes" className="glass-card p-6 rounded-lg shadow-md mb-8">
           <h2 className="text-3xl font-semibold mb-4">Total de Operações</h2>
-          <div id="operacoes" className="grid grid-cols-6 gap-2"></div>
+          <div id="operacoes" className="grid grid-cols-6 gap-2">
+            {/* Mensagem quando não há registros iniciais */}
+            <div id="aguardando-registros" className="col-span-6 text-center py-8">
+              <p className="text-gray-500 italic text-lg">Aguardando registros iniciais do setup</p>
+            </div>
+          </div>
           
           <button id="proximo-ciclo" className="mt-4 w-full bg-gray-300 text-gray-700 py-3 rounded-lg shadow hover:bg-gray-400 hidden">Próximo Ciclo</button>
         </section>
@@ -707,13 +823,6 @@ export const DayTradeSystem = () => {
             <p className="text-gray-200 mt-2 hidden">
               Dia: <span id="modal-operacao-dia" className="font-bold"></span>
             </p>
-            <p className="text-gray-200 mt-2 flex items-center justify-center gap-2">
-              Meta do Dia: 
-              <span 
-                id="modal-operacao-meta" 
-                className="font-bold text-white bg-indigo-600 px-3 py-1 rounded-full text-sm"
-              ></span>
-            </p>
           </div>
           
           <div className="mt-4">
@@ -744,7 +853,8 @@ export const DayTradeSystem = () => {
                     
                     if (modalValorLucro && modalValorLucroTitulo && modalValorLucroDia && modalValorLucroMeta) {
                       const diaNumero = document.getElementById('modal-operacao-dia')?.textContent || '';
-                      const metaValor = document.getElementById('modal-operacao-meta')?.textContent || '';
+                      // Obter o valor da meta da variável global
+                      const metaValor = (window as any).metaValorAtual || '';
                       
                       modalValorLucroTitulo.textContent = `Quanto você lucrou no Dia ${diaNumero}`;
                       modalValorLucroDia.textContent = diaNumero;
@@ -756,29 +866,30 @@ export const DayTradeSystem = () => {
                       modalValorLucro.classList.remove('hidden');
                       modalValorLucro.classList.add('show');
                     }
-                    } else {
-                      // Lógica para prejuízo
-                      const modalValorPrejuizo = document.getElementById('modal-valor-prejuizo');
-                      const modalValorPrejuizoTitulo = document.getElementById('modal-valor-prejuizo-titulo');
-                      const modalValorPrejuizoDia = document.getElementById('modal-valor-prejuizo-dia');
-                      const modalValorPrejuizoMeta = document.getElementById('modal-valor-prejuizo-meta');
+                  } else {
+                    // Lógica para prejuízo
+                    const modalValorPrejuizo = document.getElementById('modal-valor-prejuizo');
+                    const modalValorPrejuizoTitulo = document.getElementById('modal-valor-prejuizo-titulo');
+                    const modalValorPrejuizoDia = document.getElementById('modal-valor-prejuizo-dia');
+                    const modalValorPrejuizoMeta = document.getElementById('modal-valor-prejuizo-meta');
+                    
+                    if (modalValorPrejuizo && modalValorPrejuizoTitulo && modalValorPrejuizoDia && modalValorPrejuizoMeta) {
+                      const diaNumero = document.getElementById('modal-operacao-dia')?.textContent || '';
+                      // Obter o valor da meta da variável global
+                      const metaValor = (window as any).metaValorAtual || '';
                       
-                      if (modalValorPrejuizo && modalValorPrejuizoTitulo && modalValorPrejuizoDia && modalValorPrejuizoMeta) {
-                        const diaNumero = document.getElementById('modal-operacao-dia')?.textContent || '';
-                        const metaValor = document.getElementById('modal-operacao-meta')?.textContent || '';
-                        
-                        modalValorPrejuizoTitulo.textContent = `Quanto você perdeu no Dia ${diaNumero}`;
-                        modalValorPrejuizoDia.textContent = diaNumero;
-                        modalValorPrejuizoMeta.textContent = metaValor;
-                        
-                        modalOperacao.classList.add('hidden');
-                        modalOperacao.classList.remove('show');
-                        
-                        modalValorPrejuizo.classList.remove('hidden');
-                        modalValorPrejuizo.classList.add('show');
-                      }
+                      modalValorPrejuizoTitulo.textContent = `Quanto você perdeu no Dia ${diaNumero}`;
+                      modalValorPrejuizoDia.textContent = diaNumero;
+                      modalValorPrejuizoMeta.textContent = metaValor;
+                      
+                      modalOperacao.classList.add('hidden');
+                      modalOperacao.classList.remove('show');
+                      
+                      modalValorPrejuizo.classList.remove('hidden');
+                      modalValorPrejuizo.classList.add('show');
                     }
-                  
+                  }
+                
                   resultadoInput.value = ''; // Limpar o input após processar
                 } else {
                   alert('Por favor, digite "lucro", "prejuízo" ou "preju".');
@@ -897,9 +1008,7 @@ export const DayTradeSystem = () => {
                         }).format(valor)}`;
                       };
 
-                      // Atualizar os inputs e displays dos caixas
-                      valorCaixa1Input.value = novoValorCaixa1.toString();
-                      valorCaixa2Input.value = valorAtualCaixa2.toString(); // Manter valor atual do Caixa 2
+                      // Atualizar apenas os displays dos caixas
                       displayValorCaixa1.textContent = formatarValor(novoValorCaixa1);
                       displayValorCaixa2.textContent = formatarValor(valorAtualCaixa2);
 
@@ -1003,12 +1112,12 @@ export const DayTradeSystem = () => {
                   };
 
                   // Atualizar os inputs e displays dos caixas
-                  valorCaixa1Input.value = novoValorCaixa1.toString();
-                  valorCaixa2Input.value = novoValorCaixa2.toString();
+                  // valorCaixa1Input.value = novoValorCaixa1.toFixed(2);
+                  // valorCaixa2Input.value = novoValorCaixa2.toFixed(2);
                   displayValorCaixa1.textContent = formatarValor(novoValorCaixa1);
                   displayValorCaixa2.textContent = formatarValor(novoValorCaixa2);
 
-                  registrarValoresBtn.click();
+                  // registrarValoresBtn.click();
 
                   if (modalExcedente) {
                     modalExcedente.classList.add('hidden');
@@ -1033,8 +1142,8 @@ export const DayTradeSystem = () => {
                 const registrarValoresBtn = document.getElementById('registrar-valores');
 
                 if (valorCaixa1Input && registrarValoresBtn) {
-                  valorCaixa1Input.value = valorLucro.toString();
-                  registrarValoresBtn.click();
+                  // valorCaixa1Input.value = valorLucro.toFixed(2);
+                  // registrarValoresBtn.click();
 
                   if (modalExcedente) {
                     modalExcedente.classList.add('hidden');
@@ -1207,8 +1316,8 @@ export const DayTradeSystem = () => {
                     };
 
                     // Atualizar os inputs e displays dos caixas
-                    valorCaixa1Input.value = novoValorCaixa1.toString();
-                    valorCaixa2Input.value = novoValorCaixa2.toString();
+                    // valorCaixa1Input.value = novoValorCaixa1.toFixed(2);
+                    // valorCaixa2Input.value = novoValorCaixa2.toFixed(2);
                     displayValorCaixa1.textContent = formatarValor(novoValorCaixa1);
                     displayValorCaixa2.textContent = formatarValor(novoValorCaixa2);
 
@@ -1263,8 +1372,8 @@ export const DayTradeSystem = () => {
                   };
 
                   // Atualizar os inputs e displays dos caixas
-                  valorCaixa1Input.value = Math.max(0, novoValorCaixa1).toString(); // Evita valores negativos
-                  valorCaixa2Input.value = valorAtualCaixa2.toString(); // Manter Caixa 2 inalterado
+                  // valorCaixa1Input.value = Math.max(0, novoValorCaixa1).toFixed(2); // Evita valores negativos
+                  // valorCaixa2Input.value = valorAtualCaixa2.toFixed(2); // Manter Caixa 2 inalterado
                   displayValorCaixa1.textContent = formatarValor(Math.max(0, novoValorCaixa1));
                   displayValorCaixa2.textContent = formatarValor(valorAtualCaixa2);
 
