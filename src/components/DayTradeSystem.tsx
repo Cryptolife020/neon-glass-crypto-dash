@@ -867,26 +867,42 @@ export const DayTradeSystem = () => {
               className="bg-green-600 text-white py-2 px-6 rounded-lg hover:bg-green-700 transition duration-200"
               onClick={() => {
                 const modalExcedente = document.getElementById('modal-excedente-lucro');
-                const valorLucro = parseFloat(
+                const valorTotalLucro = parseFloat(
                   document.getElementById('modal-excedente-valor')?.textContent
+                    ?.replace(/[^\d,\.]/g, '')
+                    .replace(',', '.') || '0'
+                );
+                const metaDia = parseFloat(
+                  document.getElementById('modal-excedente-meta')?.textContent
+                    ?.replace(/[^\d,\.]/g, '')
+                    .replace(',', '.') || '0'
+                );
+                const valorExcedente = parseFloat(
+                  document.getElementById('modal-excedente-excesso')?.textContent
                     ?.replace(/[^\d,\.]/g, '')
                     .replace(',', '.') || '0'
                 );
 
                 const valorCaixa1Input = document.getElementById('caixa1') as HTMLInputElement;
+                const valorCaixa2Input = document.getElementById('caixa2') as HTMLInputElement;
                 const displayValorCaixa1 = document.getElementById('valor-caixa1');
+                const displayValorCaixa2 = document.getElementById('valor-caixa2');
                 const registrarValoresBtn = document.getElementById('registrar-valores');
 
-                if (valorCaixa1Input && displayValorCaixa1 && registrarValoresBtn) {
-                  // Converter o valor atual do Caixa 1 para número
+                if (valorCaixa1Input && valorCaixa2Input && displayValorCaixa1 && displayValorCaixa2 && registrarValoresBtn) {
+                  // Converter os valores atuais dos caixas para número
                   const valorAtualCaixa1 = parseFloat(
                     displayValorCaixa1.textContent?.replace(/[^\d,\.]/g, '').replace(',', '.') || '0'
                   );
+                  const valorAtualCaixa2 = parseFloat(
+                    displayValorCaixa2.textContent?.replace(/[^\d,\.]/g, '').replace(',', '.') || '0'
+                  );
 
-                  // Somar o valor total do lucro ao valor atual do Caixa 1
-                  const novoValorCaixa1 = valorAtualCaixa1 + valorLucro;
+                  // Somar apenas a meta ao Caixa 1 e o excedente ao Caixa 2
+                  const novoValorCaixa1 = valorAtualCaixa1 + metaDia;
+                  const novoValorCaixa2 = valorAtualCaixa2 + valorExcedente;
 
-                  // Formatar o novo valor do Caixa 1 para exibição
+                  // Formatar os novos valores para exibição
                   const formatarValor = (valor: number) => {
                     return `$${new Intl.NumberFormat('pt-BR', { 
                       minimumFractionDigits: 2,
@@ -894,9 +910,11 @@ export const DayTradeSystem = () => {
                     }).format(valor)}`;
                   };
 
-                  // Atualizar o input e o display do Caixa 1
+                  // Atualizar os inputs e displays dos caixas
                   valorCaixa1Input.value = novoValorCaixa1.toString();
+                  valorCaixa2Input.value = novoValorCaixa2.toString();
                   displayValorCaixa1.textContent = formatarValor(novoValorCaixa1);
+                  displayValorCaixa2.textContent = formatarValor(novoValorCaixa2);
 
                   registrarValoresBtn.click();
 
