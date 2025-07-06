@@ -814,13 +814,45 @@ export const DayTradeSystem = () => {
                       modalExcedente.classList.add('show');
                     }
                   } else {
-                    // Lucro menor ou igual à meta, vai todo para caixa 1
+                    // Lucro menor ou igual à meta
+                    const displayValorCaixa1 = document.getElementById('valor-caixa1');
+                    const displayValorCaixa2 = document.getElementById('valor-caixa2');
                     const valorCaixa1Input = document.getElementById('caixa1') as HTMLInputElement;
+                    const valorCaixa2Input = document.getElementById('caixa2') as HTMLInputElement;
                     const registrarValoresBtn = document.getElementById('registrar-valores');
 
-                    if (valorCaixa1Input && registrarValoresBtn) {
-                      valorCaixa1Input.value = valorLucro.toString();
+                    if (displayValorCaixa1 && displayValorCaixa2 && valorCaixa1Input && valorCaixa2Input && registrarValoresBtn) {
+                      // Converter os valores atuais dos caixas para número
+                      const valorAtualCaixa1 = parseFloat(
+                        displayValorCaixa1.textContent?.replace(/[^\d,\.]/g, '').replace(',', '.') || '0'
+                      );
+                      const valorAtualCaixa2 = parseFloat(
+                        displayValorCaixa2.textContent?.replace(/[^\d,\.]/g, '').replace(',', '.') || '0'
+                      );
+
+                      // Somar o lucro ao Caixa 1 mantendo o Caixa 2 como estava
+                      const novoValorCaixa1 = valorAtualCaixa1 + valorLucro;
+                      
+                      // Formatar os valores para exibição
+                      const formatarValor = (valor: number) => {
+                        return `$${new Intl.NumberFormat('pt-BR', { 
+                          minimumFractionDigits: 2,
+                          maximumFractionDigits: 2
+                        }).format(valor)}`;
+                      };
+
+                      // Atualizar os inputs e displays dos caixas
+                      valorCaixa1Input.value = novoValorCaixa1.toString();
+                      valorCaixa2Input.value = valorAtualCaixa2.toString(); // Manter valor atual do Caixa 2
+                      displayValorCaixa1.textContent = formatarValor(novoValorCaixa1);
+                      displayValorCaixa2.textContent = formatarValor(valorAtualCaixa2);
+
                       registrarValoresBtn.click();
+
+                      // Mostrar mensagem de parabéns quando bater a meta exata
+                      if (valorLucro === metaValor) {
+                        alert('🎉 Parabéns você bateu a meta do dia continue assim você vai longe! 🎉');  
+                      }
 
                       modalValorLucro.classList.add('hidden');
                       modalValorLucro.classList.remove('show');
