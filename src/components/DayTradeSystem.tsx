@@ -88,13 +88,13 @@ export const DayTradeSystem = () => {
 
             if (tipoCaixa === 'Caixa 1') {
               totalCaixa1 += valor;
-              // Acumula apenas os valores iniciais fixos
+              // Acumula apenas os valores iniciais fixos para o Total Comprometido
               if (observacao === 'Valor inicial') {
                 valorInicialFixoTotal += valor;
               }
             } else if (tipoCaixa === 'Caixa 2') {
               totalCaixa2 += valor;
-              // Acumula apenas os valores iniciais fixos
+              // Acumula apenas os valores iniciais fixos para o Total Comprometido
               if (observacao === 'Reserva Stop Loss') {
                 valorInicialFixoTotal += valor;
               }
@@ -102,22 +102,47 @@ export const DayTradeSystem = () => {
           }
         });
 
-        const totalCaixas = totalCaixa1 + totalCaixa2;
+        const totalCaixasAtual = totalCaixa1 + totalCaixa2;
 
-        // Total Comprometido = Valor inicial fixo + Total atual dos caixas
-        const totalComprometido = valorInicialFixoTotal + totalCaixas;
-
-        // Atualiza o elemento "Total Comprometido" com valor inicial fixo + valores dos caixas
+        // Total Comprometido = APENAS valores iniciais fixos
         totalDosCaixas.textContent = `$${new Intl.NumberFormat('pt-BR', { 
           minimumFractionDigits: 2,
           maximumFractionDigits: 2
-        }).format(totalComprometido)}`;
+        }).format(valorInicialFixoTotal)}`;
 
-        // Atualiza o "Resultado Atual" apenas com os valores atuais dos caixas
+        // Atualiza o "Resultado Atual" com os valores atuais dos caixas
         totalDosCaixasAtual.textContent = `$${new Intl.NumberFormat('pt-BR', { 
           minimumFractionDigits: 2,
           maximumFractionDigits: 2
-        }).format(totalCaixas)}`;
+        }).format(totalCaixasAtual)}`;
+
+        // Calcular e atualizar Ganho/Perda Líquida
+        const ganhoPerda = totalCaixasAtual - valorInicialFixoTotal;
+        const percentualGanhoPerda = valorInicialFixoTotal > 0 ? (ganhoPerda / valorInicialFixoTotal) * 100 : 0;
+        
+        const ganhoLiquidaValor = document.getElementById('ganho-perda-liquida-valor');
+        const ganhoLiquidaPercentual = document.getElementById('ganho-perda-liquida-percentual');
+        
+        if (ganhoLiquidaValor && ganhoLiquidaPercentual) {
+          const valorFormatado = `${ganhoPerda >= 0 ? '+' : ''}$${new Intl.NumberFormat('pt-BR', { 
+            minimumFractionDigits: 2,
+            maximumFractionDigits: 2
+          }).format(Math.abs(ganhoPerda))}`;
+          
+          const percentualFormatado = `(${percentualGanhoPerda >= 0 ? '+' : ''}${percentualGanhoPerda.toFixed(2)}%)`;
+          
+          ganhoLiquidaValor.textContent = valorFormatado;
+          ganhoLiquidaPercentual.textContent = percentualFormatado;
+          
+          // Atualizar cores baseado no ganho/perda
+          if (ganhoPerda >= 0) {
+            ganhoLiquidaValor.className = 'text-green-400 inline font-bold text-x3';
+            ganhoLiquidaPercentual.className = 'text-green-400 inline font-bold text-x3';
+          } else {
+            ganhoLiquidaValor.className = 'text-red-400 inline font-bold text-x3';
+            ganhoLiquidaPercentual.className = 'text-red-400 inline font-bold text-x3';
+          }
+        }
       }
     };
 
