@@ -1,8 +1,10 @@
 import { useEffect, useRef, useState } from 'react';
+import { useToast } from '@/hooks/use-toast';
 
 export const DayTradeSystem = () => {
   const containerRef = useRef<HTMLDivElement>(null);
   const [showFluxograma, setShowFluxograma] = useState(false);
+  const { toast } = useToast();
 
   useEffect(() => {
     // Create a script element for the dotlottie player
@@ -230,7 +232,11 @@ export const DayTradeSystem = () => {
       });
       
       if (registrosReais.length > 0) {
-        mostrarAlerta('Erro!', 'Já existe um registro inicial. Não é possível adicionar novos registros.', false);
+        toast({
+          title: "❌ Registro Duplicado",
+          description: "Já existe um registro inicial. Não é possível adicionar novos registros.",
+          variant: "destructive"
+        });
         return;
       }
 
@@ -290,6 +296,12 @@ export const DayTradeSystem = () => {
         // Calcular e atualizar o total dos caixas
         calcularTotalCaixas();
 
+        toast({
+          title: "✅ Valores Registrados",
+          description: `Caixa 1: ${valorCaixa1} | Caixa 2: ${valorCaixa2} registrados com sucesso!`,
+          variant: "default"
+        });
+
         // Limpar os inputs após registrar
         valorCaixa1Input.value = '';
         valorCaixa2Input.value = '';
@@ -341,7 +353,11 @@ export const DayTradeSystem = () => {
         const taxaRetorno = parseFloat(retornoInput.value);
 
         if (isNaN(valorInicial) || isNaN(taxaRetorno)) {
-          alert('Por favor, insira valores válidos');
+          toast({
+            title: "❌ Erro de Validação",
+            description: "Por favor, insira valores válidos para continuar o cálculo.",
+            variant: "destructive"
+          });
           return;
         }
 
@@ -443,6 +459,12 @@ export const DayTradeSystem = () => {
 
         // Mostrar tabela
         tabelasJuros.classList.remove('hidden');
+        
+        toast({
+          title: "🎯 Metas Calculadas",
+          description: `Plano de 30 dias criado com sucesso! Meta diária: ${taxaRetorno.toFixed(2)}%`,
+          variant: "default"
+        });
       }
     });
   }, []);
@@ -893,7 +915,11 @@ export const DayTradeSystem = () => {
                 
                   resultadoInput.value = ''; // Limpar o input após processar
                 } else {
-                  alert('Por favor, digite "lucro", "prejuízo" ou "preju".');
+                  toast({
+                    title: "❌ Entrada Inválida",
+                    description: 'Digite "lucro", "prejuízo" ou "preju" para registrar o resultado da operação.',
+                    variant: "destructive"
+                  });
                 }
               }
             }}
@@ -1015,6 +1041,12 @@ export const DayTradeSystem = () => {
 
                       registrarValoresBtn.click();
 
+                      toast({
+                        title: "✅ Lucro Registrado",
+                        description: `Lucro de $${valorLucro.toFixed(2)} registrado com sucesso!`,
+                        variant: "default"
+                      });
+
                       // Mostrar modal de parabéns quando bater a meta exata
                       if (valorLucro === metaValor) {
                         const modalParabens = document.getElementById('modal-parabens');
@@ -1036,7 +1068,11 @@ export const DayTradeSystem = () => {
                     }
                   }
                 } else {
-                  alert('Por favor, digite um valor de lucro válido.');
+                  toast({
+                    title: "❌ Valor Inválido",
+                    description: "Digite um valor de lucro válido em formato numérico.",
+                    variant: "destructive"
+                  });
                 }
               }
             }}
@@ -1134,6 +1170,12 @@ export const DayTradeSystem = () => {
 
                   // registrarValoresBtn.click();
 
+                  toast({
+                    title: "💰 Excedente Transferido",
+                    description: `Excedente de $${valorExcedente.toFixed(2)} enviado para o Caixa 2 com sucesso!`,
+                    variant: "default"
+                  });
+
                   if (modalExcedente) {
                     modalExcedente.classList.add('hidden');
                     modalExcedente.classList.remove('show');
@@ -1166,6 +1208,12 @@ export const DayTradeSystem = () => {
                     quadradinhoAtual.style.backgroundColor = '#16a34a'; // Verde
                     quadradinhoAtual.style.color = 'white';
                   }
+
+                  toast({
+                    title: "💎 Lucro Mantido",
+                    description: `Lucro de $${valorLucro.toFixed(2)} mantido integralmente no Caixa 1!`,
+                    variant: "default"
+                  });
 
                   if (modalExcedente) {
                     modalExcedente.classList.add('hidden');
@@ -1278,7 +1326,11 @@ export const DayTradeSystem = () => {
                     modalConfirmacaoCaixa2.classList.add('show');
                   }
                 } else {
-                  alert('Por favor, digite um valor de perda válido.');
+                  toast({
+                    title: "❌ Valor Inválido",
+                    description: "Digite um valor de perda válido em formato numérico.",
+                    variant: "destructive"
+                  });
                 }
               }
             }}
@@ -1351,8 +1403,18 @@ export const DayTradeSystem = () => {
                     }
 
                     registrarValoresBtn.click();
+                    
+                    toast({
+                      title: "🔄 Perda Reposta",
+                      description: `Perda de $${valorPerda.toFixed(2)} foi coberta com fundos do Caixa 2.`,
+                      variant: "default"
+                    });
                   } else {
-                    alert('Fundos insuficientes no Caixa 2 para repor a perda.');
+                    toast({
+                      title: "❌ Fundos Insuficientes",
+                      description: "Não há fundos suficientes no Caixa 2 para repor a perda.",
+                      variant: "destructive"
+                    });
                   }
 
                   if (modalConfirmacaoCaixa2) {
@@ -1414,6 +1476,12 @@ export const DayTradeSystem = () => {
                   }
 
                   registrarValoresBtn.click();
+
+                  toast({
+                    title: "💔 Perda Registrada",
+                    description: `Perda de $${valorPerda.toFixed(2)} registrada. Fundos debitados do Caixa 1.`,
+                    variant: "destructive"
+                  });
 
                   if (modalConfirmacaoCaixa2) {
                     modalConfirmacaoCaixa2.classList.add('hidden');
