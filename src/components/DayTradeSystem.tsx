@@ -423,8 +423,9 @@ export const DayTradeSystem = () => {
               const diaNumero = quadradinho.textContent || '';
               const metaValor = quadradinho.getAttribute('data-meta') || '';
 
-              // Armazenar o valor da meta globalmente para uso posterior
+              // Armazenar o valor da meta e referência do quadradinho globalmente
               (window as any).metaValorAtual = metaValor;
+              (window as any).quadradinhoAtual = quadradinho;
 
               modalTitulo.textContent = `Operação Dia ${diaNumero}`;
               modalDiaNumero.textContent = diaNumero;
@@ -1023,6 +1024,13 @@ export const DayTradeSystem = () => {
                         }
                       }
 
+                      // Mudar cor do quadradinho para verde quando bate ou ultrapassa a meta
+                      const quadradinhoAtual = (window as any).quadradinhoAtual;
+                      if (quadradinhoAtual && valorLucro >= metaValor) {
+                        quadradinhoAtual.style.backgroundColor = '#16a34a'; // Verde
+                        quadradinhoAtual.style.color = 'white';
+                      }
+
                       modalValorLucro.classList.add('hidden');
                       modalValorLucro.classList.remove('show');
                     }
@@ -1117,6 +1125,13 @@ export const DayTradeSystem = () => {
                   displayValorCaixa1.textContent = formatarValor(novoValorCaixa1);
                   displayValorCaixa2.textContent = formatarValor(novoValorCaixa2);
 
+                  // Mudar cor do quadradinho para verde quando envia excedente para caixa 2
+                  const quadradinhoAtual = (window as any).quadradinhoAtual;
+                  if (quadradinhoAtual) {
+                    quadradinhoAtual.style.backgroundColor = '#16a34a'; // Verde
+                    quadradinhoAtual.style.color = 'white';
+                  }
+
                   // registrarValoresBtn.click();
 
                   if (modalExcedente) {
@@ -1144,6 +1159,13 @@ export const DayTradeSystem = () => {
                 if (valorCaixa1Input && registrarValoresBtn) {
                   // valorCaixa1Input.value = valorLucro.toFixed(2);
                   // registrarValoresBtn.click();
+
+                  // Mudar cor do quadradinho para verde quando mantém tudo no caixa 1
+                  const quadradinhoAtual = (window as any).quadradinhoAtual;
+                  if (quadradinhoAtual) {
+                    quadradinhoAtual.style.backgroundColor = '#16a34a'; // Verde
+                    quadradinhoAtual.style.color = 'white';
+                  }
 
                   if (modalExcedente) {
                     modalExcedente.classList.add('hidden');
@@ -1321,6 +1343,13 @@ export const DayTradeSystem = () => {
                     displayValorCaixa1.textContent = formatarValor(novoValorCaixa1);
                     displayValorCaixa2.textContent = formatarValor(novoValorCaixa2);
 
+                    // Mudar cor do quadradinho para laranja quando repõe a perda com caixa 2
+                    const quadradinhoAtual = (window as any).quadradinhoAtual;
+                    if (quadradinhoAtual) {
+                      quadradinhoAtual.style.backgroundColor = '#ea580c'; // Laranja
+                      quadradinhoAtual.style.color = 'white';
+                    }
+
                     registrarValoresBtn.click();
                   } else {
                     alert('Fundos insuficientes no Caixa 2 para repor a perda.');
@@ -1376,6 +1405,13 @@ export const DayTradeSystem = () => {
                   // valorCaixa2Input.value = valorAtualCaixa2.toFixed(2); // Manter Caixa 2 inalterado
                   displayValorCaixa1.textContent = formatarValor(Math.max(0, novoValorCaixa1));
                   displayValorCaixa2.textContent = formatarValor(valorAtualCaixa2);
+
+                  // Mudar cor do quadradinho para vermelho quando não aceita repor com caixa 2
+                  const quadradinhoAtual = (window as any).quadradinhoAtual;
+                  if (quadradinhoAtual) {
+                    quadradinhoAtual.style.backgroundColor = '#dc2626'; // Vermelho
+                    quadradinhoAtual.style.color = 'white';
+                  }
 
                   registrarValoresBtn.click();
 
