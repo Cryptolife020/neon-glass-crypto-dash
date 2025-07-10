@@ -108,7 +108,7 @@
   }
 
   html::-webkit-scrollbar-track {
-    background: transparent;
+    background: hsl(220 9% 26%);
   }
 
   html::-webkit-scrollbar-thumb {
