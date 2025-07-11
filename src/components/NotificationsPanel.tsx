@@ -28,7 +28,7 @@ export const NotificationsPanel = () => {
         </div>
       </DialogTrigger>
       
-      <DialogContent className="glass-card border-white/20 bg-gradient-to-br from-white/10 to-white/5 backdrop-blur-xl text-white max-w-md">
+      <DialogContent className="!bg-transparent glass-card border-white/20 bg-gradient-to-br from-white/10 to-white/5 backdrop-blur-xl text-white max-w-md">
         <DialogHeader>
           <DialogTitle className="text-center text-xl font-bold bg-gradient-to-r from-neon-blue-400 to-white bg-clip-text text-transparent">
             Frase do Dia
