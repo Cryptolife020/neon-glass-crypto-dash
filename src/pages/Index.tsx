@@ -6,12 +6,14 @@ import { NotificationsPanel } from "@/components/NotificationsPanel";
 import { SpinningCoin } from "@/components/SpinningCoin";
 import DayTradeSystem from "@/components/DayTradeSystem";
 import { useAuth } from "@/contexts/AuthContext";
+import { useTopCoins } from "@/hooks/useTopCoins";
 import { TrendingUp, Target, LogOut } from "lucide-react";
 
 
 const Index = () => {
   const [activeItem, setActiveItem] = useState("dashboard");
   const { user, logout } = useAuth();
+  const { data: topCoins, isLoading: isLoadingTopCoins } = useTopCoins();
 
   const handleLogout = () => {
     logout();
@@ -174,57 +176,76 @@ const Index = () => {
               Top Moedas
             </h3>
             <div className="space-y-3">
-              {[
-                {
-                  name: "Bitcoin",
-                  symbol: "BTC",
-                  price: "$45,230.50",
-                  change: "+2.4%",
-                },
-                {
-                  name: "Ethereum",
-                  symbol: "ETH",
-                  price: "$2,845.20",
-                  change: "+1.8%",
-                },
-                {
-                  name: "Cardano",
-                  symbol: "ADA",
-                  price: "$0.52",
-                  change: "-0.5%",
-                },
-              ].map((coin) => (
-                <div
-                  key={coin.symbol}
-                  className="flex items-center justify-between p-3 bg-white/5 rounded-lg"
-                >
-                  <div className="flex items-center gap-3">
-                    <div className="w-8 h-8 bg-neon-blue-400/20 rounded-full flex items-center justify-center">
-                      <span className="text-neon-blue-400 text-xs font-bold">
-                        {coin.symbol[0]}
-                      </span>
+              {isLoadingTopCoins ? (
+                // Loading skeleton
+                Array.from({ length: 3 }).map((_, i) => (
+                  <div
+                    key={i}
+                    className="flex items-center justify-between p-3 bg-white/5 rounded-lg animate-pulse"
+                  >
+                    <div className="flex items-center gap-3">
+                      <div className="w-8 h-8 bg-gray-600 rounded-full"></div>
+                      <div>
+                        <div className="h-4 bg-gray-600 rounded w-20 mb-1"></div>
+                        <div className="h-3 bg-gray-600 rounded w-12"></div>
+                      </div>
                     </div>
-                    <div>
+                    <div className="text-right">
+                      <div className="h-4 bg-gray-600 rounded w-16 mb-1"></div>
+                      <div className="h-3 bg-gray-600 rounded w-12"></div>
+                    </div>
+                  </div>
+                ))
+              ) : (
+                topCoins?.map((coin) => (
+                  <div
+                    key={coin.id}
+                    className="flex items-center justify-between p-3 bg-white/5 rounded-lg"
+                  >
+                    <div className="flex items-center gap-3">
+                      <div className="w-8 h-8 rounded-full overflow-hidden bg-white/10 flex items-center justify-center">
+                        <img 
+                          src={coin.image} 
+                          alt={coin.name}
+                          className="w-6 h-6 object-contain"
+                          onError={(e) => {
+                            const img = e.currentTarget as HTMLImageElement;
+                            const span = img.nextElementSibling as HTMLSpanElement;
+                            img.style.display = 'none';
+                            if (span) span.style.display = 'flex';
+                          }}
+                        />
+                        <span className="text-neon-blue-400 text-xs font-bold hidden">
+                          {coin.symbol.slice(0, 2).toUpperCase()}
+                        </span>
+                      </div>
+                      <div>
+                        <p className="text-white text-sm font-medium">
+                          {coin.name}
+                        </p>
+                        <p className="text-gray-400 text-xs">
+                          {coin.symbol.toUpperCase()}
+                        </p>
+                      </div>
+                    </div>
+                    <div className="text-right">
                       <p className="text-white text-sm font-medium">
-                        {coin.name}
+                        ${coin.current_price.toLocaleString()}
                       </p>
-                      <p className="text-gray-400 text-xs">
-                        {coin.symbol}
+                      <p
+                        className={`text-xs ${
+                          coin.price_change_percentage_24h >= 0 
+                            ? "text-green-400" 
+                            : "text-red-400"
+                        }`}
+                      >
+                        {coin.price_change_percentage_24h >= 0 ? "+" : ""}
+                        {coin.price_change_percentage_24h.toFixed(2)}%
                       </p>
                     </div>
                   </div>
-                  <div className="text-right">
-                    <p className="text-white text-sm font-medium">
-                      {coin.price}
-                    </p>
-                    <p
-                      className={`text-xs ${coin.change.startsWith("+") ? "text-green-400" : "text-red-400"}`}
-                    >
-                      {coin.change}
-                    </p>
-                  </div>
-                </div>
-              ))}
+                )) || []
+              )}
             </div>
           </div>
         </div>
