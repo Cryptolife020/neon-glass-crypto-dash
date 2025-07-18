@@ -285,6 +285,9 @@ const Index = () => {
       </main>
       </div>
       
+      {/* Spacer before footer */}
+      <div className="h-12 lg:h-16"></div>
+      
       {/* Professional Footer - Full width outside of main content */}
       <div className="w-full bg-black py-5">
         <div className="container mx-auto px-6 lg:px-10">
