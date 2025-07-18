@@ -40,11 +40,10 @@ const StatCard = ({
           </div>
         </div>
         <div
-          className={`flex items-center gap-1 px-2 py-1 rounded-lg flex-shrink-0 ml-2 ${
-            changeType === "up"
-              ? "bg-green-500/20 text-green-400"
-              : "bg-red-500/20 text-red-400"
-          }`}
+          className={`flex items-center gap-1 px-2 py-1 rounded-lg flex-shrink-0 ml-2 ${changeType === "up"
+            ? "bg-green-500/20 text-green-400"
+            : "bg-red-500/20 text-red-400"
+            }`}
         >
           {changeType === "up" ? (
             <TrendingUp className="w-3 h-3" />
@@ -76,7 +75,7 @@ const StatCard = ({
 };
 
 export const DashboardCards = () => {
-  const { data, isLoading, error } = useCoinGeckoData();
+  const { data, isLoading, error, btcDominanceChange } = useCoinGeckoData();
 
   const formatCurrency = (value: number) => {
     return new Intl.NumberFormat("en-US", {
@@ -102,13 +101,18 @@ export const DashboardCards = () => {
   const marketCap = data?.total_market_cap.usd || 1850000000000;
   const volume24h = data?.total_volume.usd || 85000000000;
 
+  // Obter as mudanças percentuais reais da API
+  const btcDominanceChangeValue = btcDominanceChange || 0;
+  const marketCapChange = data?.market_cap_change_percentage_24h_usd || 0;
+  const volumeChange = data?.volume_change_percentage_24h || 0;
+
   return (
     <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-3 sm:gap-4 lg:gap-6 w-full max-w-full overflow-hidden">
       <StatCard
         title="Dominância do BTC"
         value={`${btcDominance.toFixed(1)}%`}
-        change="+2.4%"
-        changeType="up"
+        change={`${btcDominanceChangeValue >= 0 ? '+' : ''}${btcDominanceChangeValue.toFixed(2)}%`}
+        changeType={btcDominanceChangeValue >= 0 ? "up" : "down"}
         icon={Activity}
         description="Participação no mercado total"
         isLoading={isLoading}
@@ -117,8 +121,8 @@ export const DashboardCards = () => {
       <StatCard
         title="Market Cap Total"
         value={formatVolume(marketCap)}
-        change="+8.7%"
-        changeType="up"
+        change={`${marketCapChange >= 0 ? '+' : ''}${marketCapChange.toFixed(2)}%`}
+        changeType={marketCapChange >= 0 ? "up" : "down"}
         icon={DollarSign}
         description="Capitalização de mercado"
         isLoading={isLoading}
@@ -127,8 +131,8 @@ export const DashboardCards = () => {
       <StatCard
         title="Volume 24h"
         value={formatVolume(volume24h)}
-        change="+5.2%"
-        changeType="up"
+        change={`${volumeChange >= 0 ? '+' : ''}${volumeChange.toFixed(2)}%`}
+        changeType={volumeChange >= 0 ? "up" : "down"}
         icon={TrendingUp}
         description="Volume de negociação"
         isLoading={isLoading}

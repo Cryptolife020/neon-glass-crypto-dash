@@ -84,6 +84,22 @@ const Investments: React.FC = () => {
     return acc + (currentPrice * inv.amount);
   }, 0);
   const totalReturn = totalInvested > 0 ? ((currentValue - totalInvested) / totalInvested) * 100 : 0;
+  const gainLossAmount = currentValue - totalInvested;
+
+  // Função para determinar o status do investimento
+  const getInvestmentStatus = (returnPercentage: number) => {
+    if (returnPercentage > 100) {
+      return { text: "🚀 Lucro violento, foi pra lua! 🌙", color: "text-yellow-400", bgColor: "bg-yellow-500/10" };
+    } else if (returnPercentage > 0) {
+      return { text: "📈 Você está no lucro", color: "text-green-400", bgColor: "bg-green-500/10" };
+    } else if (returnPercentage === 0) {
+      return { text: "⚖️ Você está no equilíbrio", color: "text-blue-400", bgColor: "bg-blue-500/10" };
+    } else {
+      return { text: "📉 Você está no prejuízo", color: "text-red-400", bgColor: "bg-red-500/10" };
+    }
+  };
+
+  const investmentStatus = getInvestmentStatus(totalReturn);
 
   const formatDate = (dateString: string) => {
     const date = new Date(dateString);
@@ -273,15 +289,25 @@ const Investments: React.FC = () => {
 
           <div className="glass-card p-6 rounded-2xl border border-white/10 shadow-xl backdrop-blur-xl">
             <div className="flex items-center gap-3 mb-3">
-              <div className="p-2 rounded-lg bg-blue-500/10">
-                <TrendingUp className="h-5 w-5 text-blue-400" />
+              <div className={`p-2 rounded-lg ${investmentStatus.bgColor}`}>
+                <TrendingUp className={`h-5 w-5 ${investmentStatus.color}`} />
               </div>
               <h3 className="text-white font-medium">Valor Atual</h3>
             </div>
-            <p className="text-2xl font-bold text-white">{formatCurrency(currentValue)}</p>
-            <p className={`text-sm ${totalReturn >= 0 ? 'text-green-400' : 'text-red-400'} mt-1`}>
-              {totalReturn >= 0 ? '+' : ''}{totalReturn.toFixed(2)}%
+            <p className={`text-2xl font-bold ${totalReturn >= 0 ? 'text-green-400' : totalReturn === 0 ? 'text-blue-400' : 'text-red-400'}`}>
+              {formatCurrency(currentValue)}
             </p>
+            <div className="flex items-center gap-3 mt-1">
+              <p className={`text-sm ${investmentStatus.color} font-medium`}>
+                {totalReturn >= 0 ? '+' : ''}{totalReturn.toFixed(2)}%
+              </p>
+              <p className={`text-sm ${investmentStatus.color} font-medium`}>
+                {gainLossAmount >= 0 ? '+' : ''}{formatCurrency(Math.abs(gainLossAmount))}
+              </p>
+            </div>
+            <div className={`mt-2 px-3 py-1.5 rounded-full text-xs font-medium ${investmentStatus.bgColor} ${investmentStatus.color} text-center`}>
+              {investmentStatus.text}
+            </div>
           </div>
 
           <div className="glass-card p-6 rounded-2xl border border-white/10 shadow-xl backdrop-blur-xl">
@@ -289,10 +315,14 @@ const Investments: React.FC = () => {
               <div className="p-2 rounded-lg bg-purple-500/10">
                 <Target className="h-5 w-5 text-purple-400" />
               </div>
-              <h3 className="text-white font-medium">Metas Alcançadas</h3>
+              <h3 className="text-white font-medium">Alvo de Meta</h3>
             </div>
-            <p className="text-2xl font-bold text-white">{goals.filter(g => g.achieved).length}/{goals.length}</p>
-            <p className="text-sm text-gray-400 mt-1">Metas ativas</p>
+            <p className="text-2xl font-bold text-white">
+              {formatCurrency(goals.reduce((acc, goal) => acc + goal.investedAmount, 0))}
+            </p>
+            <p className="text-sm text-purple-400 mt-1">
+              +{goals.reduce((acc, goal) => acc + goal.percentageToTarget, 0).toFixed(2)}% potencial
+            </p>
           </div>
         </div>
 
@@ -510,47 +540,45 @@ const Investments: React.FC = () => {
               </div>
               <span className="text-xs text-gray-400">{investments.length} ativos</span>
             </div>
-            <div className="overflow-x-auto [&::-webkit-scrollbar]:h-[1px] [&::-webkit-scrollbar-thumb]:rounded-full [&::-webkit-scrollbar-track]:transparent [&::-webkit-scrollbar-thumb]:bg-white/5 hover:[&::-webkit-scrollbar-thumb]:bg-white/10">
+            <div className="overflow-x-auto [&::-webkit-scrollbar]:h-2 [&::-webkit-scrollbar-thumb]:rounded-full [&::-webkit-scrollbar-track]:bg-transparent [&::-webkit-scrollbar-thumb]:bg-indigo-600/30 hover:[&::-webkit-scrollbar-thumb]:bg-indigo-600/50 [&::-webkit-scrollbar-corner]:bg-transparent">
               <div className="min-w-[750px]">
-                <table className="w-full whitespace-nowrap text-xs">
-                  <thead>
-                    <tr className="border-b border-white/10">
-                      <th className="text-left py-3 sm:py-2.5 px-0.5 font-medium text-gray-300 w-[10%]">Ativo</th>
-                      <th className="text-right py-3 sm:py-2.5 px-0.5 font-medium text-gray-300 w-[12%]">Valor Investido</th>
-                      <th className="text-right py-3 sm:py-2.5 px-1 font-medium text-gray-300 w-[13%]">Data</th>
-                      <th className="text-right py-3 sm:py-2.5 px-1 font-medium text-gray-300 w-[15%]">Preço Compra</th>
-                      <th className="text-right py-3 sm:py-2.5 px-1 font-medium text-gray-300 w-[10%]">Qtd.</th>
-                      <th className="text-right py-3 sm:py-2.5 px-1 font-medium text-gray-300 w-[2%]"></th>
-                      <th className="text-center py-3 sm:py-2.5 px-1 font-medium text-gray-300 w-[5%]">Ação</th>
+                <table className="w-full whitespace-nowrap text-sm">
+                  <thead className="bg-indigo-600/20 backdrop-blur-sm">
+                    <tr className="border-b border-indigo-500/30">
+                      <th className="text-left py-4 px-4 font-semibold text-indigo-200 w-[18%]">Ativo</th>
+                      <th className="text-right py-4 px-4 font-semibold text-indigo-200 w-[16%]">Valor Investido</th>
+                      <th className="text-right py-4 px-4 font-semibold text-indigo-200 w-[16%]">Data</th>
+                      <th className="text-right py-4 px-4 font-semibold text-indigo-200 w-[16%]">Preço Compra</th>
+                      <th className="text-right py-4 px-4 font-semibold text-indigo-200 w-[14%]">Quantidade</th>
+                      <th className="text-center py-4 px-4 font-semibold text-indigo-200 w-[10%]">Ação</th>
                     </tr>
                   </thead>
                   <tbody>
                     {investments.length === 0 ? (
                       <tr>
-                        <td colSpan={7} className="text-center py-8 text-gray-400">
+                        <td colSpan={6} className="text-center py-8 text-gray-400">
                           Nenhum registro encontrado
                         </td>
                       </tr>
                     ) : (
                       investments.map(inv => (
                         <tr key={inv.id} className="border-b border-white/5 hover:bg-white/5 transition-colors">
-                          <td className="py-3 sm:py-2.5 px-0.5 text-white font-medium">{inv.name}</td>
-                          <td className="text-right py-3 sm:py-2.5 px-0.5 text-white font-medium">{formatCurrency(inv.investedAmount)}</td>
-                          <td className="text-right py-3 sm:py-2.5 px-1 text-gray-300">
+                          <td className="py-4 px-4 text-white font-medium">{inv.name}</td>
+                          <td className="text-right py-4 px-4 text-white font-medium">{formatCurrency(inv.investedAmount)}</td>
+                          <td className="text-right py-4 px-4 text-gray-300">
                             <div className="flex items-center justify-end gap-1">
                               <Calendar className="w-3 h-3 text-gray-400" />
                               {formatDate(inv.purchaseDate)}
                             </div>
                           </td>
-                          <td className="text-right py-3 sm:py-2.5 px-1 text-white font-medium">{formatCurrency(inv.purchasePrice)}</td>
-                          <td className="text-right py-3 sm:py-2.5 px-1 text-white">{inv.amount.toString().replace('.', ',')}</td>
-                          <td className="w-[2%]"></td>
-                          <td className="text-center py-3 sm:py-2.5 px-1">
+                          <td className="text-right py-4 px-4 text-white font-medium">{formatCurrency(inv.purchasePrice)}</td>
+                          <td className="text-right py-4 px-4 text-white">{inv.amount.toString().replace('.', ',')}</td>
+                          <td className="text-center py-4 px-4">
                             <button
                               onClick={() => handleDeleteInvestment(inv.id)}
-                              className="p-1 hover:bg-white/10 rounded transition-colors group"
+                              className="p-2 hover:bg-white/10 rounded-lg transition-colors group"
                             >
-                              <Trash2 className="w-3.5 h-3.5 text-gray-400 group-hover:text-red-400" />
+                              <Trash2 className="w-4 h-4 text-gray-400 group-hover:text-red-400" />
                             </button>
                           </td>
                         </tr>
@@ -573,17 +601,17 @@ const Investments: React.FC = () => {
               </div>
               <span className="text-xs text-gray-400">{investments.length} ativos</span>
             </div>
-            <div className="overflow-x-auto [&::-webkit-scrollbar]:h-[1px] [&::-webkit-scrollbar-thumb]:rounded-full [&::-webkit-scrollbar-track]:transparent [&::-webkit-scrollbar-thumb]:bg-white/5 hover:[&::-webkit-scrollbar-thumb]:bg-white/10">
+            <div className="overflow-x-auto [&::-webkit-scrollbar]:h-2 [&::-webkit-scrollbar-thumb]:rounded-full [&::-webkit-scrollbar-track]:bg-transparent [&::-webkit-scrollbar-thumb]:bg-indigo-600/30 hover:[&::-webkit-scrollbar-thumb]:bg-indigo-600/50 [&::-webkit-scrollbar-corner]:bg-transparent">
               <div className="min-w-[900px]">
-                <table className="w-full whitespace-nowrap text-xs">
-                  <thead>
-                    <tr className="border-b border-white/10">
-                      <th className="text-left py-3 sm:py-2.5 px-0.5 font-medium text-gray-300 w-[12%]">Ativo</th>
-                      <th className="text-right py-3 sm:py-2.5 px-0.5 font-medium text-gray-300 w-[15%]">Total Investido</th>
-                      <th className="text-right py-3 sm:py-2.5 px-1 font-medium text-gray-300 w-[15%]">Preço de Compra</th>
-                      <th className="text-right py-3 sm:py-2.5 px-1 font-medium text-gray-300 w-[15%]">Valor Atual</th>
-                      <th className="text-right py-3 sm:py-2.5 px-1 font-medium text-gray-300 w-[15%]">Ganho/Perda ($)</th>
-                      <th className="text-right py-3 sm:py-2.5 px-1 font-medium text-gray-300 w-[12%]">Ganho/Perda (%)</th>
+                <table className="w-full whitespace-nowrap text-sm">
+                  <thead className="bg-indigo-600/20 backdrop-blur-sm">
+                    <tr className="border-b border-indigo-500/30">
+                      <th className="text-left py-4 px-4 font-semibold text-indigo-200 w-[16%]">Ativo</th>
+                      <th className="text-right py-4 px-4 font-semibold text-indigo-200 w-[16%]">Total Investido</th>
+                      <th className="text-right py-4 px-4 font-semibold text-indigo-200 w-[16%]">Preço de Compra</th>
+                      <th className="text-right py-4 px-4 font-semibold text-indigo-200 w-[16%]">Valor Atual</th>
+                      <th className="text-right py-4 px-4 font-semibold text-indigo-200 w-[18%]">Ganho/Perda ($)</th>
+                      <th className="text-right py-4 px-4 font-semibold text-indigo-200 w-[18%]">Ganho/Perda (%)</th>
                     </tr>
                   </thead>
                   <tbody>
@@ -604,28 +632,28 @@ const Investments: React.FC = () => {
 
                         return (
                           <tr key={inv.id} className="border-b border-white/5 hover:bg-white/5 transition-colors">
-                            <td className="py-3 sm:py-2.5 px-0.5 text-white font-medium">{inv.name}</td>
-                            <td className="text-right py-3 sm:py-2.5 px-0.5 text-white font-medium">{formatCurrency(totalInvested)}</td>
-                            <td className="text-right py-3 sm:py-2.5 px-1 text-white font-medium">{formatCurrency(inv.purchasePrice)}</td>
-                            <td className="text-right py-3 sm:py-2.5 px-1 text-white font-medium">{formatCurrency(currentPrice)}</td>
-                            <td className="text-right py-3 sm:py-2.5 px-1">
-                              <div className={`flex items-center justify-end gap-0.5 ${isPositive ? 'text-green-400' : 'text-red-400'}`}>
+                            <td className="py-4 px-4 text-white font-medium">{inv.name}</td>
+                            <td className="text-right py-4 px-4 text-white font-medium">{formatCurrency(totalInvested)}</td>
+                            <td className="text-right py-4 px-4 text-white font-medium">{formatCurrency(inv.purchasePrice)}</td>
+                            <td className="text-right py-4 px-4 text-white font-medium">{formatCurrency(currentPrice)}</td>
+                            <td className="text-right py-4 px-4">
+                              <div className={`flex items-center justify-end gap-1 ${isPositive ? 'text-green-400' : 'text-red-400'}`}>
                                 {isPositive ? (
-                                  <ArrowUp className="w-3 h-3" />
+                                  <ArrowUp className="w-4 h-4" />
                                 ) : (
-                                  <ArrowDown className="w-3 h-3" />
+                                  <ArrowDown className="w-4 h-4" />
                                 )}
                                 <span className="font-medium">
                                   {formatCurrency(Math.abs(gainLossAmount))}
                                 </span>
                               </div>
                             </td>
-                            <td className="text-right py-3 sm:py-2.5 px-1">
-                              <div className={`flex items-center justify-end gap-0.5 ${isPositive ? 'text-green-400' : 'text-red-400'}`}>
+                            <td className="text-right py-4 px-4">
+                              <div className={`flex items-center justify-end gap-1 ${isPositive ? 'text-green-400' : 'text-red-400'}`}>
                                 {isPositive ? (
-                                  <ArrowUp className="w-3 h-3" />
+                                  <ArrowUp className="w-4 h-4" />
                                 ) : (
-                                  <ArrowDown className="w-3 h-3" />
+                                  <ArrowDown className="w-4 h-4" />
                                 )}
                                 <span className="font-medium">
                                   {isPositive ? '+' : '-'}{Math.abs(gainLossPercentage).toFixed(2)}%
@@ -653,23 +681,24 @@ const Investments: React.FC = () => {
               </div>
               <span className="text-xs text-gray-400">{goals.length} metas</span>
             </div>
-            <div className="overflow-x-auto [&::-webkit-scrollbar]:h-[1px] [&::-webkit-scrollbar-thumb]:rounded-full [&::-webkit-scrollbar-track]:transparent [&::-webkit-scrollbar-thumb]:bg-white/5 hover:[&::-webkit-scrollbar-thumb]:bg-white/10">
-              <div className="min-w-[750px]">
-                <table className="w-full whitespace-nowrap text-xs">
-                  <thead>
-                    <tr className="border-b border-white/10">
-                      <th className="text-left py-3 sm:py-2.5 px-1.5 font-medium text-gray-300 w-[15%]">Ativo</th>
-                      <th className="text-right py-3 sm:py-2.5 px-1.5 font-medium text-gray-300 w-[25%]">Preço Compra</th>
-                      <th className="text-right py-3 sm:py-2.5 px-1.5 font-medium text-gray-300 w-[25%]">Preço Alvo</th>
-                      <th className="text-right py-3 sm:py-2.5 px-1.5 font-medium text-gray-300 w-[15%]">Potencial</th>
-                      <th className="text-center py-3 sm:py-2.5 px-1.5 font-medium text-gray-300 w-[15%]">Status</th>
-                      <th className="text-center py-3 sm:py-2.5 px-1.5 font-medium text-gray-300 w-[5%]">Ação</th>
+            <div className="overflow-x-auto [&::-webkit-scrollbar]:h-2 [&::-webkit-scrollbar-thumb]:rounded-full [&::-webkit-scrollbar-track]:bg-transparent [&::-webkit-scrollbar-thumb]:bg-indigo-600/30 hover:[&::-webkit-scrollbar-thumb]:bg-indigo-600/50 [&::-webkit-scrollbar-corner]:bg-transparent">
+              <div className="min-w-[850px]">
+                <table className="w-full whitespace-nowrap text-sm">
+                  <thead className="bg-indigo-600/20 backdrop-blur-sm">
+                    <tr className="border-b border-indigo-500/30">
+                      <th className="text-left py-4 px-4 font-semibold text-indigo-200 w-[18%]">Ativo</th>
+                      <th className="text-right py-4 px-4 font-semibold text-indigo-200 w-[16%]">Valor Investido</th>
+                      <th className="text-right py-4 px-4 font-semibold text-indigo-200 w-[16%]">Preço Compra</th>
+                      <th className="text-right py-4 px-4 font-semibold text-indigo-200 w-[16%]">Preço Alvo</th>
+                      <th className="text-right py-4 px-4 font-semibold text-indigo-200 w-[14%]">Potencial</th>
+                      <th className="text-center py-4 px-4 font-semibold text-indigo-200 w-[12%]">Status</th>
+                      <th className="text-center py-4 px-4 font-semibold text-indigo-200 w-[8%]">Ação</th>
                     </tr>
                   </thead>
                   <tbody>
                     {goals.length === 0 ? (
                       <tr>
-                        <td colSpan={6} className="text-center py-8 text-gray-400">
+                        <td colSpan={7} className="text-center py-8 text-gray-400">
                           Nenhum registro encontrado
                         </td>
                       </tr>
@@ -678,28 +707,29 @@ const Investments: React.FC = () => {
                         const potentialReturn = ((goal.targetPrice - goal.purchasePrice) / goal.purchasePrice) * 100;
                         return (
                           <tr key={goal.id} className="border-b border-white/5 hover:bg-white/5 transition-colors">
-                            <td className="py-3 sm:py-2.5 px-1.5 text-white font-medium">{goal.assetName}</td>
-                            <td className="text-right py-3 sm:py-2.5 px-1.5 text-white">{formatCurrency(goal.purchasePrice)}</td>
-                            <td className="text-right py-3 sm:py-2.5 px-1.5 text-white">{formatCurrency(goal.targetPrice)}</td>
-                            <td className="text-right py-3 sm:py-2.5 px-1.5 text-green-400">+{potentialReturn.toFixed(2)}%</td>
-                            <td className="text-center py-3 sm:py-2.5 px-1.5">
+                            <td className="py-4 px-4 text-white font-medium">{goal.assetName}</td>
+                            <td className="text-right py-4 px-4 text-white font-medium">{formatCurrency(goal.investedAmount)}</td>
+                            <td className="text-right py-4 px-4 text-white">{formatCurrency(goal.purchasePrice)}</td>
+                            <td className="text-right py-4 px-4 text-white">{formatCurrency(goal.targetPrice)}</td>
+                            <td className="text-right py-4 px-4 text-green-400 font-medium">+{potentialReturn.toFixed(2)}%</td>
+                            <td className="text-center py-4 px-4">
                               {goal.achieved ? (
-                                <span className="inline-flex items-center px-1.5 py-0.5 rounded-full text-[10px] font-medium bg-green-500/20 text-green-400">
-                                  <Check className="w-2.5 h-2.5 mr-0.5" />
+                                <span className="inline-flex items-center px-2 py-1 rounded-full text-xs font-medium bg-green-500/20 text-green-400">
+                                  <Check className="w-3 h-3 mr-1" />
                                   Alcançada
                                 </span>
                               ) : (
-                                <span className="inline-flex items-center px-1.5 py-0.5 rounded-full text-[10px] font-medium bg-yellow-500/20 text-yellow-400">
+                                <span className="inline-flex items-center px-2 py-1 rounded-full text-xs font-medium bg-yellow-500/20 text-yellow-400">
                                   Em progresso
                                 </span>
                               )}
                             </td>
-                            <td className="text-center py-3 sm:py-2.5 px-1.5">
+                            <td className="text-center py-4 px-4">
                               <button
                                 onClick={() => handleDeleteGoal(goal.id)}
-                                className="p-1 hover:bg-white/10 rounded transition-colors group"
+                                className="p-2 hover:bg-white/10 rounded-lg transition-colors group"
                               >
-                                <Trash2 className="w-3.5 h-3.5 text-gray-400 group-hover:text-red-400" />
+                                <Trash2 className="w-4 h-4 text-gray-400 group-hover:text-red-400" />
                               </button>
                             </td>
                           </tr>

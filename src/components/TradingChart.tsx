@@ -45,7 +45,7 @@ export const TradingChart = () => {
   }
 
   return (
-    <div className="glass-card">
+    <div className="glass-card" style={{ backgroundColor: 'rgba(18,18,18,255)' }}>
       <div className="p-4 sm:p-6">
         <TradingChartHeader
           selectedPair={selectedPair}
