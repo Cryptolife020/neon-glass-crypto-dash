@@ -6,6 +6,9 @@ import { BrowserRouter, Routes, Route } from "react-router-dom";
 import { AuthProvider, useAuth } from "@/contexts/AuthContext";
 import { LoginScreen } from "@/components/LoginScreen";
 import Index from "./pages/Index";
+import MFuturos from "./pages/MFuturos";
+import CoinTracker from "./pages/CoinTracker";
+import Investments from "./pages/Investments";
 import NotFound from "./pages/NotFound";
 
 const queryClient = new QueryClient();
@@ -25,7 +28,26 @@ const AppContent = () => {
           element={<Index data-oid="fgku:1o" />}
           data-oid="je0bnhn"
         />
-
+        <Route
+          path="/daytrade"
+          element={<Index data-oid="fgku:1o" />}
+          data-oid="daytrade-route"
+        />
+        <Route
+          path="/futures"
+          element={<MFuturos data-oid="mfuturos:1o" />}
+          data-oid="futures-route"
+        />
+        <Route
+          path="/tracker"
+          element={<CoinTracker data-oid="cointracker:1o" />}
+          data-oid="tracker-route"
+        />
+        <Route
+          path="/investments"
+          element={<Investments />}
+          data-oid="investments-route"
+        />
         <Route
           path="*"
           element={<NotFound data-oid="3wftzn2" />}

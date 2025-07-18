@@ -96,6 +96,16 @@
     background: linear-gradient(135deg, #0a0a0a 0%, #161616 50%, #1f1f1f 100%);
     min-height: 100vh;
   }
+  
+  /* Fix for white background on autofill */
+  input:-webkit-autofill,
+  input:-webkit-autofill:hover,
+  input:-webkit-autofill:focus,
+  input:-webkit-autofill:active {
+    -webkit-box-shadow: 0 0 0 30px #1f1f1f inset !important;
+    -webkit-text-fill-color: white !important;
+    transition: background-color 5000s ease-in-out 0s;
+  }
 
   /* Page scrollbar - matte black */
   html {

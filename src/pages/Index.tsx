@@ -1,4 +1,5 @@
-import { useState } from "react";
+import React, { useState } from "react";
+import { useLocation } from "react-router-dom";
 import { CryptoSidebar } from "@/components/CryptoSidebar";
 import { DashboardCards } from "@/components/DashboardCards";
 import { TradingChart } from "@/components/TradingChart";
@@ -8,15 +9,40 @@ import DayTradeSystem from "@/components/DayTradeSystem";
 import { useAuth } from "@/contexts/AuthContext";
 import { useTopCoins } from "@/hooks/useTopCoins";
 import { TrendingUp, Target, LogOut } from "lucide-react";
+import { useNavigate } from "react-router-dom";
 
 
 const Index = () => {
-  const [activeItem, setActiveItem] = useState("dashboard");
+  const location = useLocation();
+  const navigate = useNavigate();
   const { user, logout } = useAuth();
   const { data: topCoins, isLoading: isLoadingTopCoins } = useTopCoins();
 
+  // Determinar o item ativo baseado na rota atual
+  const getActiveItem = () => {
+    if (location.pathname === '/daytrade') return 'daytrade';
+    if (location.pathname === '/futures') return 'futures';
+    return 'dashboard';
+  };
+
+  const activeItem = getActiveItem();
+
   const handleLogout = () => {
     logout();
+  };
+
+  const handleItemClick = (item: string) => {
+    if (item === "dashboard") {
+      navigate('/');
+    } else if (item === "tracker") {
+      navigate('/tracker');
+    } else if (item === "daytrade") {
+      navigate('/daytrade');
+    } else if (item === "futures") {
+      navigate('/futures');
+    } else {
+      navigate('/');
+    }
   };
 
   // Render the DayTradeSystem component when the activeItem is "daytrade"
@@ -25,7 +51,7 @@ const Index = () => {
       <div className="min-h-screen flex w-full glass-background relative overflow-x-hidden">
         <CryptoSidebar
           activeItem={activeItem}
-          onItemClick={setActiveItem}
+          onItemClick={handleItemClick}
         />
         
         {/* Notifications - Absolute position top right */}
@@ -48,12 +74,14 @@ const Index = () => {
       </div>
     );
   }
+  
+  // Esta condição não é mais necessária pois o MFuturos agora tem sua própria rota
 
   return (
     <div className="min-h-screen flex w-full glass-background relative overflow-x-hidden">
       <CryptoSidebar
         activeItem={activeItem}
-        onItemClick={setActiveItem}
+        onItemClick={handleItemClick}
       />
 
       {/* Notifications - Absolute position top right */}

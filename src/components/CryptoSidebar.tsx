@@ -60,13 +60,13 @@ export const CryptoSidebar = ({ activeItem, onItemClick }: SidebarProps) => {
         fixed lg:relative top-0 left-0 h-[calc(100vh-2rem)] lg:h-screen z-[70]
       `}
       >
-        <div className="h-full glass-card m-4 p-4 lg:p-6 flex flex-col">
+        <div className="h-full glass-card m-4 p-4 lg:p-6 flex flex-col overflow-y-auto scrollbar-hide">
           <div className="flex items-center justify-between mb-4 lg:mb-6">
             <div className="flex items-center gap-3">
               <div className="w-8 h-8 lg:w-10 lg:h-10 flex items-center justify-center">
-                <img 
-                  src="/Bitcoin.svg" 
-                  alt="Bitcoin Logo" 
+                <img
+                  src="/Bitcoin.svg"
+                  alt="Bitcoin Logo"
                   className="w-full h-full object-contain"
                 />
               </div>
@@ -85,6 +85,27 @@ export const CryptoSidebar = ({ activeItem, onItemClick }: SidebarProps) => {
             >
               <X className="w-5 h-5 text-white" />
             </button>
+          </div>
+
+          {/* Pro Account section moved below the title */}
+          <div className="mb-4 lg:mb-6">
+            <div className="glass rounded-xl p-3 lg:p-4">
+              <div className="flex items-center gap-3 mb-2">
+                <div className="w-6 h-6 lg:w-7 lg:h-7 bg-gradient-to-r from-green-400 to-emerald-500 rounded-full"></div>
+                <div className="flex-1">
+                  <p className="text-xs lg:text-sm font-medium text-white">
+                    Pro Account
+                  </p>
+                  <p className="text-[10px] lg:text-xs bg-gradient-to-r from-neon-blue-400 to-blue-300 bg-clip-text text-transparent font-medium drop-shadow-[0_0_2px_rgba(59,130,246,0.5)]">Premium Features</p>
+                </div>
+              </div>
+              <div className="w-full bg-gray-700 rounded-full h-1">
+                <div className="bg-gradient-to-r from-neon-blue-400 to-neon-blue-600 h-1 rounded-full w-4/5"></div>
+              </div>
+              <p className="text-[10px] lg:text-xs text-gray-400 mt-1.5">
+                API Calls: 8,420/10,000
+              </p>
+            </div>
           </div>
 
           <nav className="flex-1 flex flex-col gap-2 overflow-y-auto lg:overflow-visible">
@@ -116,23 +137,7 @@ export const CryptoSidebar = ({ activeItem, onItemClick }: SidebarProps) => {
           </nav>
 
           <div className="mt-4 pt-4 lg:pt-4 border-t border-white/10">
-            <div className="glass rounded-xl p-3 lg:p-4">
-              <div className="flex items-center gap-3 mb-2">
-                <div className="w-6 h-6 lg:w-7 lg:h-7 bg-gradient-to-r from-green-400 to-emerald-500 rounded-full"></div>
-                <div className="flex-1">
-                  <p className="text-xs lg:text-sm font-medium text-white">
-                    Pro Account
-                  </p>
-                  <p className="text-[10px] lg:text-xs text-gray-400">Premium Features</p>
-                </div>
-              </div>
-              <div className="w-full bg-gray-700 rounded-full h-1">
-                <div className="bg-gradient-to-r from-neon-blue-400 to-neon-blue-600 h-1 rounded-full w-4/5"></div>
-              </div>
-              <p className="text-[10px] lg:text-xs text-gray-400 mt-1.5">
-                API Calls: 8,420/10,000
-              </p>
-            </div>
+            {/* Footer area if needed */}
           </div>
         </div>
       </div>
