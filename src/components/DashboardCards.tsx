@@ -75,7 +75,7 @@ const StatCard = ({
 };
 
 export const DashboardCards = () => {
-  const { data, isLoading, error, btcDominanceChange } = useCoinGeckoData();
+  const { data, isLoading, error, btcDominanceChange, volumeChange } = useCoinGeckoData();
 
   const formatCurrency = (value: number) => {
     return new Intl.NumberFormat("en-US", {
@@ -104,7 +104,8 @@ export const DashboardCards = () => {
   // Obter as mudanças percentuais reais da API
   const btcDominanceChangeValue = btcDominanceChange || 0;
   const marketCapChange = data?.market_cap_change_percentage_24h_usd || 0;
-  const volumeChange = data?.volume_change_percentage_24h || 0;
+  // Usar dados de mudança de volume do hook ou valor padrão
+  const volumeChangeValue = volumeChange || 0;
 
   return (
     <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-3 sm:gap-4 lg:gap-6 w-full max-w-full overflow-hidden">
@@ -131,8 +132,8 @@ export const DashboardCards = () => {
       <StatCard
         title="Volume 24h"
         value={formatVolume(volume24h)}
-        change={`${volumeChange >= 0 ? '+' : ''}${volumeChange.toFixed(2)}%`}
-        changeType={volumeChange >= 0 ? "up" : "down"}
+        change={`${volumeChangeValue >= 0 ? '+' : ''}${volumeChangeValue.toFixed(2)}%`}
+        changeType={volumeChangeValue >= 0 ? "up" : "down"}
         icon={TrendingUp}
         description="Volume de negociação"
         isLoading={isLoading}

@@ -194,15 +194,20 @@ const Investments: React.FC = () => {
       }
     }
 
+    // Calcular quantidade automaticamente: Valor Investido ÷ Preço de Compra
+    const investedAmount = parseNumberInput(newInvestment.investedAmount);
+    const purchasePrice = parseNumberInput(newInvestment.purchasePrice);
+    const calculatedAmount = investedAmount / purchasePrice;
+
     const investment: Investment = {
       id: Date.now().toString(),
       name: newInvestment.name,
-      purchasePrice: parseNumberInput(newInvestment.purchasePrice),
+      purchasePrice: purchasePrice,
       purchaseDate: newInvestment.purchaseDate,
-      amount: parseNumberInput(newInvestment.amount),
+      amount: calculatedAmount, // Quantidade calculada automaticamente
       type: 'Cryptocurrency',
-      investedAmount: parseNumberInput(newInvestment.investedAmount),
-      currentPrice: currentPrice || parseNumberInput(newInvestment.purchasePrice) // Usa o preço de compra se não houver preço atual
+      investedAmount: investedAmount,
+      currentPrice: currentPrice || purchasePrice // Usa o preço de compra se não houver preço atual
     };
 
     setInvestments(prev => [...prev, investment]);
@@ -360,31 +365,18 @@ const Investments: React.FC = () => {
                   required
                 />
               </div>
-              <div className="grid grid-cols-2 gap-4">
-                <div>
-                  <label className="block text-sm font-medium text-gray-300 mb-1">Preço de Compra</label>
-                  <input
-                    type="text"
-                    name="purchasePrice"
-                    value={newInvestment.purchasePrice}
-                    onChange={handleInputChange}
-                    className="w-full bg-white/5 border border-white/10 rounded-lg px-4 py-2 text-white focus:outline-none focus:ring-2 focus:ring-neon-blue-400"
-                    placeholder="0,00"
-                    required
-                  />
-                </div>
-                <div>
-                  <label className="block text-sm font-medium text-gray-300 mb-1">Quantidade</label>
-                  <input
-                    type="text"
-                    name="amount"
-                    value={newInvestment.amount}
-                    onChange={handleInputChange}
-                    className="w-full bg-white/5 border border-white/10 rounded-lg px-4 py-2 text-white focus:outline-none focus:ring-2 focus:ring-neon-blue-400"
-                    placeholder="0,00000000"
-                    required
-                  />
-                </div>
+              <div>
+                <label className="block text-sm font-medium text-gray-300 mb-1">Preço de Compra</label>
+                <input
+                  type="text"
+                  name="purchasePrice"
+                  value={newInvestment.purchasePrice}
+                  onChange={handleInputChange}
+                  className="w-full bg-white/5 border border-white/10 rounded-lg px-4 py-2 text-white focus:outline-none focus:ring-2 focus:ring-neon-blue-400"
+                  placeholder="0,00"
+                  required
+                />
+                <p className="text-xs text-gray-400 mt-1">Preço unitário do ativo na data da compra</p>
               </div>
               <div className="grid grid-cols-2 gap-4">
                 <div>
@@ -625,17 +617,18 @@ const Investments: React.FC = () => {
                       investments.map(inv => {
                         const currentPrice = currentPrices[inv.id] || inv.purchasePrice;
                         const totalInvested = inv.investedAmount;
+                        // Calcular o valor atual baseado na quantidade e preço atual
                         const currentValue = currentPrice * inv.amount;
                         const gainLossAmount = currentValue - totalInvested;
-                        const gainLossPercentage = ((currentValue - totalInvested) / totalInvested) * 100;
-                        const isPositive = gainLossPercentage >= 0;
+                        const gainLossPercentage = totalInvested > 0 ? ((currentValue - totalInvested) / totalInvested) * 100 : 0;
+                        const isPositive = gainLossAmount >= 0;
 
                         return (
                           <tr key={inv.id} className="border-b border-white/5 hover:bg-white/5 transition-colors">
                             <td className="py-4 px-4 text-white font-medium">{inv.name}</td>
                             <td className="text-right py-4 px-4 text-white font-medium">{formatCurrency(totalInvested)}</td>
                             <td className="text-right py-4 px-4 text-white font-medium">{formatCurrency(inv.purchasePrice)}</td>
-                            <td className="text-right py-4 px-4 text-white font-medium">{formatCurrency(currentPrice)}</td>
+                            <td className="text-right py-4 px-4 text-white font-medium">{formatCurrency(currentValue)}</td>
                             <td className="text-right py-4 px-4">
                               <div className={`flex items-center justify-end gap-1 ${isPositive ? 'text-green-400' : 'text-red-400'}`}>
                                 {isPositive ? (

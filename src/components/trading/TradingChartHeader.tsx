@@ -2,6 +2,7 @@
 import { useState } from "react";
 import {
   TrendingUp,
+  TrendingDown,
   Settings,
   Maximize2,
   LineChart,
@@ -136,7 +137,11 @@ export const TradingChartHeader = ({
               : "text-red-400"
           }`}
         >
-          <TrendingUp className="w-4 h-4" />
+          {(coinData?.price_change_percentage_24h || 0) >= 0 ? (
+            <TrendingUp className="w-4 h-4" />
+          ) : (
+            <TrendingDown className="w-4 h-4" />
+          )}
           <span className="text-sm">
             {(coinData?.price_change_percentage_24h || 0) >= 0 ? "+" : ""}
             {coinData?.price_change_percentage_24h?.toFixed(2) || "0.00"}%
