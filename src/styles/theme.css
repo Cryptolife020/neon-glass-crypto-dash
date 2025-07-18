@@ -20,4 +20,18 @@ body {
   color-scheme: dark;
   min-height: 100vh;
   margin: 0;
+}
+
+/* Estilo para a barra de navegação virtual do Android */
+@media screen and (orientation: portrait) {
+  body::after {
+    content: '';
+    position: fixed;
+    bottom: 0;
+    left: 0;
+    right: 0;
+    height: 44px; /* Altura da barra de navegação virtual */
+    background-color: #000000;
+    z-index: 9999;
+  }
 } 
