@@ -57,7 +57,7 @@ export const CryptoSidebar = ({ activeItem, onItemClick }: SidebarProps) => {
         w-64
         ${isMobileOpen ? "translate-x-0" : "-translate-x-full lg:translate-x-0"}
         transition-all duration-300 ease-in-out
-        fixed lg:relative top-0 left-0 h-[calc(100vh-1rem)] lg:h-screen z-[70]
+        fixed lg:relative top-0 left-0 h-auto max-h-[70vh] lg:h-screen z-[70]
       `}
       >
         <div className="h-full glass-card m-2 lg:m-4 p-3 lg:p-6 flex flex-col overflow-y-auto scrollbar-hide">
