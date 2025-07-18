@@ -1,6 +1,7 @@
 :root {
   color-scheme: dark;
   --navigation-bar-color: #000000;
+  --background-color: #121212;
 }
 
 @media (prefers-color-scheme: dark) {
@@ -10,11 +11,13 @@
 }
 
 html {
-  background-color: #000000;
+  background-color: var(--background-color);
   color-scheme: dark;
 }
 
 body {
-  background-color: #000000;
+  background-color: var(--background-color);
   color-scheme: dark;
+  min-height: 100vh;
+  margin: 0;
 } 
