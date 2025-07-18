@@ -96,6 +96,22 @@
     background: linear-gradient(135deg, #0a0a0a 0%, #161616 50%, #1f1f1f 100%);
     min-height: 100vh;
   }
+
+  /* Force dark navigation bar on mobile */
+  html {
+    background-color: #000000;
+  }
+  
+  /* Android Chrome navigation bar */
+  @media screen and (max-width: 768px) {
+    html {
+      background-color: #000000 !important;
+    }
+    
+    body {
+      background-color: #000000;
+    }
+  }
   
   /* Fix for white background on autofill */
   input:-webkit-autofill,
