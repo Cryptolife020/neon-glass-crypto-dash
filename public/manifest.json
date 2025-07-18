@@ -7,6 +7,9 @@
   "background_color": "#000000",
   "theme_color": "#000000",
   "orientation": "portrait",
+  "display_override": ["standalone", "fullscreen"],
+  "categories": ["finance", "cryptocurrency"],
+  "prefer_related_applications": false,
   "icons": [
     {
       "src": "/Bitcoin.svg",
@@ -14,5 +17,10 @@
       "type": "image/svg+xml",
       "purpose": "any maskable"
     }
-  ]
+  ],
+  "shortcuts": [],
+  "protocol_handlers": [],
+  "edge_side_panel": {
+    "preferred_width": 400
+  }
 } 
