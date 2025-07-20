@@ -48,7 +48,18 @@ const Index = () => {
   // Render the DayTradeSystem component when the activeItem is "daytrade"
   if (activeItem === "daytrade") {
     return (
-      <div className="min-h-screen flex w-full glass-background relative overflow-x-hidden">
+      <div className="min-h-screen flex w-full relative overflow-x-hidden">
+        {/* Background image - mesma da tela de login */}
+        <div
+          className="absolute inset-0 bg-cover bg-center bg-no-repeat"
+          style={{
+            backgroundImage: `url('/image/image-login.jpg')`,
+          }}
+        >
+          {/* Dark overlay for better contrast */}
+          <div className="absolute inset-0 bg-black/60"></div>
+        </div>
+
         <CryptoSidebar
           activeItem={activeItem}
           onItemClick={handleItemClick}
@@ -68,10 +79,10 @@ const Index = () => {
           </button>
         </div>
 
-        <main className="flex-1 p-3 sm:p-4 lg:p-8 lg:ml-0 ml-0 max-w-full overflow-x-hidden">
-          <DayTradeSystem />
-
-
+        <main className="flex-1 p-3 sm:p-4 lg:p-8 lg:ml-0 ml-0 max-w-full overflow-x-hidden relative z-10">
+          <div className="relative z-20">
+            <DayTradeSystem />
+          </div>
         </main>
       </div>
     );
@@ -80,8 +91,19 @@ const Index = () => {
   // Esta condição não é mais necessária pois o MFuturos agora tem sua própria rota
 
   return (
-    <div className="min-h-screen flex flex-col w-full glass-background relative overflow-x-hidden">
-      <div className="flex flex-1">
+    <div className="min-h-screen flex flex-col w-full relative overflow-x-hidden">
+      {/* Background image - mesma da tela de login */}
+      <div
+        className="absolute inset-0 bg-cover bg-center bg-no-repeat"
+        style={{
+          backgroundImage: `url('/image/image-login.jpg')`,
+        }}
+      >
+        {/* Dark overlay for better contrast */}
+        <div className="absolute inset-0 bg-black/60"></div>
+      </div>
+
+      <div className="flex flex-1 relative z-10">
         <CryptoSidebar
           activeItem={activeItem}
           onItemClick={handleItemClick}
@@ -266,8 +288,8 @@ const Index = () => {
                           </p>
                           <p
                             className={`text-xs ${coin.price_change_percentage_24h >= 0
-                                ? "text-green-400"
-                                : "text-red-400"
+                              ? "text-green-400"
+                              : "text-red-400"
                               }`}
                           >
                             {coin.price_change_percentage_24h >= 0 ? "+" : ""}
@@ -288,7 +310,7 @@ const Index = () => {
       <div className="h-24 lg:h-32"></div>
 
       {/* Professional Footer - Full width outside of main content */}
-      <div className="w-full bg-black py-5">
+      <div className="w-full bg-black py-5 relative z-10">
         <div className="container mx-auto px-6 lg:px-10">
           <div className="flex flex-col md:flex-row justify-between items-center">
             <div className="mb-3 md:mb-0">

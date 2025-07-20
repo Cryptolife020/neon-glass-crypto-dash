@@ -36,7 +36,18 @@ const Layout: React.FC<LayoutProps> = ({ children, activeItem = "futures" }) => 
   };
 
   return (
-    <div className="min-h-screen flex w-full glass-background relative overflow-x-hidden">
+    <div className="min-h-screen flex w-full relative overflow-x-hidden">
+      {/* Background image - mesma da tela de login */}
+      <div
+        className="absolute inset-0 bg-cover bg-center bg-no-repeat"
+        style={{
+          backgroundImage: `url('/image/image-login.jpg')`,
+        }}
+      >
+        {/* Dark overlay for better contrast */}
+        <div className="absolute inset-0 bg-black/60"></div>
+      </div>
+      
       <CryptoSidebar
         activeItem={activeItem}
         onItemClick={handleItemClick}
@@ -56,8 +67,10 @@ const Layout: React.FC<LayoutProps> = ({ children, activeItem = "futures" }) => 
         </button>
       </div>
 
-      <main className="flex-1 p-3 sm:p-4 lg:p-8 lg:ml-0 ml-0 max-w-full overflow-x-hidden mt-16 lg:mt-0">
-        {children}
+      <main className="flex-1 p-3 sm:p-4 lg:p-8 lg:ml-0 ml-0 max-w-full overflow-x-hidden mt-16 lg:mt-0 relative z-10">
+        <div className="relative z-20">
+          {children}
+        </div>
       </main>
     </div>
   );

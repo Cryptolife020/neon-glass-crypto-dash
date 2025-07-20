@@ -505,7 +505,7 @@ export const DayTradeSystem = () => {
   }, []);
 
   return (
-    <div ref={containerRef} className="day-trade-system">
+    <div ref={containerRef} className="day-trade-system relative z-20">
       <header className="bg-gradient-to-r from-indigo-600 to-purple-500 text-white p-6 text-center shadow-lg mt-6 rounded-2xl">
         <h1 className="text-3xl font-bold">Setup Operacional</h1>
       </header>
