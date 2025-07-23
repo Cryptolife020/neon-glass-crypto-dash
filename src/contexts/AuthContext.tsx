@@ -32,19 +32,43 @@ export const useAuth = () => {
 export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({
   children,
 }) => {
-  const [isAuthenticated, setIsAuthenticated] = useState(false);
+  // Verificar sessão inicial de forma síncrona
+  const getInitialAuthState = () => {
+    try {
+      const authData = localStorage.getItem('crypto-pro-auth');
+      if (authData) {
+        const parsedData = JSON.parse(authData);
+        // Verificar se há um access_token válido e não expirado
+        if (parsedData.access_token && parsedData.expires_at) {
+          const expiresAt = new Date(parsedData.expires_at * 1000);
+          const now = new Date();
+          return expiresAt > now;
+        }
+      }
+    } catch (error) {
+      console.error('Error reading auth from localStorage:', error);
+    }
+    return false;
+  };
+
+  const [isAuthenticated, setIsAuthenticated] = useState(getInitialAuthState());
   const [user, setUser] = useState<User | null>(null);
   const [isAdmin, setIsAdmin] = useState(false);
-  const [loading, setLoading] = useState(true);
+  const [loading, setLoading] = useState(false);
 
   useEffect(() => {
-    // Check if user is already authenticated
-    const checkAuth = async () => {
+    let isMounted = true;
+
+    const initializeAuth = async () => {
       try {
-        const currentUser = await authService.getCurrentUser();
-        if (currentUser) {
-          const profile = await authService.getUserProfile(currentUser.id);
-          if (profile) {
+        // Verificar sessão atual
+        const session = await authService.getCurrentSession();
+        console.log('Current session:', session?.user?.id);
+
+        if (session?.user && isMounted) {
+          console.log('User session found, fetching profile...');
+          const profile = await authService.getUserProfile(session.user.id);
+          if (profile && isMounted) {
             const userData: User = {
               id: profile.id,
               email: profile.email,
@@ -54,95 +78,86 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({
             setUser(userData);
             setIsAuthenticated(true);
             setIsAdmin(profile.roles === 'admin');
+            console.log('User authenticated successfully:', userData);
+          }
+        } else {
+          console.log('No user session found');
+          if (isMounted) {
+            setUser(null);
+            setIsAuthenticated(false);
+            setIsAdmin(false);
           }
         }
       } catch (error) {
-        console.error('Error checking auth:', error);
-      } finally {
-        setLoading(false);
+        console.error('Error initializing auth:', error);
+        if (isMounted) {
+          setUser(null);
+          setIsAuthenticated(false);
+          setIsAdmin(false);
+        }
       }
     };
 
-    checkAuth();
+    // Sempre inicializar para buscar dados do usuário se houver sessão
+    initializeAuth();
 
     // Listen for auth changes
     const { data: { subscription } } = authService.onAuthStateChange(async (event, session) => {
-      if (event === 'SIGNED_IN' && session?.user) {
-        const profile = await authService.getUserProfile(session.user.id);
-        if (profile) {
-          const userData: User = {
-            id: profile.id,
-            email: profile.email,
-            name: profile.name,
-            roles: profile.roles
-          };
-          setUser(userData);
-          setIsAuthenticated(true);
-          setIsAdmin(profile.roles === 'admin');
+      console.log('Auth state changed:', event, session?.user?.id);
+
+      if (!isMounted) return;
+
+      try {
+        if (event === 'SIGNED_IN' && session?.user) {
+          console.log('User signed in, fetching profile...');
+          const profile = await authService.getUserProfile(session.user.id);
+          if (profile && isMounted) {
+            const userData: User = {
+              id: profile.id,
+              email: profile.email,
+              name: profile.name,
+              roles: profile.roles
+            };
+            setUser(userData);
+            setIsAuthenticated(true);
+            setIsAdmin(profile.roles === 'admin');
+            console.log('User authenticated successfully:', userData);
+          }
+        } else if (event === 'SIGNED_OUT') {
+          console.log('User signed out');
+          if (isMounted) {
+            setUser(null);
+            setIsAuthenticated(false);
+            setIsAdmin(false);
+          }
         }
-      } else if (event === 'SIGNED_OUT') {
-        setUser(null);
-        setIsAuthenticated(false);
-        setIsAdmin(false);
+      } catch (error) {
+        console.error('Error handling auth state change:', error);
       }
-      setLoading(false);
     });
 
-    return () => subscription.unsubscribe();
+    return () => {
+      isMounted = false;
+      subscription.unsubscribe();
+    };
   }, []);
 
   const login = async (email: string, password: string): Promise<{ success: boolean; error?: string }> => {
     try {
       console.log('Iniciando processo de login para:', email);
-      setLoading(true);
       const { data, error } = await authService.signIn(email, password);
 
       if (error) {
         console.error('Erro na autenticação:', error);
-        // Garantir que o loading seja desativado antes de retornar o erro
-        setLoading(false);
         return { success: false, error: error.message };
       }
 
-      console.log('Autenticação bem-sucedida, verificando perfil do usuário');
-
-      if (data.user) {
-        console.log('ID do usuário autenticado:', data.user.id);
-        const profile = await authService.getUserProfile(data.user.id);
-
-        if (profile) {
-          console.log('Perfil encontrado:', profile);
-          const userData: User = {
-            id: profile.id,
-            email: profile.email,
-            name: profile.name,
-            roles: profile.roles
-          };
-          console.log('Dados do usuário definidos:', userData);
-          setUser(userData);
-          setIsAuthenticated(true);
-          setIsAdmin(profile.roles === 'admin');
-          console.log('Usuário autenticado com sucesso, isAdmin:', profile.roles === 'admin');
-          return { success: true };
-        } else {
-          console.error('Perfil não encontrado para o usuário:', data.user.id);
-          // Garantir que o loading seja desativado antes de retornar o erro
-          setLoading(false);
-          return { success: false, error: 'Perfil não encontrado. Entre em contato com o administrador.' };
-        }
-      } else {
-        console.error('Dados do usuário não disponíveis após autenticação');
-        // Garantir que o loading seja desativado antes de retornar o erro
-        setLoading(false);
-        return { success: false, error: 'Dados do usuário não disponíveis. Tente novamente.' };
-      }
+      console.log('Autenticação bem-sucedida');
+      // O onAuthStateChange vai lidar com a atualização do estado
+      return { success: true };
     } catch (error: any) {
       console.error('Exceção durante o login:', error);
-      // Garantir que o loading seja desativado antes de retornar o erro
-      setLoading(false);
       return { success: false, error: error?.message || 'Falha no login. Tente novamente mais tarde.' };
-    } finally {
-      setLoading(false);
     }
   };
 
@@ -162,25 +177,25 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({
       console.log('Iniciando processo de registro para:', email);
       setLoading(true);
       const { data, error } = await authService.signUp(email, password, name);
-      
+
       if (error) {
         console.error('Erro no registro:', error);
         setLoading(false);
         return { success: false, error: error.message };
       }
-      
+
       console.log('Registro bem-sucedido:', data);
-      
+
       // Alguns provedores de autenticação exigem confirmação de email
       if (data?.user && data.user.identities?.length === 0) {
         setLoading(false);
         return { success: true, error: 'Por favor, verifique seu email para confirmar seu cadastro.' };
       }
-      
+
       // Se o registro for bem-sucedido e não precisar de confirmação, faça login automaticamente
       if (data?.user) {
         const profile = await authService.getUserProfile(data.user.id);
-        
+
         if (profile) {
           const userData: User = {
             id: profile.id,
@@ -188,15 +203,15 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({
             name: profile.name,
             roles: profile.roles
           };
-          
+
           setUser(userData);
           setIsAuthenticated(true);
           setIsAdmin(profile.roles === 'admin');
-          
+
           return { success: true };
         }
       }
-      
+
       return { success: true, error: 'Registro concluído. Por favor, faça login.' };
     } catch (error: any) {
       console.error('Exceção durante o registro:', error);
@@ -210,14 +225,14 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({
     try {
       console.log('Iniciando processo de recuperação de senha para:', email);
       setLoading(true);
-      
+
       const { error } = await authService.resetPassword(email);
-      
+
       if (error) {
         console.error('Erro na recuperação de senha:', error);
         return { success: false, error: error.message };
       }
-      
+
       return { success: true, error: 'Instruções de recuperação de senha foram enviadas para seu email.' };
     } catch (error: any) {
       console.error('Exceção durante a recuperação de senha:', error);

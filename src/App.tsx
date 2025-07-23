@@ -15,47 +15,29 @@ import NotFound from "./pages/NotFound";
 const queryClient = new QueryClient();
 
 const ProtectedRoute = ({ children }: { children: React.ReactNode }) => {
-  const { isAuthenticated, loading } = useAuth();
+  const { isAuthenticated } = useAuth();
   const navigate = useNavigate();
 
   useEffect(() => {
-    if (!loading && !isAuthenticated) {
-      navigate('/login');
+    if (!isAuthenticated) {
+      navigate('/login', { replace: true });
     }
-  }, [isAuthenticated, loading, navigate]);
-
-  // Mostrar um indicador de carregamento enquanto verifica a autenticação
-  if (loading) {
-    return (
-      <div className="min-h-screen flex items-center justify-center">
-        <div className="w-8 h-8 border-4 border-neon-blue-400 border-t-transparent rounded-full animate-spin"></div>
-      </div>
-    );
-  }
+  }, [isAuthenticated, navigate]);
 
   // Renderizar o conteúdo protegido se estiver autenticado
-  if (isAuthenticated) {
-    return <>{children}</>;
-  }
-
-  // Renderizar um loading enquanto redireciona
-  return (
-    <div className="min-h-screen flex items-center justify-center">
-      <div className="w-8 h-8 border-4 border-neon-blue-400 border-t-transparent rounded-full animate-spin"></div>
-    </div>
-  );
+  return isAuthenticated ? <>{children}</> : null;
 };
 
 const AppContent = () => {
-  const { isAuthenticated, loading } = useAuth();
+  const { isAuthenticated } = useAuth();
   const navigate = useNavigate();
 
   // Redirecionar para a página inicial se o usuário já estiver autenticado
   useEffect(() => {
-    if (!loading && isAuthenticated && window.location.pathname === '/login') {
-      navigate('/');
+    if (isAuthenticated && window.location.pathname === '/login') {
+      navigate('/', { replace: true });
     }
-  }, [isAuthenticated, loading, navigate]);
+  }, [isAuthenticated, navigate]);
 
   return (
     <Routes data-oid="prm2lrq">

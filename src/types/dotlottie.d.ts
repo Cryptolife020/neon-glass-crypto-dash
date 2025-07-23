@@ -1,19 +1,14 @@
-
-declare module '@dotlottie/player-component' {
-  export class DotLottiePlayer {
-    constructor(options: {
-      container: HTMLElement;
-      src: string;
+declare namespace JSX {
+  interface IntrinsicElements {
+    'dotlottie-player': {
+      src?: string;
       background?: string;
-      speed?: number;
+      speed?: string;
+      style?: React.CSSProperties;
       loop?: boolean;
       autoplay?: boolean;
-    });
-  }
-
-  export enum PlayMode {
-    Normal = 'normal',
-    Reverse = 'reverse',
-    Bounce = 'bounce'
+      direction?: string;
+      mode?: string;
+    };
   }
 }

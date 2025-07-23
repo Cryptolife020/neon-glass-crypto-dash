@@ -5,7 +5,7 @@ import { DashboardCards } from "@/components/DashboardCards";
 import { TradingChart } from "@/components/TradingChart";
 import { NotificationsPanel } from "@/components/NotificationsPanel";
 import { SpinningCoin } from "@/components/SpinningCoin";
-import DayTradeSystem from "@/components/DayTradeSystem";
+import { DayTradeSystem } from "@/components/DayTradeSystem";
 import { useAuth } from "@/contexts/AuthContext";
 import { useTopCoins } from "@/hooks/useTopCoins";
 import { TrendingUp, Target, LogOut } from "lucide-react";

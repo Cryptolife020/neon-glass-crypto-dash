@@ -7,7 +7,15 @@ if (!supabaseUrl || !supabaseAnonKey) {
   throw new Error('Missing Supabase environment variables')
 }
 
-export const supabase = createClient(supabaseUrl, supabaseAnonKey)
+export const supabase = createClient(supabaseUrl, supabaseAnonKey, {
+  auth: {
+    persistSession: true,
+    storageKey: 'crypto-pro-auth',
+    storage: window.localStorage,
+    autoRefreshToken: true,
+    detectSessionInUrl: true
+  }
+})
 
 // Types for our database
 export interface Profile {
@@ -84,6 +92,12 @@ export const authService = {
   async getCurrentUser() {
     const { data: { user } } = await supabase.auth.getUser()
     return user
+  },
+
+  // Get current session
+  async getCurrentSession() {
+    const { data: { session } } = await supabase.auth.getSession()
+    return session
   },
 
   // Get user profile with role

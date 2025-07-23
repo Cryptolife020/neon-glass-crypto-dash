@@ -1,9 +1,31 @@
 import { useEffect, useRef, useState } from 'react';
 import { useToast } from '@/hooks/use-toast';
+import {
+  lucroMetaMessages,
+  lucroExcedenteMessages,
+  transferirExcedenteMessages,
+  manterLucroMessages,
+  prejuizoMessages,
+  reporPerdaCaixa2Messages,
+  naoReporPerdaMessages,
+  proximoCicloMessages,
+  ciclosCompletosMessages,
+  getRandomMessage,
+  getRandomParametrizedMessage
+} from '@/data/motivationalMessages';
 
 export const DayTradeSystem = () => {
   const containerRef = useRef<HTMLDivElement>(null);
   const [showFluxograma, setShowFluxograma] = useState(false);
+  const [cicloAtual, setCicloAtual] = useState(1);
+  const [valoresAcumulados, setValoresAcumulados] = useState<number[]>([]);
+  const [historicoValoresCiclos, setHistoricoValoresCiclos] = useState<number[][]>([]);
+  const [showModalProximoCiclo, setShowModalProximoCiclo] = useState(false);
+  const [showModalLucroAbaixoMeta, setShowModalLucroAbaixoMeta] = useState(false);
+  const [mensagemMotivacionalParabens, setMensagemMotivacionalParabens] = useState('');
+  const [mensagemMotivacionalCiclo, setMensagemMotivacionalCiclo] = useState('');
+  const [mensagemMetaBatida, setMensagemMetaBatida] = useState('');
+  const [mensagemLucroAbaixoMeta, setMensagemLucroAbaixoMeta] = useState('');
   const { toast } = useToast();
 
   useEffect(() => {
@@ -32,9 +54,41 @@ export const DayTradeSystem = () => {
     };
   }, []);
 
+  // Função para verificar se todos os quadradinhos foram coloridos
+  const verificarCicloCompleto = () => {
+    const operacoesContainer = document.getElementById('operacoes');
+    const proximoCicloBtn = document.getElementById('proximo-ciclo');
+
+    if (operacoesContainer && proximoCicloBtn) {
+      const quadradinhos = operacoesContainer.querySelectorAll('div[data-meta]');
+      let todosColoridos = true;
+
+      quadradinhos.forEach((quadradinho) => {
+        const elemento = quadradinho as HTMLElement;
+        const backgroundColor = elemento.style.backgroundColor;
+        if (!backgroundColor || backgroundColor === 'transparent' || backgroundColor === '') {
+          todosColoridos = false;
+        }
+      });
+
+      // Mostrar botão se todos os quadradinhos estão coloridos
+      if (todosColoridos && quadradinhos.length === 30) {
+        proximoCicloBtn.classList.remove('hidden');
+        proximoCicloBtn.classList.add('bg-gradient-to-r', 'from-green-500', 'to-green-600', 'text-white');
+        proximoCicloBtn.classList.remove('bg-gray-300', 'text-gray-700');
+        // Adicionar efeito de pulsar para chamar atenção
+        proximoCicloBtn.classList.add('animate-pulse');
+      } else {
+        proximoCicloBtn.classList.add('hidden');
+        proximoCicloBtn.classList.remove('animate-pulse');
+      }
+    }
+  };
+
   // Adicionar useEffect para manipulação dos valores dos caixas
   useEffect(() => {
     const registrarValoresBtn = document.getElementById('registrar-valores');
+    const apagarPreenchimentosBtn = document.getElementById('apagar-preenchimentos');
     const valorCaixa1Input = document.getElementById('caixa1') as HTMLInputElement;
     const valorCaixa2Input = document.getElementById('caixa2') as HTMLInputElement;
     const displayValorCaixa1 = document.getElementById('valor-caixa1');
@@ -44,21 +98,25 @@ export const DayTradeSystem = () => {
     const totalDosCaixasAtual = document.getElementById('total-dos-caixas-atual');
 
     const formatarValor = (valor: string) => {
-      // Remove qualquer caractere que não seja número, ponto ou vírgula
-      const valorLimpo = valor.replace(/[^\d,\.]/g, '');
-      
+      // Remove qualquer caractere que não seja número, ponto, vírgula ou sinal negativo
+      const valorLimpo = valor.replace(/[^\d,\.\-]/g, '');
+
       // Substitui vírgula por ponto se necessário
       const valorFormatado = valorLimpo.replace(',', '.');
-      
+
       // Converte para número e formata como moeda
       const valorNumerico = parseFloat(valorFormatado);
-      
-      return isNaN(valorNumerico) 
-        ? '$0,00' 
-        : `$${new Intl.NumberFormat('pt-BR', { 
-            minimumFractionDigits: 2,
-            maximumFractionDigits: 2
-          }).format(valorNumerico)}`;
+
+      if (isNaN(valorNumerico)) {
+        return '$0,00';
+      }
+      // Novo formato: -$1,00
+      const valorAbs = Math.abs(valorNumerico);
+      const valorFormatadoBR = new Intl.NumberFormat('pt-BR', {
+        minimumFractionDigits: 2,
+        maximumFractionDigits: 2
+      }).format(valorAbs);
+      return `${valorNumerico < 0 ? '-' : ''}$${valorFormatadoBR}`;
     };
 
     const obterDataAtual = () => {
@@ -108,28 +166,28 @@ export const DayTradeSystem = () => {
         const displayValorCaixa1 = document.getElementById('valor-caixa1');
         const displayValorCaixa2 = document.getElementById('valor-caixa2');
 
-        const valorAtualCaixa1 = displayValorCaixa1 
+        const valorAtualCaixa1 = displayValorCaixa1
           ? parseFloat(
-              displayValorCaixa1.textContent?.replace(/[^\d,\.]/g, '').replace(',', '.') || '0'
-            )
+            displayValorCaixa1.textContent?.replace(/[^\d,\.\-]/g, '').replace(',', '.') || '0'
+          )
           : totalCaixa1;
 
         const valorAtualCaixa2 = displayValorCaixa2
           ? parseFloat(
-              displayValorCaixa2.textContent?.replace(/[^\d,\.]/g, '').replace(',', '.') || '0'
-            )
+            displayValorCaixa2.textContent?.replace(/[^\d,\.\-]/g, '').replace(',', '.') || '0'
+          )
           : totalCaixa2;
 
         const totalCaixasAtual = valorAtualCaixa1 + valorAtualCaixa2;
 
         // Total Comprometido = APENAS valores iniciais fixos
-        totalDosCaixas.textContent = `$${new Intl.NumberFormat('pt-BR', { 
+        totalDosCaixas.textContent = `$${new Intl.NumberFormat('pt-BR', {
           minimumFractionDigits: 2,
           maximumFractionDigits: 2
         }).format(valorInicialFixoTotal)}`;
 
         // Atualiza o "Resultado Atual" com os valores ATUAIS dos caixas
-        totalDosCaixasAtual.textContent = `$${new Intl.NumberFormat('pt-BR', { 
+        totalDosCaixasAtual.textContent = `$${new Intl.NumberFormat('pt-BR', {
           minimumFractionDigits: 2,
           maximumFractionDigits: 2
         }).format(totalCaixasAtual)}`;
@@ -137,21 +195,21 @@ export const DayTradeSystem = () => {
         // Calcular e atualizar Ganho/Perda Líquida
         const ganhoPerda = totalCaixasAtual - valorInicialFixoTotal;
         const percentualGanhoPerda = valorInicialFixoTotal > 0 ? (ganhoPerda / valorInicialFixoTotal) * 100 : 0;
-        
+
         const ganhoLiquidaValor = document.getElementById('ganho-perda-liquida-valor');
         const ganhoLiquidaPercentual = document.getElementById('ganho-perda-liquida-percentual');
-        
+
         if (ganhoLiquidaValor && ganhoLiquidaPercentual) {
-          const valorFormatado = `${ganhoPerda >= 0 ? '+' : ''}$${new Intl.NumberFormat('pt-BR', { 
+          const valorFormatado = `${ganhoPerda >= 0 ? '+' : '-'}$${new Intl.NumberFormat('pt-BR', {
             minimumFractionDigits: 2,
             maximumFractionDigits: 2
           }).format(Math.abs(ganhoPerda))}`;
-          
+
           const percentualFormatado = `(${percentualGanhoPerda >= 0 ? '+' : ''}${percentualGanhoPerda.toFixed(2)}%)`;
-          
+
           ganhoLiquidaValor.textContent = valorFormatado;
           ganhoLiquidaPercentual.textContent = percentualFormatado;
-          
+
           // Atualizar cores baseado no ganho/perda
           if (ganhoPerda >= 0) {
             ganhoLiquidaValor.className = 'text-green-400 inline font-bold text-x3';
@@ -168,12 +226,12 @@ export const DayTradeSystem = () => {
     const verificarMudancasDisplays = () => {
       const displayValorCaixa1 = document.getElementById('valor-caixa1');
       const displayValorCaixa2 = document.getElementById('valor-caixa2');
-      
+
       if (displayValorCaixa1 && displayValorCaixa2) {
         // Verificar se os valores mudaram comparando com os valores anteriores
         const valorAtualCaixa1 = displayValorCaixa1.textContent || '$0,00';
         const valorAtualCaixa2 = displayValorCaixa2.textContent || '$0,00';
-        
+
         // Armazenar valores anteriores para comparação
         if (!verificarMudancasDisplays.valoresAnteriores) {
           verificarMudancasDisplays.valoresAnteriores = {
@@ -181,15 +239,15 @@ export const DayTradeSystem = () => {
             caixa2: valorAtualCaixa2
           };
         }
-        
+
         // Se os valores mudaram, recalcular
-        if (verificarMudancasDisplays.valoresAnteriores.caixa1 !== valorAtualCaixa1 || 
-            verificarMudancasDisplays.valoresAnteriores.caixa2 !== valorAtualCaixa2) {
-          
+        if (verificarMudancasDisplays.valoresAnteriores.caixa1 !== valorAtualCaixa1 ||
+          verificarMudancasDisplays.valoresAnteriores.caixa2 !== valorAtualCaixa2) {
+
           // Atualizar valores anteriores
           verificarMudancasDisplays.valoresAnteriores.caixa1 = valorAtualCaixa1;
           verificarMudancasDisplays.valoresAnteriores.caixa2 = valorAtualCaixa2;
-          
+
           // Recalcular totais
           calcularTotalCaixas();
         }
@@ -220,17 +278,140 @@ export const DayTradeSystem = () => {
       }
     };
 
+    // Função para resetar todo o sistema
+    const resetarSistema = () => {
+      // Reset React state
+      setCicloAtual(1);
+      setValoresAcumulados([]);
+      setHistoricoValoresCiclos([]);
+      setShowModalProximoCiclo(false);
+      setShowModalLucroAbaixoMeta(false);
+      setMensagemMotivacionalParabens('');
+      setMensagemMotivacionalCiclo('');
+      setMensagemMetaBatida('');
+      setMensagemLucroAbaixoMeta('');
+
+      // Reset inputs
+      if (valorCaixa1Input) valorCaixa1Input.value = '';
+      if (valorCaixa2Input) valorCaixa2Input.value = '';
+      const valorInvestidoInput = document.getElementById('valor-investido') as HTMLInputElement;
+      const retornoInput = document.getElementById('retorno') as HTMLInputElement;
+      if (valorInvestidoInput) valorInvestidoInput.value = '';
+      if (retornoInput) retornoInput.value = '';
+
+      // Reset displays
+      if (displayValorCaixa1) {
+        displayValorCaixa1.textContent = '$0,00';
+        displayValorCaixa1.style.color = '';
+        displayValorCaixa1.style.fontWeight = '';
+      }
+      if (displayValorCaixa2) {
+        displayValorCaixa2.textContent = '$0,00';
+        displayValorCaixa2.style.color = '';
+        displayValorCaixa2.style.fontWeight = '';
+      }
+
+      // Reset tabela de registros
+      if (tabelaRegistros) {
+        tabelaRegistros.innerHTML = `
+          <tr id="sem-registros" class="text-center">
+            <td colspan="6" class="py-8 px-6 text-gray-500 italic">
+              Nenhum registro encontrado
+            </td>
+          </tr>
+        `;
+      }
+
+      // Reset totais
+      if (totalDosCaixas) totalDosCaixas.textContent = '$0,00';
+      if (totalDosCaixasAtual) totalDosCaixasAtual.textContent = '$0,00';
+
+      const ganhoLiquidaValor = document.getElementById('ganho-perda-liquida-valor');
+      const ganhoLiquidaPercentual = document.getElementById('ganho-perda-liquida-percentual');
+      if (ganhoLiquidaValor) {
+        ganhoLiquidaValor.textContent = '+$0,00';
+        ganhoLiquidaValor.className = 'text-green-400 inline font-bold text-x3';
+      }
+      if (ganhoLiquidaPercentual) {
+        ganhoLiquidaPercentual.textContent = '(+0.00%)';
+        ganhoLiquidaPercentual.className = 'text-green-400 inline font-bold text-x3';
+      }
+
+      // Reset ciclo
+      const cicloNumero = document.getElementById('ciclo-numero');
+      if (cicloNumero) {
+        cicloNumero.textContent = '0';
+        cicloNumero.className = '';
+      }
+
+      // Reset operações
+      const operacoesContainer = document.getElementById('operacoes');
+      if (operacoesContainer) {
+        operacoesContainer.innerHTML = `
+          <div id="aguardando-registros" class="col-span-6 text-center py-8">
+            <p class="text-gray-500 italic text-lg">Aguardando registros iniciais do setup</p>
+          </div>
+        `;
+      }
+
+      // Reset tabela de juros
+      const tabelasJuros = document.getElementById('tabelas-juros');
+      const tabelaCorpo = tabelasJuros?.querySelector('tbody');
+      if (tabelaCorpo) tabelaCorpo.innerHTML = '';
+      if (tabelasJuros) tabelasJuros.classList.add('hidden');
+
+      // Reset botão próximo ciclo
+      const proximoCicloBtn = document.getElementById('proximo-ciclo');
+      if (proximoCicloBtn) {
+        proximoCicloBtn.classList.add('hidden');
+        proximoCicloBtn.classList.remove('bg-gradient-to-r', 'from-green-500', 'to-green-600', 'text-white', 'animate-pulse');
+        proximoCicloBtn.classList.add('bg-gray-300', 'text-gray-700');
+      }
+
+      // Re-enable registration button
+      if (registrarValoresBtn) {
+        (registrarValoresBtn as HTMLButtonElement).disabled = false;
+      }
+    };
+
+    // Event listener para o botão de resetar
+    apagarPreenchimentosBtn?.addEventListener('click', () => {
+      resetarSistema();
+      toast({
+        title: "🔄 Setup Resetado",
+        description: "O sistema operacional foi resetado com sucesso!",
+        variant: "default",
+        className: "bg-black text-white border-gray-700"
+      });
+    });
+
     registrarValoresBtn?.addEventListener('click', () => {
+      // Verificação: impedir registro se algum input estiver vazio ou igual a zero
+      if (valorCaixa1Input && valorCaixa2Input) {
+        const valor1 = valorCaixa1Input.value.replace(/[^\d,\.\-]/g, '').replace(',', '.');
+        const valor2 = valorCaixa2Input.value.replace(/[^\d,\.\-]/g, '').replace(',', '.');
+        const num1 = parseFloat(valor1);
+        const num2 = parseFloat(valor2);
+        if (!valorCaixa1Input.value.trim() || !valorCaixa2Input.value.trim() || isNaN(num1) || isNaN(num2) || num1 === 0 || num2 === 0) {
+          toast({
+            title: '⚠️ Preencha os valores corretamente',
+            description: 'Os campos dos caixas não podem estar vazios ou com valor zero.',
+            variant: 'destructive'
+          });
+          return;
+        }
+      }
+
       // Check if initial registration has already been done
       const existingRegistros = tabelaRegistros?.querySelectorAll('tr');
-      
+
       // Verificar se existem registros reais (excluindo a linha da mensagem "Nenhum registro encontrado")
       const registrosReais = Array.from(existingRegistros || []).filter(linha => {
         const colunas = linha.querySelectorAll('td');
         // Se tem 6 colunas e não é a linha da mensagem "Nenhum registro encontrado"
         return colunas.length === 6 && !linha.id?.includes('sem-registros');
       });
-      
+
       if (registrosReais.length > 0) {
         toast({
           title: "❌ Registro Duplicado",
@@ -330,13 +511,29 @@ export const DayTradeSystem = () => {
     const operacoesContainer = document.getElementById('operacoes');
 
     const formatarValor = (valor: number) => {
-      return `$${new Intl.NumberFormat('pt-BR', { 
+      const valorFormatado = new Intl.NumberFormat('pt-BR', {
         minimumFractionDigits: 2,
         maximumFractionDigits: 2
-      }).format(valor)}`;
+      }).format(Math.abs(valor));
+      return valor < 0 ? `-$${valorFormatado}` : `$${valorFormatado}`;
     };
 
     calcularBtn?.addEventListener('click', () => {
+      // NOVA VERIFICAÇÃO: impedir cálculo se não houver valores registrados nos caixas
+      const displayValorCaixa1 = document.getElementById('valor-caixa1');
+      const displayValorCaixa2 = document.getElementById('valor-caixa2');
+      const valorCaixa1 = displayValorCaixa1?.textContent || '$0,00';
+      const valorCaixa2 = displayValorCaixa2?.textContent || '$0,00';
+      // Se ambos ainda estão no valor inicial, impedir cálculo
+      if (valorCaixa1 === '$0,00' && valorCaixa2 === '$0,00') {
+        toast({
+          title: '⚠️ Registre os Caixas',
+          description: 'Por favor, registre os valores do Caixa 1 e Caixa 2 antes de calcular as metas.',
+          variant: 'destructive'
+        });
+        return;
+      }
+
       if (valorInvestidoInput && retornoInput && tabelasJuros && tabelaCorpo && cicloNumero && operacoesContainer) {
         // Limpar tabela anterior e container de operações
         tabelaCorpo.innerHTML = '';
@@ -370,34 +567,37 @@ export const DayTradeSystem = () => {
         let metasDias: number[] = [];
 
         for (let dia = 1; dia <= 30; dia++) {
+          // Armazenar o valor antes do crescimento (investimento do dia)
+          const valorInvestimentoDia = valorAcumulado;
+
           // Calcular o valor do dia
           valorAcumulado *= (1 + (taxaRetorno / 100));
-          
+
           // Criar linha da tabela
           const linha = document.createElement('tr');
           linha.innerHTML = `
             <td class="py-3 px-6 text-center">${dia}</td>
-            <td class="py-3 px-6 text-center">${formatarValor(valorInicial)}</td>
+            <td class="py-3 px-6 text-center">${formatarValor(valorInvestimentoDia)}</td>
             <td class="py-3 px-6 text-center">${taxaRetorno.toFixed(2)}%</td>
+            <td class="py-3 px-6 text-center">${formatarValor(valorAcumulado - valorInvestimentoDia)}</td>
             <td class="py-3 px-6 text-center">${formatarValor(valorAcumulado)}</td>
-            <td class="py-3 px-6 text-center">${formatarValor(valorAcumulado - valorInicial)}</td>
           `;
-          
+
           tabelaCorpo.appendChild(linha);
 
-          // Armazenar metas para os quadradinhos
-          metasDias.push(valorAcumulado);
+          // Armazenar metas para os quadradinhos (lucro do dia, não valor total)
+          metasDias.push(valorAcumulado - valorInicial);
         }
 
         // Gerar quadradinhos de Operações
         operacoesContainer.className = '';
         operacoesContainer.classList.add(
-          'grid', 
-          'grid-cols-6', 
-          'grid-flow-row', 
-          'gap-0', 
-          'w-full', 
-          'max-w-md', 
+          'grid',
+          'grid-cols-6',
+          'grid-flow-row',
+          'gap-0',
+          'w-full',
+          'max-w-md',
           'mx-auto'
         );
 
@@ -405,17 +605,17 @@ export const DayTradeSystem = () => {
           const quadradinho = document.createElement('div');
           quadradinho.className = '';
           quadradinho.classList.add(
-            'w-full',  
-            'aspect-square',  
+            'w-full',
+            'aspect-square',
             'border',
-            'border-white/20', 
+            'border-white/20',
             'bg-transparent',
             'flex',
             'items-center',
             'justify-center',
             'text-white',
-            'text-xs', 
-            'font-light', 
+            'text-xs',
+            'font-light',
             'select-none',
             'p-0',
             'm-0',
@@ -427,7 +627,7 @@ export const DayTradeSystem = () => {
           quadradinho.textContent = (index + 1).toString();
           quadradinho.setAttribute('data-meta', formatarValor(meta));
           quadradinho.setAttribute('title', `Dia ${index + 1}`);
-          
+
           // Adicionar evento de clique para abrir modal
           quadradinho.addEventListener('click', () => {
             const modalOperacao = document.getElementById('modal-operacao');
@@ -439,16 +639,59 @@ export const DayTradeSystem = () => {
               const diaNumero = quadradinho.textContent || '';
               const metaValor = quadradinho.getAttribute('data-meta') || '';
 
+              // Função para buscar meta correta da tabela
+              const buscarMetaDaTabela = (diaOperacao: string) => {
+                const tabelasJuros = document.getElementById('tabelas-juros');
+                const tabelaCorpo = tabelasJuros?.querySelector('tbody');
+
+                if (tabelaCorpo) {
+                  const linhas = tabelaCorpo.querySelectorAll('tr');
+                  const diaIndex = parseInt(diaOperacao) - 1; // Converter para índice (dia 1 = índice 0)
+
+                  if (linhas[diaIndex]) {
+                    const colunas = linhas[diaIndex].querySelectorAll('td');
+                    if (colunas.length >= 4) {
+                      // Coluna 3 (índice 3) contém a META do dia
+                      return colunas[3].textContent?.trim() || '$0,00';
+                    }
+                  }
+                }
+                return '$0,00';
+              };
+
+              // Buscar meta correta da tabela baseada no dia
+              const metaCorreta = buscarMetaDaTabela(diaNumero);
+
               // Armazenar o valor da meta e referência do quadradinho globalmente
-              (window as any).metaValorAtual = metaValor;
+              (window as any).metaValorAtual = metaCorreta;
               (window as any).quadradinhoAtual = quadradinho;
 
-              modalTitulo.textContent = `Operação Dia ${diaNumero}`;
+              // Get current date from WorldTimeAPI for Brasilia, Brazil
+              // Agora, usaremos apenas a data local do sistema
+              let day, month, year, formattedDate;
+
+              const localDate = new Date();
+              const saoPauloDate = new Date(localDate.toLocaleString("en-US", { timeZone: "America/Sao_Paulo" }));
+              day = String(saoPauloDate.getDate()).padStart(2, '0');
+              month = String(saoPauloDate.getMonth() + 1).padStart(2, '0');
+              year = saoPauloDate.getFullYear();
+              formattedDate = `${day}/${month}/${year}`;
+
+              // Store full date info in uma variável global para futura integração de métricas
+              (window as any).brasiliaDate = {
+                day,
+                month,
+                year,
+                formatted: formattedDate
+              };
+
+              modalTitulo.setAttribute('data-full-date', formattedDate);
+              modalTitulo.textContent = `Operação ${diaNumero} - Dia ${day}`;
               modalDiaNumero.textContent = diaNumero;
-              
+
               modalOperacao.classList.remove('hidden');
               modalOperacao.classList.add('show');
-              
+
               // Limpar input anterior
               (modalTipoOperacao as HTMLInputElement).value = '';
             }
@@ -459,7 +702,7 @@ export const DayTradeSystem = () => {
 
         // Mostrar tabela
         tabelasJuros.classList.remove('hidden');
-        
+
         toast({
           title: "🎯 Metas Calculadas",
           description: `Plano de 30 dias criado com sucesso! Meta diária: ${taxaRetorno.toFixed(2)}%`,
@@ -471,7 +714,7 @@ export const DayTradeSystem = () => {
 
   useEffect(() => {
     const operacoesContainer = document.getElementById('operacoes');
-    
+
     if (!operacoesContainer) {
       return;
     }
@@ -491,18 +734,319 @@ export const DayTradeSystem = () => {
           const diaNumero = quadradinho.textContent || '';
           const metaValor = quadradinho.getAttribute('data-meta') || '';
 
-          modalTitulo.textContent = `Operação Dia ${diaNumero}`;
+          // Get current date from WorldTimeAPI for Brasilia, Brazil
+          // Agora, usaremos apenas a data local do sistema
+          let day, month, year, formattedDate;
+
+          const localDate = new Date();
+          const saoPauloDate = new Date(localDate.toLocaleString("en-US", { timeZone: "America/Sao_Paulo" }));
+          day = String(saoPauloDate.getDate()).padStart(2, '0');
+          month = String(saoPauloDate.getMonth() + 1).padStart(2, '0');
+          year = saoPauloDate.getFullYear();
+          formattedDate = `${day}/${month}/${year}`;
+
+          // Store full date info in uma variável global para futura integração de métricas
+          (window as any).brasiliaDate = {
+            day,
+            month,
+            year,
+            formatted: formattedDate
+          };
+
+          modalTitulo.setAttribute('data-full-date', formattedDate);
+          modalTitulo.textContent = `Operação ${diaNumero} - Dia ${day}`;
           modalDiaNumero.textContent = diaNumero;
-          
+
           modalOperacao.classList.remove('hidden');
           modalOperacao.classList.add('show');
-          
+
           // Limpar input anterior
           (modalTipoOperacao as HTMLInputElement).value = '';
         }
       }
     });
   }, []);
+
+  // Função para recalcular tabela de juros compostos para novo ciclo
+  const recalcularTabelaProximoCiclo = () => {
+    const valorInvestidoInput = document.getElementById('valor-investido') as HTMLInputElement;
+    const retornoInput = document.getElementById('retorno') as HTMLInputElement;
+    const tabelasJuros = document.getElementById('tabelas-juros');
+    const tabelaCorpo = tabelasJuros?.querySelector('tbody');
+    const cicloNumero = document.getElementById('ciclo-numero');
+    const operacoesContainer = document.getElementById('operacoes');
+
+    if (valorInvestidoInput && retornoInput && tabelaCorpo && cicloNumero && operacoesContainer) {
+      // Pegar o valor da última meta (dia 30) da tabela atual como novo investimento base
+      let novoValorInicial = 0;
+
+      // Buscar na tabela atual o valor da meta do dia 30 (última linha)
+      const linhasTabela = tabelaCorpo.querySelectorAll('tr');
+      if (linhasTabela.length >= 30) {
+        const ultimaLinha = linhasTabela[29]; // Linha do dia 30 (índice 29)
+        const colunas = ultimaLinha.querySelectorAll('td');
+        if (colunas.length >= 5) {
+          // A coluna 4 (índice 4) contém o valor ACUMULADO do dia 30
+          const valorAcumuladoTexto = colunas[4].textContent?.trim() || '$0,00';
+          novoValorInicial = parseFloat(
+            valorAcumuladoTexto.replace(/[^\d,\.]/g, '').replace(',', '.')
+          );
+        }
+      }
+
+      // Se não conseguiu pegar da tabela, usar valores acumulados como fallback
+      if (novoValorInicial === 0 && valoresAcumulados && valoresAcumulados.length === 30) {
+        novoValorInicial = valoresAcumulados[29]; // Índice 29 = dia 30
+      }
+
+      // Se ainda não tem valor, usar o valor atual do Caixa 1 como último recurso
+      if (novoValorInicial === 0) {
+        const displayValorCaixa1 = document.getElementById('valor-caixa1');
+        novoValorInicial = displayValorCaixa1
+          ? parseFloat(displayValorCaixa1.textContent?.replace(/[^\d,\.]/g, '').replace(',', '.') || '0')
+          : 0;
+      }
+
+      const taxaRetorno = parseFloat(retornoInput.value);
+
+      if (novoValorInicial > 0 && !isNaN(taxaRetorno)) {
+        // Limpar tabela e operações anteriores
+        tabelaCorpo.innerHTML = '';
+        operacoesContainer.innerHTML = '';
+
+        // Atualizar número do ciclo - usando o próximo ciclo (cicloAtual + 1)
+        cicloNumero.textContent = (cicloAtual + 1).toString();
+
+        // Calcular juros compostos para o novo ciclo
+        let valorAcumulado = novoValorInicial;
+        let metasDias: number[] = [];
+
+        const formatarValor = (valor: number) => {
+          return (valor < 0 ? '-' : '') + '$' + new Intl.NumberFormat('pt-BR', {
+            minimumFractionDigits: 2,
+            maximumFractionDigits: 2
+          }).format(Math.abs(valor));
+        };
+
+        for (let dia = 1; dia <= 30; dia++) {
+          // Armazenar o valor antes do crescimento (investimento do dia)
+          const valorInvestimentoDia = valorAcumulado;
+
+          valorAcumulado *= (1 + (taxaRetorno / 100));
+
+          // Criar linha da tabela
+          const linha = document.createElement('tr');
+          linha.innerHTML = `
+            <td class="py-3 px-6 text-center">${dia}</td>
+            <td class="py-3 px-6 text-center">${formatarValor(valorInvestimentoDia)}</td>
+            <td class="py-3 px-6 text-center">${taxaRetorno.toFixed(2)}%</td>
+            <td class="py-3 px-6 text-center">${formatarValor(valorAcumulado - valorInvestimentoDia)}</td>
+            <td class="py-3 px-6 text-center">${formatarValor(valorAcumulado)}</td>
+          `;
+
+          tabelaCorpo.appendChild(linha);
+          metasDias.push(valorAcumulado - valorInvestimentoDia);
+        }
+
+        // Gerar novos quadradinhos de operações
+        operacoesContainer.className = '';
+        operacoesContainer.classList.add(
+          'grid',
+          'grid-cols-6',
+          'grid-flow-row',
+          'gap-0',
+          'w-full',
+          'max-w-md',
+          'mx-auto'
+        );
+
+        metasDias.forEach((meta, index) => {
+          const quadradinho = document.createElement('div');
+          quadradinho.className = '';
+          quadradinho.classList.add(
+            'w-full',
+            'aspect-square',
+            'border',
+            'border-white/20',
+            'bg-transparent',
+            'flex',
+            'items-center',
+            'justify-center',
+            'text-white',
+            'text-xs',
+            'font-light',
+            'select-none',
+            'p-0',
+            'm-0',
+            'transition',
+            'duration-200',
+            'hover:bg-white/10',
+            'cursor-pointer'
+          );
+          quadradinho.textContent = (index + 1).toString();
+          quadradinho.setAttribute('data-meta', formatarValor(meta));
+          quadradinho.setAttribute('title', `Dia ${index + 1}`);
+
+          // Adicionar evento de clique para abrir modal
+          quadradinho.addEventListener('click', () => {
+            const modalOperacao = document.getElementById('modal-operacao');
+            const modalTitulo = document.getElementById('modal-operacao-titulo');
+            const modalDiaNumero = document.getElementById('modal-operacao-dia');
+            const modalTipoOperacao = document.getElementById('modal-operacao-resultado');
+
+            if (modalOperacao && modalTitulo && modalDiaNumero && modalTipoOperacao) {
+              const diaNumero = quadradinho.textContent || '';
+
+              // Função para buscar meta correta da tabela
+              const buscarMetaDaTabela = (diaOperacao: string) => {
+                const tabelasJuros = document.getElementById('tabelas-juros');
+                const tabelaCorpo = tabelasJuros?.querySelector('tbody');
+
+                if (tabelaCorpo) {
+                  const linhas = tabelaCorpo.querySelectorAll('tr');
+                  const diaIndex = parseInt(diaOperacao) - 1; // Converter para índice (dia 1 = índice 0)
+
+                  if (linhas[diaIndex]) {
+                    const colunas = linhas[diaIndex].querySelectorAll('td');
+                    if (colunas.length >= 4) {
+                      // Coluna 3 (índice 3) contém a META do dia
+                      return colunas[3].textContent?.trim() || '$0,00';
+                    }
+                  }
+                }
+                return '$0,00';
+              };
+
+              // Buscar meta correta da tabela baseada no dia
+              const metaCorreta = buscarMetaDaTabela(diaNumero);
+
+              (window as any).metaValorAtual = metaCorreta;
+              (window as any).quadradinhoAtual = quadradinho;
+
+              modalTitulo.textContent = `Operação ${diaNumero}`;
+              modalDiaNumero.textContent = diaNumero;
+
+              modalOperacao.classList.remove('hidden');
+              modalOperacao.classList.add('show');
+
+              (modalTipoOperacao as HTMLInputElement).value = '';
+            }
+          });
+
+          operacoesContainer.appendChild(quadradinho);
+        });
+
+        // Armazenar valores do ciclo anterior no histórico
+        setHistoricoValoresCiclos(prev => [...prev, valoresAcumulados]);
+        setValoresAcumulados(metasDias);
+
+        // Atualizar valor investido para o próximo cálculo com o valor da última meta
+        valorInvestidoInput.value = novoValorInicial.toFixed(2);
+      }
+    }
+  };
+
+  // useEffect para gerenciar o botão próximo ciclo
+  useEffect(() => {
+    const proximoCicloBtn = document.getElementById('proximo-ciclo');
+
+    const handleProximoCiclo = () => {
+      // Gerar mensagens motivacionais uma única vez quando o modal é aberto
+      if (cicloAtual >= 6) {
+        // Gerar mensagem para ciclo completo
+        setMensagemMotivacionalCiclo(getRandomMessage(ciclosCompletosMessages));
+        // Modal de finalização de todos os ciclos (6 ciclos completos)
+        setShowModalProximoCiclo(true);
+        return;
+      }
+
+      // Gerar mensagem para próximo ciclo
+      setMensagemMotivacionalCiclo(getRandomMessage(proximoCicloMessages));
+      // Mostrar modal de parabéns e avançar para próximo ciclo
+      setShowModalProximoCiclo(true);
+    };
+
+    proximoCicloBtn?.addEventListener('click', handleProximoCiclo);
+
+    return () => {
+      proximoCicloBtn?.removeEventListener('click', handleProximoCiclo);
+    };
+  }, [cicloAtual]);
+
+  // Função para confirmar próximo ciclo
+  const confirmarProximoCiclo = () => {
+    if (cicloAtual >= 6) {
+      // Reiniciar sistema após 6 ciclos
+      setCicloAtual(1);
+      setValoresAcumulados([]);
+      setHistoricoValoresCiclos([]);
+
+      // Limpar interface
+      const operacoesContainer = document.getElementById('operacoes');
+      const tabelaCorpo = document.getElementById('tabelas-juros')?.querySelector('tbody');
+      const cicloNumero = document.getElementById('ciclo-numero');
+
+      if (operacoesContainer) operacoesContainer.innerHTML = '<div id="aguardando-registros" class="col-span-6 text-center py-8"><p class="text-gray-500 italic text-lg">Aguardando registros iniciais do setup</p></div>';
+      if (tabelaCorpo) tabelaCorpo.innerHTML = '';
+      if (cicloNumero) cicloNumero.textContent = '0';
+
+      toast({
+        title: "🎉 Sistema Reiniciado",
+        description: "Parabéns! Você completou 6 ciclos. O sistema foi reiniciado para um novo gerenciamento.",
+        variant: "default"
+      });
+    } else {
+      // Avançar para próximo ciclo
+      setCicloAtual(prev => prev + 1);
+      recalcularTabelaProximoCiclo();
+
+      // Esconder botão próximo ciclo
+      const proximoCicloBtn = document.getElementById('proximo-ciclo');
+      if (proximoCicloBtn) {
+        proximoCicloBtn.classList.add('hidden');
+        proximoCicloBtn.classList.remove('bg-gradient-to-r', 'from-green-500', 'to-green-600', 'text-white');
+        proximoCicloBtn.classList.add('bg-gray-300', 'text-gray-700');
+      }
+
+      toast({
+        title: "🚀 Novo Ciclo Iniciado",
+        description: `Bem-vindo ao Ciclo ${cicloAtual + 1}! As metas foram recalculadas com base no seu progresso.`,
+        variant: "default"
+      });
+    }
+
+    setShowModalProximoCiclo(false);
+  };
+
+  // Função para desenvolvimento - colorir todos os quadradinhos aleatoriamente
+  const colorirTodosQuadradinhos = () => {
+    const operacoesContainer = document.getElementById('operacoes');
+    if (operacoesContainer) {
+      const quadradinhos = operacoesContainer.querySelectorAll('div[data-meta]');
+
+      // Cores disponíveis: verde (lucro), laranja (perda reposta), vermelho (perda não reposta)
+      const cores = ['#16a34a', '#ea580c', '#dc2626']; // Verde, Laranja, Vermelho
+
+      quadradinhos.forEach((quadradinho) => {
+        const elemento = quadradinho as HTMLElement;
+        // Escolher cor aleatória
+        const corAleatoria = cores[Math.floor(Math.random() * cores.length)];
+
+        // Aplicar cor
+        elemento.style.backgroundColor = corAleatoria;
+        elemento.style.color = 'white';
+      });
+
+      // Verificar se o ciclo está completo após colorir todos
+      setTimeout(() => verificarCicloCompleto(), 200);
+
+      toast({
+        title: "🎨 Quadradinhos Coloridos",
+        description: "Todos os quadradinhos foram coloridos aleatoriamente para teste de desenvolvimento.",
+        variant: "default"
+      });
+    }
+  };
 
   return (
     <div ref={containerRef} className="day-trade-system relative z-20">
@@ -547,10 +1091,10 @@ export const DayTradeSystem = () => {
             </div>
           )}
         </section>
-        
+
         <section id="registro" className="glass-card p-6 rounded-lg shadow-md mb-8">
           <h2 className="text-3xl font-semibold mb-4">Registro de Valores</h2>
-          
+
           {/* Seletor "Modo de Mercado" */}
           <div className="mb-4">
             <label htmlFor="modoMercado" className="block text-lg mb-2">Modo de Mercado:</label>
@@ -559,7 +1103,7 @@ export const DayTradeSystem = () => {
               <option value="futuros" style={{ backgroundColor: '#18181b', color: '#fff' }}>Futuros</option>
             </select>
           </div>
-          
+
           <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
             <div>
               <label htmlFor="caixa1" className="block text-lg">Valor destinado para OP (Caixa 1):</label>
@@ -571,16 +1115,16 @@ export const DayTradeSystem = () => {
             </div>
           </div>
           <button id="registrar-valores" className="mt-6 w-1/2 mx-auto block bg-gradient-to-r from-indigo-600 to-purple-500 text-white py-2 px-4 text-base rounded-full shadow hover:bg-indigo-500 transition duration-200">Registrar Valores</button>
-          
+
           <button id="apagar-preenchimentos" className="mt-4 w-1/2 mx-auto block bg-gradient-to-r from-orange-400 via-orange-500 to-yellow-400 text-white py-2 px-4 text-base rounded-full shadow hover:bg-orange-500 transition duration-200">Reiniciar Operacional</button>
-        </section> 
-        
+        </section>
+
         <section id="caixas" className="grid grid-cols-1 md:grid-cols-2 gap-4 mb-8">
           <div id="display-caixa1" className="glass-card shadow-lg rounded-lg p-6 text-center transition-transform transform hover:scale-105 relative">
             <h3 id="valor-caixa1" className="text-3xl font-bold">$0,00</h3>
             <p className="text-lg">Caixa 1</p>
             <small className="text-gray-500">Valor destinado para operação</small>
-            
+
             {/* Tooltip com bolinha */}
             <div className="tooltip">
               <div className="icon">i</div>
@@ -593,15 +1137,15 @@ export const DayTradeSystem = () => {
             <div id="status-caixa1"></div>
           </div>
 
-          
+
           <div id="display-caixa2" className="glass-card shadow-lg rounded-lg p-6 text-center transition-transform transform hover:scale-105">
             <h3 id="valor-caixa2" className="text-3xl font-bold">$0,00</h3>
             <p className="text-lg">Caixa 2</p>
             <small className="text-gray-500">Reserva para repor StopLoss</small>
-            
+
             {/* Elemento para exibir o status da reserva */}
             <div id="status-caixa2" className="text-lg font-bold mt-2"></div> {/* Status do Caixa 2 */}
-            
+
             {/* Novo elemento para exibir o status de abastecimento de perda */}
             <div id="abastecido-perda" className="text-lg mt-2"></div> {/* Removido o 'font-bold' para não ter negrito */}
           </div>
@@ -610,7 +1154,7 @@ export const DayTradeSystem = () => {
         {/* Tabela para exibir registros */}
         <section id="historico-de-registros" className="glass-card p-6 rounded-lg shadow-md mb-8">
           <h2 className="text-3xl font-semibold mb-4">Registro Inicial Fixo</h2>
-          
+
           {/* Tabela para exibir os valores registrados */}
           <div className="overflow-x-auto shadow-lg rounded-lg mb-6">
             <table className="min-w-full bg-white table-auto">
@@ -633,7 +1177,7 @@ export const DayTradeSystem = () => {
                 </tr>
               </tbody>
             </table>
-            
+
           </div>
 
           {/* Área de Total Comprometido abaixo da tabela */}
@@ -659,7 +1203,7 @@ export const DayTradeSystem = () => {
                 <p className="text-xs font-medium text-white">Ganho/Perda Líquida:</p>
               </div>
               <div className="flex justify-end"> {/* Flexbox para alinhar o valor à direita */}
-                <p className="text-xs text-right text-gray-300"> 
+                <p className="text-xs text-right text-gray-300">
                   <span id="ganho-perda-liquida-valor" className="text-green-400 inline font-bold text-x3">+$0,00</span>
                   <span id="ganho-perda-liquida-percentual" className="text-green-400 inline font-bold text-x3">(+0.00%)</span>
                 </p>
@@ -682,7 +1226,7 @@ export const DayTradeSystem = () => {
             <table className="min-w-full bg-white border border-gray-300 rounded-lg shadow-lg">
               <thead className="bg-indigo-600 text-white">
                 <tr>
-                  <th className="py-4 px-6 border-b">Dia</th>
+                  <th className="py-4 px-6 border-b">Operação</th>
                   <th className="py-4 px-6 border-b">Investimento</th>
                   <th className="py-4 px-6 border-b">Retorno em %</th>
                   <th className="py-4 px-6 border-b">Meta</th>
@@ -695,51 +1239,86 @@ export const DayTradeSystem = () => {
             </table>
           </div>
         </section>
-        
+
         <section id="ciclo-atual" className="glass-card p-6 rounded-lg shadow-md mb-8 flex items-center justify-between">
           <div>
             <h2 className="text-3xl font-semibold mb-4">Ciclo Atual</h2>
             <p id="ciclo-indicativo" className="text-xl">
-              Ciclo: 
+              Ciclo:
               <span id="ciclo-numero" className="bg-indigo-600 text-white font-bold px-1 rounded">
                 0
               </span>
             </p>
           </div>
-          <dotlottie-player 
-            src="https://lottie.host/7185b89d-8d4d-4244-b1ba-ea45abc09061/E4HEcLJCIy.lottie" 
-            background="transparent" 
-            speed={1} 
-            style={{ width: '80px', height: '80px' }} 
+          <dotlottie-player
+            src="https://lottie.host/7185b89d-8d4d-4244-b1ba-ea45abc09061/E4HEcLJCIy.lottie"
+            background="transparent"
+            speed="1"
+            style={{ width: '80px', height: '80px' }}
             loop autoplay>
           </dotlottie-player>
         </section>
 
         <section id="interacoes" className="glass-card p-6 rounded-lg shadow-md mb-8">
           <h2 className="text-3xl font-semibold mb-4">Total de Operações</h2>
+
+          {/* Botão de desenvolvimento para colorir quadradinhos */}
+          <div className="mb-4 p-3 bg-yellow-500/20 border border-yellow-500/30 rounded-lg">
+            <div className="flex items-center justify-between">
+              <div>
+                <h3 className="text-sm font-semibold text-yellow-400">🔧 Desenvolvimento</h3>
+                <p className="text-xs text-yellow-300">Botão para facilitar testes - colorir todos os quadradinhos</p>
+              </div>
+              <button
+                onClick={colorirTodosQuadradinhos}
+                className="px-4 py-2 bg-yellow-500 text-black rounded-lg hover:bg-yellow-400 transition duration-200 text-sm font-semibold"
+              >
+                Colorir Todos os Quadradinhos
+              </button>
+            </div>
+          </div>
+
           <div id="operacoes" className="grid grid-cols-6 gap-2">
             {/* Mensagem quando não há registros iniciais */}
             <div id="aguardando-registros" className="col-span-6 text-center py-8">
               <p className="text-gray-500 italic text-lg">Aguardando registros iniciais do setup</p>
             </div>
           </div>
-          
-          <button id="proximo-ciclo" className="mt-4 w-full bg-gray-300 text-gray-700 py-3 rounded-lg shadow hover:bg-gray-400 hidden">Próximo Ciclo</button>
+
+          {/* Explicação das cores dos quadradinhos - pequeno, alinhado à esquerda, formação vertical, compacto e elegante */}
+          <div className="w-full flex justify-start mt-2">
+            <div className="text-[9px] text-gray-400 text-left leading-tight" style={{ maxWidth: 260, lineHeight: '1.2' }}>
+              <span className="font-semibold text-white">Cores dos Quadradinhos</span><br />
+              <span className="block">🟢 <span className="align-middle">Verde:</span> Quando o lucro bate ou ultrapassa a meta</span>
+              <span className="block">🟡 <span className="align-middle">Amarelo:</span> Quando o lucro não atinge a meta</span>
+              <span className="block">🟠 <span className="align-middle">Laranja:</span> Quando há prejuízo reposto com fundos do Caixa 2</span>
+              <span className="block">🔴 <span className="align-middle">Vermelho:</span> Quando há prejuízo não reposto (debitado apenas do Caixa 1)</span>
+            </div>
+          </div>
+
+          <div className="flex justify-center mt-6">
+            <button id="proximo-ciclo" className="px-8 py-2.5 bg-gray-300 text-gray-700 rounded-full shadow-md hover:bg-gray-400 transition-all duration-300 font-medium text-sm flex items-center gap-2 hidden">
+              <span>Próximo Ciclo</span>
+              <svg xmlns="http://www.w3.org/2000/svg" className="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M13 7l5 5m0 0l-5 5m5-5H6" />
+              </svg>
+            </button>
+          </div>
         </section>
 
         <section id="planilha" className="glass-card p-6 rounded-lg shadow-md mb-8">
           <footer className="text-center">
-            <dotlottie-player 
-              src="https://lottie.host/875a6142-613e-4753-8bcc-c1e9742e0782/XwcetC116L.lottie" 
-              background="transparent" 
-              speed={1} 
-              style={{ width: '290px', height: '290px', margin: '0 auto' }} 
+            <dotlottie-player
+              src="https://lottie.host/875a6142-613e-4753-8bcc-c1e9742e0782/XwcetC116L.lottie"
+              background="transparent"
+              speed="1"
+              style={{ width: '290px', height: '290px', margin: '0 auto' }}
               loop autoplay>
             </dotlottie-player>
             <button id="link-planilha" className="bg-indigo-600 text-white py-3 px-6 rounded-lg hover:bg-indigo-500 transition duration-200">
               Planilha de Finanças Pessoais
             </button>
-          </footer> 
+          </footer>
         </section>
       </main>
 
@@ -760,17 +1339,17 @@ export const DayTradeSystem = () => {
           <button id="error-ok" className="mt-4 w-full bg-red-600 text-white py-2 rounded-lg hover:bg-red-500 transition duration-200">OK</button>
         </div>
       </div>
-      
+
       {/* Modal de celebração */}
       <div id="modal-celebracao" className="modal hidden fixed inset-0 bg-black bg-opacity-50 items-center justify-center">
         <div className="bg-white p-6 rounded-lg shadow-lg w-80 text-center relative">
-          
+
           {/* Animação de confetti */}
-          <dotlottie-player src="https://lottie.host/ed60e6fe-0ca2-4d7d-881b-c6dd669585d0/26rt0SBXCs.lottie" 
-            background="transparent" 
-            speed={1} 
-            style={{ width: '450px', height: '450px', position: 'absolute', top: '-100px', left: '50%', transform: 'translateX(-50%)', pointerEvents: 'none' }} 
-            loop 
+          <dotlottie-player src="https://lottie.host/ed60e6fe-0ca2-4d7d-881b-c6dd669585d0/26rt0SBXCs.lottie"
+            background="transparent"
+            speed="1"
+            style={{ width: '450px', height: '450px', position: 'absolute', top: '-100px', left: '50%', transform: 'translateX(-50%)', pointerEvents: 'none' }}
+            loop
             autoplay>
           </dotlottie-player>
 
@@ -782,33 +1361,71 @@ export const DayTradeSystem = () => {
         </div>
       </div>
 
-      <div id="modal-proximociclo" className="modal hidden fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center">
-        <div className="bg-white p-6 rounded-lg shadow-lg w-80 text-center relative">
-          
-          {/* Animação de confetti */}
-          <dotlottie-player src="https://lottie.host/ed60e6fe-0ca2-4d7d-881b-c6dd669585d0/26rt0SBXCs.lottie" 
-            background="transparent" 
-            speed={1} 
-            style={{ width: '450px', height: '450px', position: 'absolute', top: '-100px', left: '50%', transform: 'translateX(-50%)', pointerEvents: 'none' }} 
-            loop 
-            autoplay>
-          </dotlottie-player>
-          
-          
-          {/* Animação principal substituindo a tag img */}
-          <dotlottie-player src="https://lottie.host/2a8c8c7e-0563-4916-bef3-55ea76ce5565/amymtVr308.lottie" 
-            background="transparent" 
-            speed={1} 
-            style={{ width: '120px', height: '120px', margin: '0 auto', display: 'block' }} 
-            loop 
-            autoplay> 
-          </dotlottie-player>
-          
-          <h2 className="text-2xl font-bold text-green-600" style={{ zIndex: 10 }}>Parabéns!</h2>
-          <p id="mensagem-proximociclo" style={{ zIndex: 10 }}>Você finalizou o Ciclo. Bem-vindo ao novo!</p>
-          <button id="celebracao-proximociclo" className="mt-4 w-full bg-green-600 text-white py-2 rounded-lg hover:bg-green-500 transition duration-200" style={{ zIndex: 10 }}>Começar o novo 🥳</button>
+      {/* Modal de Lucro Abaixo da Meta */}
+      {showModalLucroAbaixoMeta && (
+        <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50">
+          <div className="bg-white bg-opacity-10 backdrop-blur-lg border border-white border-opacity-20 rounded-2xl shadow-2xl p-6 text-center relative overflow-hidden w-[500px]">
+            <h2 className="text-2xl font-bold text-yellow-400 mb-4" style={{ zIndex: 10 }}>
+              ⚠️ Meta Não Atingida
+            </h2>
+
+            {/* Mensagem de lucro abaixo da meta */}
+            <p className="text-white text-lg mb-6" style={{ zIndex: 10 }}>
+              {mensagemLucroAbaixoMeta}
+            </p>
+
+            <button
+              onClick={() => setShowModalLucroAbaixoMeta(false)}
+              className="mt-4 w-full bg-yellow-600 text-white py-3 rounded-lg hover:bg-yellow-700 transition duration-200 font-semibold"
+              style={{ zIndex: 10 }}
+            >
+              Entendi, vou melhorar! 💪
+            </button>
+          </div>
         </div>
-      </div>
+      )}
+
+      {/* Modal de Próximo Ciclo */}
+      {showModalProximoCiclo && (
+        <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50">
+          <div className="bg-white bg-opacity-10 backdrop-blur-lg border border-white border-opacity-20 rounded-2xl shadow-2xl p-6 text-center relative overflow-hidden w-[500px]">
+
+            {/* Animação de confetti */}
+            <dotlottie-player src="https://lottie.host/ed60e6fe-0ca2-4d7d-881b-c6dd669585d0/26rt0SBXCs.lottie"
+              background="transparent"
+              speed="1"
+              style={{ width: '450px', height: '450px', position: 'absolute', top: '-100px', left: '50%', transform: 'translateX(-50%)', pointerEvents: 'none' }}
+              loop
+              autoplay>
+            </dotlottie-player>
+
+            {/* Animação principal */}
+            <dotlottie-player src="https://lottie.host/2a8c8c7e-0563-4916-bef3-55ea76ce5565/amymtVr308.lottie"
+              background="transparent"
+              speed="1"
+              style={{ width: '120px', height: '120px', margin: '0 auto', display: 'block' }}
+              loop
+              autoplay>
+            </dotlottie-player>
+
+            <h2 className="text-2xl font-bold text-green-400 mb-4" style={{ zIndex: 10 }}>
+              {cicloAtual >= 6 ? 'Parabéns! Sistema Completo!' : 'Parabéns!'}
+            </h2>
+
+            {/* Mensagem motivacional */}
+            <p className="text-white text-lg mb-6" style={{ zIndex: 10 }}>
+              {mensagemMotivacionalCiclo}
+            </p>
+            <button
+              onClick={confirmarProximoCiclo}
+              className="mt-4 w-full bg-white/20 text-white py-3 rounded-lg hover:bg-white/30 transition duration-200 backdrop-blur-sm font-semibold"
+              style={{ zIndex: 10 }}
+            >
+              {cicloAtual >= 6 ? 'Reiniciar Sistema 🎉' : 'Começar Novo Ciclo 🥳'}
+            </button>
+          </div>
+        </div>
+      )}
 
       <audio id="myAudio" src="https://ferramentas.x10.mx/ferramentas/setup/audio_473a42432c.mp3"></audio>
 
@@ -825,7 +1442,7 @@ export const DayTradeSystem = () => {
       {/* Modal de Operação */}
       <div id="modal-operacao" className="modal hidden fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center">
         <div className="bg-white bg-opacity-10 backdrop-blur-lg border border-white border-opacity-20 rounded-2xl shadow-2xl p-6 text-center relative overflow-hidden w-[500px]">
-          <button 
+          <button
             className="absolute top-4 right-4 text-white hover:text-gray-300 z-10"
             onClick={() => {
               const modalOperacao = document.getElementById('modal-operacao');
@@ -839,53 +1456,55 @@ export const DayTradeSystem = () => {
               <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M6 18L18 6M6 6l12 12" />
             </svg>
           </button>
-          
-          <h2 id="modal-operacao-titulo" className="text-2xl font-bold mb-4 text-indigo-500">Operação Dia</h2>
-          
+
+          <h2 id="modal-operacao-titulo" className="text-2xl font-bold mb-4 text-indigo-500">Operação</h2>
+
           <div className="mb-4">
             <p className="text-gray-200 mt-2 hidden">
               Dia: <span id="modal-operacao-dia" className="font-bold"></span>
             </p>
           </div>
-          
+
           <div className="mt-4">
             <p className="text-lg mb-2 text-gray-200">Resultado da Operação</p>
-            <input 
-              type="text" 
+            <input
+              type="text"
               id="modal-operacao-resultado"
-              placeholder="Digite lucro ou prejuízo" 
+              placeholder="Digite lucro ou prejuízo"
               className="w-full px-3 py-2 border border-white/20 rounded-lg focus:outline-none focus:ring-2 focus:ring-indigo-500 bg-white/10 text-white placeholder-gray-300"
             />
           </div>
-          
-          <button 
+
+          <button
             className="mt-6 w-full bg-white/20 text-white py-2 rounded-lg hover:bg-white/30 transition duration-200 backdrop-blur-sm"
             onClick={() => {
               const modalOperacao = document.getElementById('modal-operacao');
               const resultadoInput = document.getElementById('modal-operacao-resultado') as HTMLInputElement;
-              
+
               if (modalOperacao && resultadoInput) {
                 const resultado = resultadoInput.value.trim().toLowerCase();
-                
+
                 if (resultado === 'lucro' || resultado === 'prejuízo' || resultado === 'prejuizo' || resultado === 'preju') {
                   if (resultado === 'lucro') {
                     const modalValorLucro = document.getElementById('modal-valor-lucro');
                     const modalValorLucroTitulo = document.getElementById('modal-valor-lucro-titulo');
                     const modalValorLucroDia = document.getElementById('modal-valor-lucro-dia');
                     const modalValorLucroMeta = document.getElementById('modal-valor-lucro-meta');
-                    
+
                     if (modalValorLucro && modalValorLucroTitulo && modalValorLucroDia && modalValorLucroMeta) {
                       const diaNumero = document.getElementById('modal-operacao-dia')?.textContent || '';
                       // Obter o valor da meta da variável global
                       const metaValor = (window as any).metaValorAtual || '';
-                      
-                      modalValorLucroTitulo.textContent = `Quanto você lucrou no Dia ${diaNumero}`;
-                      modalValorLucroDia.textContent = diaNumero;
+
+                      // Use the day from Brasilia date if available, otherwise use the operation number
+                      const brasiliaDay = (window as any).brasiliaDate?.day || diaNumero;
+                      modalValorLucroTitulo.textContent = `Quanto você lucrou no Dia ${brasiliaDay}`;
+                      modalValorLucroDia.textContent = brasiliaDay;
                       modalValorLucroMeta.textContent = metaValor;
-                      
+
                       modalOperacao.classList.add('hidden');
                       modalOperacao.classList.remove('show');
-                      
+
                       modalValorLucro.classList.remove('hidden');
                       modalValorLucro.classList.add('show');
                     }
@@ -895,24 +1514,26 @@ export const DayTradeSystem = () => {
                     const modalValorPrejuizoTitulo = document.getElementById('modal-valor-prejuizo-titulo');
                     const modalValorPrejuizoDia = document.getElementById('modal-valor-prejuizo-dia');
                     const modalValorPrejuizoMeta = document.getElementById('modal-valor-prejuizo-meta');
-                    
+
                     if (modalValorPrejuizo && modalValorPrejuizoTitulo && modalValorPrejuizoDia && modalValorPrejuizoMeta) {
                       const diaNumero = document.getElementById('modal-operacao-dia')?.textContent || '';
                       // Obter o valor da meta da variável global
                       const metaValor = (window as any).metaValorAtual || '';
-                      
-                      modalValorPrejuizoTitulo.textContent = `Quanto você perdeu no Dia ${diaNumero}`;
-                      modalValorPrejuizoDia.textContent = diaNumero;
+
+                      // Use the day from Brasilia date if available, otherwise use the operation number
+                      const brasiliaDay = (window as any).brasiliaDate?.day || diaNumero;
+                      modalValorPrejuizoTitulo.textContent = `Quanto você perdeu no Dia ${brasiliaDay}`;
+                      modalValorPrejuizoDia.textContent = brasiliaDay;
                       modalValorPrejuizoMeta.textContent = metaValor;
-                      
+
                       modalOperacao.classList.add('hidden');
                       modalOperacao.classList.remove('show');
-                      
+
                       modalValorPrejuizo.classList.remove('hidden');
                       modalValorPrejuizo.classList.add('show');
                     }
                   }
-                
+
                   resultadoInput.value = ''; // Limpar o input após processar
                 } else {
                   toast({
@@ -932,7 +1553,7 @@ export const DayTradeSystem = () => {
       {/* Modal de Valor do Lucro */}
       <div id="modal-valor-lucro" className="modal hidden fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center">
         <div className="bg-white bg-opacity-10 backdrop-blur-lg border border-white border-opacity-20 rounded-2xl shadow-2xl p-6 text-center relative overflow-hidden w-[500px]">
-          <button 
+          <button
             className="absolute top-4 right-4 text-white hover:text-gray-300 z-10"
             onClick={() => {
               const modalValorLucro = document.getElementById('modal-valor-lucro');
@@ -946,38 +1567,38 @@ export const DayTradeSystem = () => {
               <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M6 18L18 6M6 6l12 12" />
             </svg>
           </button>
-          
-          <h2 id="modal-valor-lucro-titulo" className="text-2xl font-bold mb-4 text-indigo-500">Quanto você lucrou no Dia</h2>
-          
+
+          <h2 id="modal-valor-lucro-titulo" className="text-2xl font-bold mb-4 text-indigo-500">Quanto você lucrou na operação</h2>
+
           <div className="mb-4">
             <p className="text-gray-200 mt-2 hidden">
               Dia: <span id="modal-valor-lucro-dia" className="font-bold"></span>
             </p>
             <p className="text-gray-200 mt-2 flex items-center justify-center gap-2">
-              Meta do Dia: 
-              <span 
-                id="modal-valor-lucro-meta" 
+              Meta do Dia:
+              <span
+                id="modal-valor-lucro-meta"
                 className="font-bold text-white bg-indigo-600 px-3 py-1 rounded-full text-sm"
               ></span>
             </p>
           </div>
-          
+
           <div className="mt-4">
             <p className="text-lg mb-2 text-gray-200">Valor do Lucro</p>
-            <input 
-              type="text" 
+            <input
+              type="text"
               id="modal-valor-lucro-input"
-              placeholder="Digite o valor do lucro" 
+              placeholder="Digite o valor do lucro"
               className="w-full px-3 py-2 border border-white/20 rounded-lg focus:outline-none focus:ring-2 focus:ring-indigo-500 bg-white/10 text-white placeholder-gray-300"
             />
           </div>
-          
-          <button 
+
+          <button
             className="mt-6 w-full bg-white/20 text-white py-2 rounded-lg hover:bg-white/30 transition duration-200 backdrop-blur-sm"
             onClick={() => {
               const modalValorLucro = document.getElementById('modal-valor-lucro');
               const valorLucroInput = document.getElementById('modal-valor-lucro-input') as HTMLInputElement;
-              
+
               if (modalValorLucro && valorLucroInput) {
                 const valorLucro = parseFloat(valorLucroInput.value.replace(/[^\d,\.]/g, '').replace(',', '.'));
                 const metaValor = parseFloat(
@@ -996,7 +1617,7 @@ export const DayTradeSystem = () => {
 
                     if (modalExcedente && modalExcedenteValor && modalExcedenteMeta && modalExcedenteExcesso) {
                       const excesso = valorLucro - metaValor;
-                      
+
                       modalExcedenteValor.textContent = `$${valorLucro.toFixed(2)}`;
                       modalExcedenteMeta.textContent = `$${metaValor.toFixed(2)}`;
                       modalExcedenteExcesso.textContent = `$${excesso.toFixed(2)}`;
@@ -1026,13 +1647,13 @@ export const DayTradeSystem = () => {
 
                       // Somar o lucro ao Caixa 1 mantendo o Caixa 2 como estava
                       const novoValorCaixa1 = valorAtualCaixa1 + valorLucro;
-                      
+
                       // Formatar os valores para exibição
                       const formatarValor = (valor: number) => {
-                        return `$${new Intl.NumberFormat('pt-BR', { 
+                        return (valor < 0 ? '-' : '') + '$' + new Intl.NumberFormat('pt-BR', {
                           minimumFractionDigits: 2,
                           maximumFractionDigits: 2
-                        }).format(valor)}`;
+                        }).format(Math.abs(valor));
                       };
 
                       // Atualizar apenas os displays dos caixas
@@ -1041,26 +1662,66 @@ export const DayTradeSystem = () => {
 
                       registrarValoresBtn.click();
 
-                      toast({
-                        title: "✅ Lucro Registrado",
-                        description: `Lucro de $${valorLucro.toFixed(2)} registrado com sucesso!`,
-                        variant: "default"
-                      });
+                      // Obter o número do dia do quadradinho atual
+                      const diaNumero = document.getElementById('modal-valor-lucro-dia')?.textContent || '';
+
+                      // Não exibir toast, a mensagem será mostrada no modal
 
                       // Mostrar modal de parabéns quando bater a meta exata
                       if (valorLucro === metaValor) {
+                        // Gerar mensagem motivacional uma única vez quando o modal é aberto
+                        setMensagemMotivacionalParabens(getRandomMessage(lucroMetaMessages));
+
+                        // Obter o número do dia do quadradinho atual
+                        const diaNumero = (window as any).quadradinhoAtual?.textContent || document.getElementById('modal-valor-lucro-dia')?.textContent || '';
+                        // Obter o dia do mês de Brasília
+                        const brasiliaDay = (window as any).brasiliaDate?.day || diaNumero;
+
+                        // Toast: usar diaNumero
+                        setMensagemMetaBatida(`Meta da operação ${brasiliaDay} batida com sucesso! Valor $${valorLucro.toFixed(2)} registrado no Caixa 1.`);
+                        toast({
+                          title: "✅ Meta Batida!",
+                          description: `Meta da operação ${diaNumero} batida com sucesso! Valor $${valorLucro.toFixed(2)} registrado no Caixa 1.`,
+                          variant: "default"
+                        });
+
                         const modalParabens = document.getElementById('modal-parabens');
                         if (modalParabens) {
                           modalParabens.classList.remove('hidden');
                           modalParabens.classList.add('show');
                         }
                       }
+                      // Mostrar modal de lucro abaixo da meta
+                      else if (valorLucro < metaValor) {
+                        // Garantir que diaNumero é o número da operação, não o dia do mês
+                        const diaNumero = (window as any).quadradinhoAtual?.textContent || '';
+                        const diferenca = metaValor - valorLucro;
+                        // Usar a função getRandomParametrizedMessage para obter uma mensagem dinâmica
+                        setMensagemLucroAbaixoMeta(getRandomParametrizedMessage(parseInt(diaNumero) || 0, valorLucro, metaValor));
 
-                      // Mudar cor do quadradinho para verde quando bate ou ultrapassa a meta
+                        // Toast informando que o valor foi registrado no Caixa 1
+                        toast({
+                          title: `⚠️ Meta não atingida na operação ${diaNumero}`,
+                          description: `Valor de $${valorLucro.toFixed(2)} registrado no Caixa 1.`,
+                          variant: "default"
+                        });
+
+                        // Mostrar o modal de lucro abaixo da meta
+                        setShowModalLucroAbaixoMeta(true);
+                      }
+
+                      // Mudar cor do quadradinho com base no resultado
                       const quadradinhoAtual = (window as any).quadradinhoAtual;
-                      if (quadradinhoAtual && valorLucro >= metaValor) {
-                        quadradinhoAtual.style.backgroundColor = '#16a34a'; // Verde
+                      if (quadradinhoAtual) {
+                        if (valorLucro >= metaValor) {
+                          quadradinhoAtual.style.backgroundColor = '#16a34a'; // Verde quando bate ou ultrapassa a meta
+                        } else {
+                          quadradinhoAtual.style.backgroundColor = '#eab308'; // Amarelo quando o lucro é menor que a meta
+                        }
                         quadradinhoAtual.style.color = 'white';
+
+                        // Verificar se o ciclo está completo após colorir o quadradinho
+                        setTimeout(() => verificarCicloCompleto(), 100);
                       }
 
                       modalValorLucro.classList.add('hidden');
@@ -1086,9 +1747,9 @@ export const DayTradeSystem = () => {
       <div id="modal-excedente-lucro" className="modal hidden fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center">
         <div className="bg-white bg-opacity-10 backdrop-blur-lg border border-white border-opacity-20 rounded-2xl shadow-2xl p-6 text-center relative overflow-hidden w-[500px]">
           <h2 className="text-2xl font-bold mb-4 text-indigo-500">Parabéns!</h2>
-          
+
           <p className="text-gray-200 mb-4">Você ultrapassou a meta do dia.</p>
-          
+
           <div className="mb-4 grid grid-cols-2 gap-4">
             <div>
               <p className="text-gray-300">Valor Total:</p>
@@ -1099,16 +1760,16 @@ export const DayTradeSystem = () => {
               <p id="modal-excedente-meta" className="text-white font-bold"></p>
             </div>
           </div>
-          
+
           <div className="mb-4">
             <p className="text-gray-300">Valor Excedente:</p>
             <p id="modal-excedente-excesso" className="text-indigo-400 font-bold text-xl"></p>
           </div>
-          
+
           <p className="text-gray-200 mb-4">Deseja enviar o excedente para o Caixa 2?</p>
-          
+
           <div className="flex justify-center space-x-4">
-            <button 
+            <button
               className="bg-green-600 text-white py-2 px-6 rounded-lg hover:bg-green-700 transition duration-200"
               onClick={() => {
                 const modalExcedente = document.getElementById('modal-excedente-lucro');
@@ -1149,10 +1810,10 @@ export const DayTradeSystem = () => {
 
                   // Formatar os novos valores para exibição
                   const formatarValor = (valor: number) => {
-                    return `$${new Intl.NumberFormat('pt-BR', { 
+                    return (valor < 0 ? '-' : '') + '$' + new Intl.NumberFormat('pt-BR', {
                       minimumFractionDigits: 2,
                       maximumFractionDigits: 2
-                    }).format(valor)}`;
+                    }).format(Math.abs(valor));
                   };
 
                   // Atualizar os inputs e displays dos caixas
@@ -1166,6 +1827,9 @@ export const DayTradeSystem = () => {
                   if (quadradinhoAtual) {
                     quadradinhoAtual.style.backgroundColor = '#16a34a'; // Verde
                     quadradinhoAtual.style.color = 'white';
+
+                    // Verificar se o ciclo está completo após colorir o quadradinho
+                    setTimeout(() => verificarCicloCompleto(), 100);
                   }
 
                   // registrarValoresBtn.click();
@@ -1185,7 +1849,7 @@ export const DayTradeSystem = () => {
             >
               Sim, enviar para Caixa 2
             </button>
-            <button 
+            <button
               className="bg-red-600 text-white py-2 px-6 rounded-lg hover:bg-red-700 transition duration-200"
               onClick={() => {
                 const modalExcedente = document.getElementById('modal-excedente-lucro');
@@ -1207,6 +1871,9 @@ export const DayTradeSystem = () => {
                   if (quadradinhoAtual) {
                     quadradinhoAtual.style.backgroundColor = '#16a34a'; // Verde
                     quadradinhoAtual.style.color = 'white';
+
+                    // Verificar se o ciclo está completo após colorir o quadradinho
+                    setTimeout(() => verificarCicloCompleto(), 100);
                   }
 
                   toast({
@@ -1231,20 +1898,31 @@ export const DayTradeSystem = () => {
       {/* Modal de Parabéns */}
       <div id="modal-parabens" className="modal hidden fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center">
         <div className="bg-white bg-opacity-10 backdrop-blur-lg border border-white border-opacity-20 rounded-2xl shadow-2xl p-6 text-center relative overflow-hidden w-[500px]">
-          
+
           {/* Animação de confetti */}
-          <dotlottie-player src="https://lottie.host/ed60e6fe-0ca2-4d7d-881b-c6dd669585d0/26rt0SBXCs.lottie" 
-            background="transparent" 
-            speed={1} 
-            style={{ width: '450px', height: '450px', position: 'absolute', top: '-100px', left: '50%', transform: 'translateX(-50%)', pointerEvents: 'none' }} 
-            loop 
+          <dotlottie-player src="https://lottie.host/ed60e6fe-0ca2-4d7d-881b-c6dd669585d0/26rt0SBXCs.lottie"
+            background="transparent"
+            speed="1"
+            style={{ width: '450px', height: '450px', position: 'absolute', top: '-100px', left: '50%', transform: 'translateX(-50%)', pointerEvents: 'none' }}
+            loop
             autoplay>
           </dotlottie-player>
 
           <h2 className="text-3xl font-bold text-green-400 mb-4" style={{ zIndex: 10 }}>🎉 Parabéns! 🎉</h2>
-          <p className="text-white text-lg mb-6" style={{ zIndex: 10 }}>Você bateu a meta do dia continue assim você vai longe!</p>
-          
-          <button 
+
+          {/* Mensagem motivacional */}
+          <p className="text-white text-lg mb-2" style={{ zIndex: 10 }}>
+            {mensagemMotivacionalParabens}
+          </p>
+
+          {/* Mensagem de meta batida */}
+          {mensagemMetaBatida && (
+            <p className="text-green-400 text-sm mb-6" style={{ zIndex: 10 }}>
+              {/* Removendo a mensagem do modal */}
+            </p>
+          )}
+
+          <button
             className="mt-4 w-full bg-green-600 text-white py-3 rounded-lg hover:bg-green-700 transition duration-200 font-semibold"
             style={{ zIndex: 10 }}
             onClick={() => {
@@ -1263,7 +1941,7 @@ export const DayTradeSystem = () => {
       {/* Modal de Valor do Prejuízo */}
       <div id="modal-valor-prejuizo" className="modal hidden fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center">
         <div className="bg-white bg-opacity-10 backdrop-blur-lg border border-white border-opacity-20 rounded-2xl shadow-2xl p-6 text-center relative overflow-hidden w-[500px]">
-          <button 
+          <button
             className="absolute top-4 right-4 text-white hover:text-gray-300 z-10"
             onClick={() => {
               const modalValorPrejuizo = document.getElementById('modal-valor-prejuizo');
@@ -1277,51 +1955,51 @@ export const DayTradeSystem = () => {
               <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M6 18L18 6M6 6l12 12" />
             </svg>
           </button>
-          
+
           <h2 id="modal-valor-prejuizo-titulo" className="text-2xl font-bold mb-4 text-red-500">Quanto você perdeu no Dia</h2>
-          
+
           <div className="mb-4">
             <p className="text-gray-200 mt-2 hidden">
               Dia: <span id="modal-valor-prejuizo-dia" className="font-bold"></span>
             </p>
             <p className="text-gray-200 mt-2 flex items-center justify-center gap-2">
-              Meta do Dia: 
-              <span 
-                id="modal-valor-prejuizo-meta" 
+              Meta do Dia:
+              <span
+                id="modal-valor-prejuizo-meta"
                 className="font-bold text-white bg-indigo-600 px-3 py-1 rounded-full text-sm"
               ></span>
             </p>
           </div>
-          
+
           <div className="mt-4">
             <p className="text-lg mb-2 text-gray-200">Valor da Perda</p>
-            <input 
-              type="text" 
+            <input
+              type="text"
               id="modal-valor-prejuizo-input"
-              placeholder="Digite o valor da perda" 
+              placeholder="Digite o valor da perda"
               className="w-full px-3 py-2 border border-white/20 rounded-lg focus:outline-none focus:ring-2 focus:ring-red-500 bg-white/10 text-white placeholder-gray-300"
             />
           </div>
-          
-          <button 
+
+          <button
             className="mt-6 w-full bg-white/20 text-white py-2 rounded-lg hover:bg-white/30 transition duration-200 backdrop-blur-sm"
             onClick={() => {
               const modalValorPrejuizo = document.getElementById('modal-valor-prejuizo');
               const valorPrejuizoInput = document.getElementById('modal-valor-prejuizo-input') as HTMLInputElement;
-              
+
               if (modalValorPrejuizo && valorPrejuizoInput) {
                 const valorPerda = parseFloat(valorPrejuizoInput.value.replace(/[^\d,\.]/g, '').replace(',', '.'));
 
                 if (!isNaN(valorPerda) && valorPerda > 0) {
                   const modalConfirmacaoCaixa2 = document.getElementById('modal-confirmacao-caixa2');
                   const modalConfirmacaoValorPerda = document.getElementById('modal-confirmacao-valor-perda');
-                  
+
                   if (modalConfirmacaoCaixa2 && modalConfirmacaoValorPerda) {
                     modalConfirmacaoValorPerda.textContent = `$${valorPerda.toFixed(2)}`;
-                    
+
                     modalValorPrejuizo.classList.add('hidden');
                     modalValorPrejuizo.classList.remove('show');
-                    
+
                     modalConfirmacaoCaixa2.classList.remove('hidden');
                     modalConfirmacaoCaixa2.classList.add('show');
                   }
@@ -1344,13 +2022,13 @@ export const DayTradeSystem = () => {
       <div id="modal-confirmacao-caixa2" className="modal hidden fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center">
         <div className="bg-white bg-opacity-10 backdrop-blur-lg border border-white border-opacity-20 rounded-2xl shadow-2xl p-6 text-center relative overflow-hidden w-[500px]">
           <h2 className="text-2xl font-bold mb-4 text-red-500">Repor Perda</h2>
-          
+
           <p className="text-gray-200 mb-4">Você perdeu <span id="modal-confirmacao-valor-perda" className="text-red-400 font-bold"></span></p>
-          
+
           <p className="text-gray-200 mb-6">Deseja repor a perda com fundos do Caixa 2?</p>
-          
+
           <div className="flex justify-center space-x-4">
-            <button 
+            <button
               className="bg-green-600 text-white py-2 px-6 rounded-lg hover:bg-green-700 transition duration-200"
               onClick={() => {
                 const modalConfirmacaoCaixa2 = document.getElementById('modal-confirmacao-caixa2');
@@ -1383,10 +2061,10 @@ export const DayTradeSystem = () => {
 
                     // Formatar os valores para exibição
                     const formatarValor = (valor: number) => {
-                      return `$${new Intl.NumberFormat('pt-BR', { 
+                      return (valor < 0 ? '-' : '') + '$' + new Intl.NumberFormat('pt-BR', {
                         minimumFractionDigits: 2,
                         maximumFractionDigits: 2
-                      }).format(valor)}`;
+                      }).format(Math.abs(valor));
                     };
 
                     // Atualizar os inputs e displays dos caixas
@@ -1400,19 +2078,50 @@ export const DayTradeSystem = () => {
                     if (quadradinhoAtual) {
                       quadradinhoAtual.style.backgroundColor = '#ea580c'; // Laranja
                       quadradinhoAtual.style.color = 'white';
+
+                      // Verificar se o ciclo está completo após colorir o quadradinho
+                      setTimeout(() => verificarCicloCompleto(), 100);
                     }
 
                     registrarValoresBtn.click();
-                    
+
                     toast({
                       title: "🔄 Perda Reposta",
                       description: `Perda de $${valorPerda.toFixed(2)} foi coberta com fundos do Caixa 2.`,
                       variant: "default"
                     });
                   } else {
+                    // Fundos insuficientes: debitar do Caixa 1 e quadradinho vermelho
+                    const novoValorCaixa1 = valorAtualCaixa1 - valorPerda;
+                    // Formatar os valores para exibição
+                    const formatarValor = (valor: number) => {
+                      return (valor < 0 ? '-' : '') + '$' + new Intl.NumberFormat('pt-BR', {
+                        minimumFractionDigits: 2,
+                        maximumFractionDigits: 2
+                      }).format(Math.abs(valor));
+                    };
+                    displayValorCaixa1.textContent = formatarValor(novoValorCaixa1); // Permite valores negativos
+                    displayValorCaixa2.textContent = formatarValor(valorAtualCaixa2);
+
+                    // Aplicar cor vermelha se o valor for negativo
+                    if (novoValorCaixa1 < 0) {
+                      displayValorCaixa1.style.color = '#dc2626'; // Vermelho
+                      displayValorCaixa1.style.fontWeight = 'bold';
+                    } else {
+                      displayValorCaixa1.style.color = ''; // Cor padrão
+                      displayValorCaixa1.style.fontWeight = '';
+                    }
+                    // Quadradinho vermelho
+                    const quadradinhoAtual = (window as any).quadradinhoAtual;
+                    if (quadradinhoAtual) {
+                      quadradinhoAtual.style.backgroundColor = '#dc2626'; // Vermelho
+                      quadradinhoAtual.style.color = 'white';
+                      setTimeout(() => verificarCicloCompleto(), 100);
+                    }
+                    registrarValoresBtn.click();
                     toast({
                       title: "❌ Fundos Insuficientes",
-                      description: "Não há fundos suficientes no Caixa 2 para repor a perda.",
+                      description: `Não há fundos suficientes no Caixa 2 para repor a perda. Perda de $${valorPerda.toFixed(2)} foi debitada do Caixa 1.`,
                       variant: "destructive"
                     });
                   }
@@ -1426,7 +2135,7 @@ export const DayTradeSystem = () => {
             >
               Sim, usar Caixa 2
             </button>
-            <button 
+            <button
               className="bg-red-600 text-white py-2 px-6 rounded-lg hover:bg-red-700 transition duration-200"
               onClick={() => {
                 const modalConfirmacaoCaixa2 = document.getElementById('modal-confirmacao-caixa2');
@@ -1456,23 +2165,33 @@ export const DayTradeSystem = () => {
 
                   // Formatar os valores para exibição
                   const formatarValor = (valor: number) => {
-                    return `$${new Intl.NumberFormat('pt-BR', { 
+                    return (valor < 0 ? '-' : '') + '$' + new Intl.NumberFormat('pt-BR', {
                       minimumFractionDigits: 2,
                       maximumFractionDigits: 2
-                    }).format(valor)}`;
+                    }).format(Math.abs(valor));
                   };
 
                   // Atualizar os inputs e displays dos caixas
-                  // valorCaixa1Input.value = Math.max(0, novoValorCaixa1).toFixed(2); // Evita valores negativos
-                  // valorCaixa2Input.value = valorAtualCaixa2.toFixed(2); // Manter Caixa 2 inalterado
-                  displayValorCaixa1.textContent = formatarValor(Math.max(0, novoValorCaixa1));
+                  displayValorCaixa1.textContent = formatarValor(novoValorCaixa1); // Permite valores negativos
                   displayValorCaixa2.textContent = formatarValor(valorAtualCaixa2);
+
+                  // Aplicar cor vermelha se o valor for negativo
+                  if (novoValorCaixa1 < 0) {
+                    displayValorCaixa1.style.color = '#dc2626'; // Vermelho
+                    displayValorCaixa1.style.fontWeight = 'bold';
+                  } else {
+                    displayValorCaixa1.style.color = ''; // Cor padrão
+                    displayValorCaixa1.style.fontWeight = '';
+                  }
 
                   // Mudar cor do quadradinho para vermelho quando não aceita repor com caixa 2
                   const quadradinhoAtual = (window as any).quadradinhoAtual;
                   if (quadradinhoAtual) {
                     quadradinhoAtual.style.backgroundColor = '#dc2626'; // Vermelho
                     quadradinhoAtual.style.color = 'white';
+
+                    // Verificar se o ciclo está completo após colorir o quadradinho
+                    setTimeout(() => verificarCicloCompleto(), 100);
                   }
 
                   registrarValoresBtn.click();
@@ -1692,5 +2411,3 @@ export const DayTradeSystem = () => {
     </div>
   );
 };
-
-export default DayTradeSystem;
